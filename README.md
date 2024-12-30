@@ -14,6 +14,7 @@ SPA : Single page application
   Framework de fou. Je vais pas vous expliquer comment ca marche, le readme deviendrait superlong, mais regadez des tutos ca se comprend assez vite et apres on peut repondre a des questions entre nous.
     Point important : Django est un framework LOCAL, à savoir qu'il s'installe uniquement a la base du project. 
     Quand vous installez des dépendances, n'oubliez pas de mettre a jour "requirement.txt" en faisant la commande "pip freeze > requirement.txt". (Ca note l'ensemble des dependances actuels de l'environnement et ensuite on ré-utilise       ce fichier dans le dockerile de django pour toutes les installées dans le container)
+  Je suis assez certains que l'ensemble des fichiers statics nécessaire au bon fonctionnement de django admin ne doivent pas etre dans le projet mais pour l'instant ils sont la.
 ° POSTGRESQL
   Base de données choisies dans les modules.
   Soucis actuel :
