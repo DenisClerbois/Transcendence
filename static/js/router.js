@@ -4,7 +4,8 @@
 const routes = {
 	"/home":"/static/templates/home.html",
 	"/login":"/static/templates/login.html",
-	"/register":"/static/templates/register.html"
+	"/register":"/static/templates/register.html",
+	"/pong":"/static/templates/pong.html"
 }
 
 // Function to handle navigation
