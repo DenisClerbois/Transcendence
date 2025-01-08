@@ -60,7 +60,7 @@
         <mxCell id="qTmjTwdP_fztRpD7uorw-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="qTmjTwdP_fztRpD7uorw-39" target="qTmjTwdP_fztRpD7uorw-13" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="qTmjTwdP_fztRpD7uorw-39" value="Get request (localhost)" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+        <mxCell id="qTmjTwdP_fztRpD7uorw-39" value="Get/Post request (localhost)" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="10" y="520" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="qTmjTwdP_fztRpD7uorw-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="qTmjTwdP_fztRpD7uorw-42" target="qTmjTwdP_fztRpD7uorw-46" edge="1">
