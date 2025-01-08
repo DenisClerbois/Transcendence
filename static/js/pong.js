@@ -1,3 +1,5 @@
+console.log("pong script loaded")
+
 const canvas = document.getElementById("pongCanvas");
 const ctx = canvas.getContext("2d");
 
