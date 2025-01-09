@@ -6,7 +6,6 @@ const ctx = canvas.getContext("2d");
 // Game Variables
 const paddleWidth = 10;
 const paddleHeight = 100;
-const paddleSpeed = 10;
 const ballRadius = 10;
 
 // Paddle Positions
@@ -16,7 +15,9 @@ let AI = true;
 
 // Ball Position and Speed
 let SpeedIncrease = 0;
-const ball = { x: canvas.width / 2, y: canvas.height / 2, dx: 5.5, dy: 5.5 };
+const ball = { x: canvas.width / 2, y: canvas.height / 2, dx: 10, dy: 2 };
+// Paddle Speed based on the ball speed with an increase of 40% can be adapted
+const paddleSpeed = Math.sqrt(ball.dx ** 2 + ball.dy **2) * 1.4;
 
 // Background Color
 const backgroundColor = "#9b826c";
@@ -75,7 +76,7 @@ function moveBall() {
 		ball.y > player1.y &&
 		ball.y < player1.y + paddleHeight
 	) {
-		if (keys.s || keys.w){
+		if (keys.s || keys.w){ //increase speed by 10% if player move the paddle at the same time as it is hit
 			ball.dx *= 1.1;
 			ball.dy *= 1.1;
 			SpeedIncrease += 1;
@@ -87,7 +88,7 @@ function moveBall() {
 		ball.y > player2.y &&
 		ball.y < player2.y + paddleHeight
 	) {
-		if (keys.ArrowUp || keys.ArrowDown){
+		if (keys.ArrowUp || keys.ArrowDown){ //increase speed by 10% if player move the paddle at the same time as it is hit
 			ball.dx *= 1.1;
 			ball.dy *= 1.1;
 			SpeedIncrease += 1;
@@ -97,10 +98,10 @@ function moveBall() {
 	}
 
 	// Ball out of bounds
-	if (ball.x - ballRadius < 0) {
+	if (ball.x - ballRadius < 0 && !(player1.y <= ball.y && player1.y + 100 >= ball.y)) { // condition added to check if paddle present or not
 		player2.score++;
 		resetBall();
-	} else if (ball.x + ballRadius > canvas.width) {
+	} else if (ball.x + ballRadius > canvas.width && !(player2.y <= ball.y && player2.y + 100 >= ball.y)) {
 		player1.score++;
 		resetBall();
 	}
@@ -122,7 +123,7 @@ function adjustBallAngle(paddle) {
 function resetBall() {
 	ball.x = canvas.width / 2;
 	ball.y = canvas.height / 2;
-	ball.dx /= 1.1 ** SpeedIncrease;
+	ball.dx /= 1.1 ** SpeedIncrease; //resest speed after score
 	ball.dy /= 1.1 ** SpeedIncrease;
 	SpeedIncrease = 0;
 	ball.dx *= -1;
@@ -145,16 +146,27 @@ function adjustPos(newVal, speed, lim) {
 
 	tmp = newVal + speed;
 	dif = lim - tmp;
-	newVal = lim + (dif * 0.7);
+	newVal = lim + (dif * 0.8);
 	return newVal;
 }
 
+function checkMalusCondition(newBall) {
+	if (!SpeedIncrease && newBall.dx > 0 && ball.x >= canvas.width / 2)
+		return true;
+	else if (SpeedIncrease < 3 && newBall.dx > 0 && ball.x >= canvas.width / 3)
+		return true;
+	else if (SpeedIncrease && newBall.dx > 0)
+		return true;
+	return false;
+}
+
 function calculateNextPos() {
+	let malus;
 	const newBall = {x : ball.x, y : ball.y, dx : ball.dx, dy : ball.dy};
 	let tmp = 0;
-	if (newBall.x < canvas.width / 2 && newBall.dx > 0)
-		newBall.y = navigator.y;
-	else if (newBall.x <= canvas.width - (10 + newBall.dx + 1)  && newBall.x >= canvas.width / 2 && newBall.dx > 0){
+	if (!checkMalusCondition(newBall))
+		newBall.y = ball.y;
+	else if (newBall.x <= canvas.width - (10 + newBall.dx + 1)  && checkMalusCondition(newBall)){
 		while (newBall.x <= canvas.width - (10 + newBall.dx + 1)  && newBall.x >= 0) {
 			if (newBall.x + newBall.dx > 10)
 				newBall.x += newBall.dx;
@@ -166,13 +178,11 @@ function calculateNextPos() {
 			if (newBall.y + newBall.dy >= 0 && newBall.y + newBall.dy <= canvas.height)
 				newBall.y += newBall.dy;
 			else {
-				// console.log("before: ",newBall.y);
 				if (newBall.y + newBall.dy < 0)
 					tmp = adjustPos(newBall.y, newBall.dy, 0);
 				else
 					tmp = adjustPos(newBall.y, newBall.dy, canvas.height);
 				newBall.y = tmp;
-				// console.log("after",newBall.y);
 				newBall.dy *= -1;
 			}
 		}
@@ -186,26 +196,16 @@ function calculateNextPos() {
 		else{
 			keys.ArrowDown = false;
 			keys.ArrowUp = false;}
-		console.log("real ball:", ball.y, ":", ball.x);
 		prevPos = newBall;
 }
 
 function moveIA() {
 	let now = Date.now();
-	// console.log("maybe", now, "-", time, "=",now - time);
-	// if (AI && (keys.ArrowDown || keys.ArrowUp) && prevPos.y < player2.y && prevPos.y > player2.y + 100){
-	// 	console.log("coucou");
-	// 	keys.ArrowDown = false;
-	// 	keys.ArrowUp = false;
-	// 	return;}
+
 	if (now - time <= 1000)
 		return;
-	// console.log("before1");
 	time = now;
-	// if (prevPos.x == ball.x && prevPos.y == ball.y)
-	// 	return;
 	calculateNextPos();
-	// prevPos = ball;
 }
 
 // Game Loop
@@ -217,7 +217,8 @@ function gameLoop() {
 	drawPaddle(player2.x, player2.y, player2.color);
 	drawBall();
 	drawScores();
-	moveIA();
+	if (AI)
+		moveIA();
 	movePaddles();
 	moveBall();
 	
