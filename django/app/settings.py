@@ -39,8 +39,12 @@ INSTALLED_APPS = [
 	'app_srcs',
 ]
 
+
+CSRF_COOKIE_HTTPONLY = False # Ensure JavaScript can access the cookie
+
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost',
+    'https://localhost:8443', 
 ]
 
 MIDDLEWARE = [

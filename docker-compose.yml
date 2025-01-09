@@ -25,6 +25,8 @@ services:
       - ./static:/static
     networks:
       - transcendence
+    depends_on:
+      - django
 
   postgres:
     image: postgres:17.2-alpine3.21
