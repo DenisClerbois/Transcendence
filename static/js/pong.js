@@ -15,6 +15,7 @@ const player2 = { x: canvas.width - paddleWidth, y: canvas.height / 2 - paddleHe
 let AI = true;
 
 // Ball Position and Speed
+let SpeedIncrease = 0;
 const ball = { x: canvas.width / 2, y: canvas.height / 2, dx: 5.5, dy: 5.5 };
 
 // Background Color
@@ -74,6 +75,11 @@ function moveBall() {
 		ball.y > player1.y &&
 		ball.y < player1.y + paddleHeight
 	) {
+		if (keys.s || keys.w){
+			ball.dx *= 1.1;
+			ball.dy *= 1.1;
+			SpeedIncrease += 1;
+		}
 		adjustBallAngle(player1);
 		ball.dx = Math.abs(ball.dx); // Ensure ball moves right
 	} else if (
@@ -81,6 +87,11 @@ function moveBall() {
 		ball.y > player2.y &&
 		ball.y < player2.y + paddleHeight
 	) {
+		if (keys.ArrowUp || keys.ArrowDown){
+			ball.dx *= 1.1;
+			ball.dy *= 1.1;
+			SpeedIncrease += 1;
+		}
 		adjustBallAngle(player2);
 		ball.dx = -Math.abs(ball.dx); // Ensure ball moves left
 	}
@@ -111,6 +122,9 @@ function adjustBallAngle(paddle) {
 function resetBall() {
 	ball.x = canvas.width / 2;
 	ball.y = canvas.height / 2;
+	ball.dx /= 1.1 ** SpeedIncrease;
+	ball.dy /= 1.1 ** SpeedIncrease;
+	SpeedIncrease = 0;
 	ball.dx *= -1;
 }
 
@@ -119,7 +133,6 @@ function movePaddles() {
 	if (keys.w && player1.y > 0) player1.y -= paddleSpeed;
 	if (keys.s && player1.y < canvas.height - paddleHeight) player1.y += paddleSpeed;
 	if (AI && (keys.ArrowDown || keys.ArrowUp) && prevPos.y > player2.y && prevPos.y < player2.y + 100){
-		console.log("paddle start",player2.y,"ball", prevPos.y, "paddle end", player2.y +100);
 		keys.ArrowDown = false;
 		keys.ArrowUp = false;}
 	if (keys.ArrowUp && player2.y > 0) player2.y -= paddleSpeed;
@@ -130,7 +143,6 @@ function adjustPos(newVal, speed, lim) {
 	let tmp = 0;
 	let dif = 0;
 
-	console.log("in function:",newVal, speed, lim);
 	tmp = newVal + speed;
 	dif = lim - tmp;
 	newVal = lim + (dif * 0.7);
@@ -174,7 +186,6 @@ function calculateNextPos() {
 		else{
 			keys.ArrowDown = false;
 			keys.ArrowUp = false;}
-		console.log(newBall.y, ":", newBall.x);
 		console.log("real ball:", ball.y, ":", ball.x);
 		prevPos = newBall;
 }
