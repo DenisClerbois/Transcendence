@@ -14,17 +14,38 @@ function route(event) {
 
 async function fetchBody() {
 	const route = routes[window.location.pathname];
+
+	// Handle `/pong` route separately
+	if (window.location.pathname === "/pong") {
+		const appDiv = document.querySelector("div#app");
+		if (!document.getElementById("pongCanvas")) {
+			// Create canvas if not already present
+			const canvas = document.createElement("canvas");
+			canvas.id = "pongCanvas";
+			canvas.width = 1000;
+			canvas.height = 500;
+			appDiv.innerHTML = ""; // Clear content before appending canvas
+			appDiv.appendChild(canvas);
+		}
+
+		// Initialize the game using the function from pong.js
+		if (typeof window.initializePong === "function") {
+			window.initializePong();
+		}
+		return;
+	}
+
+	// Default behavior for other routes
 	try {
 		const response = await fetch(route);
-		if (!response.ok)
-			throw new Error(`${response.status}`);
+		if (!response.ok) throw new Error(`${response.status}`);
 		const html = await response.text();
 		document.querySelector("div#app").innerHTML = html;
-	}
-	catch (error) {
+	} catch (error) {
 		console.error(`${error}`);
 	}
 }
+
 
 document.querySelectorAll('a.nav-link').forEach( function(link) {
 	link.addEventListener("click", route);
