@@ -57,6 +57,18 @@ fetchBody();
 
 // function getcookies()
 
+function AddAlert(message){
+	const app = document.querySelector('div#app');
+	let alert = app.querySelector('.alert'); // document.querySelector('div#app .alert');
+    if (alert) {
+        alert.remove();
+    }
+	alert = document.createElement('div');
+	alert.classList.add('alert', 'alert-light'); // Bootstrap class
+	alert.textContent = message;
+	app.appendChild(alert);
+}
+
 async function fetchLogin(event) {
 	event.preventDefault();
 	var formData = new FormData(document.querySelector('form'));
@@ -64,20 +76,25 @@ async function fetchLogin(event) {
 	const password = formData.get("password");
 
 	// const cookies = 
-	console.log(document.cookie);
+	// console.log(document.cookie);
 
 	try {
 		const response = await fetch('https://localhost:8443/api/login/', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				'X-CSRFToken': csrfToken,
+				// 'X-CSRFToken': csrfToken,
 			},
 			body: JSON.stringify({username: username,password: password}),
 		});
-		if (!response.ok)
-			throw new Error(`${response.status}`);
-		console.log('response=true');
+		if (!response.ok){
+			AddAlert('Error on login. Try again.')
+			document.querySelector("Form").reset();
+			// throw new Error(`${response.status}`);
+		}
+		else {
+
+		}
 	}
 	catch (error) {
 		console.error(`${error}`);
