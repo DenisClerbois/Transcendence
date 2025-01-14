@@ -111,3 +111,19 @@ document.addEventListener('click', function(event) {
 //         loadScript("/static/js/pong.js"); // Adjust the path if necessary
 //     }
 // }
+
+
+window.onload = function() {
+	updateNavbar();
+};
+
+// Fonction pour mettre à jour l'affichage de la navbar en fonction de l'authentification
+function updateNavbar() {
+	const isAuthenticated = localStorage.getItem('auth_token') !== null;
+
+	const homeLink = document.getElementById('homeLink');
+	if (isAuthenticated)
+		homeLink.style.display = 'inline';
+	else
+		homeLink.style.display = 'none';
+}
