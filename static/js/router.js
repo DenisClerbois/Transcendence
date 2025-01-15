@@ -2,7 +2,9 @@ const routes = {
 	"/home":"/static/templates/home.html",
 	"/login":"/static/templates/login.html",
 	"/register":"/static/templates/register.html",
-	"/pong":"/static/templates/pong.html"
+	"/pong":"/static/templates/pong.html",
+	"/":"/static/templates/login.html",
+	"/logout":"/static/templates/logout.html",
 }
 
 function route(event) {
@@ -11,6 +13,15 @@ function route(event) {
 	window.history.pushState({}, "", url);
 	fetchBody();
 }
+// Looks nicer
+// async function fetchRoute(route){
+// 	switch (route) {
+// 		case '/pong':
+// 			return loadPong();
+// 		default:
+// 			return fetchBody(); 
+// 	}
+// }
 
 async function fetchBody() {
 	const route = routes[window.location.pathname];
@@ -54,15 +65,12 @@ window.onpopstate = fetchBody;
 
 fetchBody();
 
-
-// function getcookies()
-
 function AddAlert(message){
 	const app = document.querySelector('div#app');
-	let alert = app.querySelector('.alert'); // document.querySelector('div#app .alert');
-    if (alert) {
-        alert.remove();
-    }
+	let alert = app.querySelector('.alert');
+	if (alert) {
+		alert.remove();
+	}
 	alert = document.createElement('div');
 	alert.classList.add('alert', 'alert-light'); // Bootstrap class
 	alert.textContent = message;
@@ -90,57 +98,87 @@ async function fetchLogin(event) {
 		if (!response.ok){
 			AddAlert('Error on login. Try again.')
 			document.querySelector("Form").reset();
-			// throw new Error(`${response.status}`);
 		}
 		else {
-
+			window.history.pushState({}, "", '/home');
+			fetchBody();
+			updateNavbar();
 		}
 	}
 	catch (error) {
-		console.error(`${error}`);
+		console.error(`${error}`); // Useless ?
+	}
+}
+
+
+async function checkIfAuthenticated() {
+	try {
+		const response = await fetch('/api/checkUserAuthenticated/', {
+			method: 'GET',
+			credentials: 'same-origin'
+		});
+		if (response.ok)
+			return true;
+		else
+			return false;
+	} 
+	catch (error) {
+		console.error("Error checking authentication:", error);
+		return false;
+	}
+}
+
+
+async function fetchLogout(event){
+	event.preventDefault();
+	try {
+		const response = await fetch('https://localhost:8443/api/logout/', {
+			method: 'GET',
+			credentials: 'same-origin',
+		});
+		if (!response.ok){
+			AddAlert('ALERT, this should never happen !');
+		}
+		window.history.pushState({}, "", '/login');
+		fetchBody();
+		updateNavbar();
+		console.log('logout success.');
+	}
+	catch (error) {
+		console.error(`${error}`); // Useless ?
 	}
 }
 
 document.addEventListener('click', function(event) {
 	if (event.target && event.target.classList.contains('login'))
 		fetchLogin(event);
+	if (event.target && event.target.classList.contains('logout'))
+		fetchLogout(event);
 })
-
-// btn = document.querySelector('button.login');
-// btn.addEventListener('click', fetchLogin);
-
-
-
-// window.route = route;
-// 	const script = document.createElement("script");
-
-//     script.src = src;
-//     script.type = "text/javascript";
-//     script.onload = () => console.log("Script loaded:", src);
-//     document.body.appendChild(script);
-// }
-// async function handlelocation() {
-// 	const path = window.location.pathname;
-// 	const route = routes[path]; // if not found : 404 missing
-// 	const html = await fetch(route).then((data) => data.text()); // protection on fetch missing
-// 	document.getElementById("app").innerHTML = html;
-// 	if (path === "/pong") {
-//         loadScript("/static/js/pong.js"); // Adjust the path if necessary
-//     }
-// }
 
 
 window.onload = function() {
 	updateNavbar();
 };
 
-// Fonction pour mettre à jour l'affichage de la navbar en fonction de l'authentification
-function updateNavbar() {
-	const isAuthenticated = localStorage.getItem('auth_token') !== null;
 
-	const homeLink = document.getElementById('homeLink');
-	if (isAuthenticated)
-		homeLink.style.display = 'inline';
-	else
-		homeLink.style.display = 'none';
+async function updateNavbar() {
+	const isAuthenticated = await checkIfAuthenticated();
+	const publicLinks = document.querySelectorAll('li.nav-item.public');
+
+	publicLinks.forEach(link => {
+		if (isAuthenticated)
+			link.style.display = 'none';
+		else
+			link.style.display = 'inline';
+	});
+
+	const privateLinks = document.querySelectorAll('li.nav-item.private');
+	privateLinks.forEach(link => {
+		if (isAuthenticated)
+			link.style.display = 'inline';
+		else
+			link.style.display = 'none';
+	});
+	
 }
