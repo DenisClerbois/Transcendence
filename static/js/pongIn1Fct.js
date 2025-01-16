@@ -1,6 +1,7 @@
 console.log("pong script loaded");
 
 function initializePong() {
+	
 	const appDiv = document.getElementById("app");
 
 	let canvas = document.getElementById("pongCanvas");
@@ -21,27 +22,111 @@ function initializePong() {
 	console.log(canvas);
 	const ctx = canvas.getContext("2d");
 
+	// Menu
+	const menuOverlay = document.createElement("div");
+	menuOverlay.id = "menuOverlay";
+	menuOverlay.style.position = "absolute";
+	menuOverlay.style.background = "linear-gradient(169deg, rgba(59,189,29,1) 15%, rgba(58,48,150,1) 85%)";
+	menuOverlay.style.display = "flex";
+	menuOverlay.style.flexDirection = "column";
+	menuOverlay.style.justifyContent = "center";
+	menuOverlay.style.alignItems = "center";
+	menuOverlay.style.zIndex = "1000";
+	menuOverlay.style.borderRadius = "20px";
+	menuOverlay.style.boxShadow = "0px 10px 30px rgba(0, 0, 0, 0.2)";
+	menuOverlay.style.padding = "30px";
+	menuOverlay.style.transition = "all 0.5s ease-in-out";
+
+	// Add title
+	const menuTitle = document.createElement("h1");
+	menuTitle.innerText = "Select Game Mode";
+	menuTitle.style.color = "white";
+	menuTitle.style.fontFamily = "'Arial', sans-serif";
+	menuTitle.style.fontSize = "48px";
+	menuTitle.style.textShadow = "2px 2px 5px rgba(0, 0, 0, 0.7)";
+	menuOverlay.appendChild(menuTitle);
+
+	// Add buttons
+	const playVsAIButton = document.createElement("button");
+	playVsAIButton.innerText = "Play Against AI";
+	playVsAIButton.style.padding = "15px 30px";
+	playVsAIButton.style.margin = "10px";
+	playVsAIButton.style.fontSize = "22px";
+	playVsAIButton.style.borderRadius = "10px";
+	playVsAIButton.style.backgroundColor = "#30967f";
+	playVsAIButton.style.color = "white";
+	playVsAIButton.style.border = "none";
+	playVsAIButton.style.cursor = "pointer";
+	playVsAIButton.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
+	playVsAIButton.style.transition = "transform 0.3s ease, background-color 0.3s ease";
+	menuOverlay.appendChild(playVsAIButton);
+
+	const playLocalButton = document.createElement("button");
+	playLocalButton.innerText = "Two Players Local";
+	playLocalButton.style.padding = "15px 30px";
+	playLocalButton.style.margin = "10px";
+	playLocalButton.style.fontSize = "22px";
+	playLocalButton.style.borderRadius = "10px";
+	playLocalButton.style.backgroundColor = "#2422c7";
+	playLocalButton.style.color = "white";
+	playLocalButton.style.border = "none";
+	playLocalButton.style.cursor = "pointer";
+	playLocalButton.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
+	playLocalButton.style.transition = "transform 0.3s ease, background-color 0.3s ease";
+	menuOverlay.appendChild(playLocalButton);
+
+	appDiv.appendChild(menuOverlay);
+
+	const canvasRect = canvas.getBoundingClientRect();
+	menuOverlay.style.top = `${canvasRect.top}px`;
+	menuOverlay.style.left = `${canvasRect.left}px`;
+	menuOverlay.style.width = `${canvasRect.width}px`;
+	menuOverlay.style.height = `${canvasRect.height}px`;
+
+	//event listeners to buttons
+	playVsAIButton.addEventListener("click", () => {
+		AI = true; // Set AI mode
+		startGame();
+	});
+
+	playLocalButton.addEventListener("click", () => {
+		AI = false; // Set local two-player mode
+		startGame();
+	});
+	
+	
+
+	// Start the game after selecting a mode
+	function startGame() {
+		// Remove menu
+		menuOverlay.remove();
+
+		// Start the game loop
+		
+		gameLoop();
+	}
+
 	// Game Variables
-	const paddleWidth = 10;
+	const paddleWidth = 12;
 	const paddleHeight = 100;
 	const ballRadius = 10;
 
 	// Paddle Positions
-	const player1 = { x: 0, y: canvas.height / 2 - paddleHeight / 2, score: 0, color: "black" };
-	const player2 = { x: canvas.width - paddleWidth, y: canvas.height / 2 - paddleHeight / 2, score: 0, color: "black" };
+	const player1 = { x: 0, y: canvas.height / 2 - paddleHeight / 2, score: 0, color: "white" };
+	const player2 = { x: canvas.width - paddleWidth, y: canvas.height / 2 - paddleHeight / 2, score: 0, color: "white" };
 	let AI = true;
 
 	// Ball Position and Speed
 	let SpeedIncrease = 0;
-	const ball = { x: canvas.width / 2, y: canvas.height / 2, dx: 10, dy: 2 };
+	const ball = { x: canvas.width / 2, y: canvas.height / 2, dx: 2.5, dy: 2.5 };
 	const paddleSpeed = Math.sqrt(ball.dx ** 2 + ball.dy ** 2) * 1.4;
 
-	const backgroundColor = "#9b826c";
+	const backgroundColor = "#332890";
 
 	const keys = { w: false, s: false, ArrowUp: false, ArrowDown: false };
 
 	let time = Date.now();
-let prevPos = { x: canvas.width / 2, y: canvas.height / 2, dx: 2.5, dy: 2.5 };
+	let prevPos = { x: canvas.width / 2, y: canvas.height / 2, dx: 2.5, dy: 2.5 };
 
 document.addEventListener("keydown", (e) => {
 	// if (AI && e.keys == ArrowDown)
@@ -56,6 +141,9 @@ document.addEventListener("keyup", (e) => {
 function drawPaddle(x, y, color) {
 	ctx.fillStyle = color;
 	ctx.fillRect(x, y, paddleWidth, paddleHeight);
+	ctx.strokeStyle = "black"; // Set border color to black
+    ctx.lineWidth = 1; // Set the border thickness
+    ctx.strokeRect(x, y, paddleWidth, paddleHeight); // Draw the border
 }
 
 // Draw Ball
@@ -117,9 +205,11 @@ function moveBall() {
 	// Ball out of bounds
 	if (ball.x - ballRadius < 0 && !(player1.y <= ball.y && player1.y + 100 >= ball.y)) { // condition added to check if paddle present or not
 		player2.score++;
+		//paused = true;
 		resetBall();
 	} else if (ball.x + ballRadius > canvas.width && !(player2.y <= ball.y && player2.y + 100 >= ball.y)) {
 		player1.score++;
+		//paused = true;
 		resetBall();
 	}
 }
@@ -138,12 +228,18 @@ function adjustBallAngle(paddle) {
 
 // Reset Ball to Center
 function resetBall() {
+
 	ball.x = canvas.width / 2;
 	ball.y = canvas.height / 2;
-	ball.dx /= 1.1 ** SpeedIncrease; //resest speed after score
-	ball.dy /= 1.1 ** SpeedIncrease;
-	SpeedIncrease = 0;
-	ball.dx *= -1;
+    ball.dx = 0;
+    ball.dy = 0;
+	
+    setTimeout(() => {
+        ball.dx = (Math.random() > 0.5 ? 1 : -1) * 2.5;
+        ball.dy = (Math.random() > 0.5 ? 1 : -1) * 2.5;
+		SpeedIncrease = 0; 
+    }, 500);
+	
 }
 
 // Move Paddles
@@ -225,8 +321,100 @@ function moveIA() {
 	calculateNextPos();
 }
 
+let paused = false;
+let gameStarted = false;
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && gameStarted) { // Only allow pausing when the game has started
+        paused = !paused;
+        if (paused) {
+            showPauseMenu();
+        } else {
+            hidePauseMenu();
+            gameLoop(); // Resume game loop
+        }
+    }
+});
+
+// pause menu overlay
+const pauseMenu = document.createElement("div");
+pauseMenu.id = "pauseMenu";
+pauseMenu.style.position = "absolute";
+pauseMenu.style.top = "0";
+pauseMenu.style.left = "0";
+pauseMenu.style.height = `${canvas.height}px`;
+pauseMenu.style.width = `${canvas.width}px`;
+pauseMenu.style.top = `${canvasRect.top}px`;
+pauseMenu.style.left = `${canvasRect.left}px`;
+pauseMenu.style.background = "rgba(0, 0, 0, 0.5)";
+pauseMenu.style.display = "none"; // Initially hidden
+pauseMenu.style.justifyContent = "center";
+pauseMenu.style.alignItems = "center";
+pauseMenu.style.flexDirection = "column";
+pauseMenu.style.zIndex = "2000";
+
+// Resume button
+const resumeButton = document.createElement("button");
+resumeButton.innerText = "Resume Game";
+resumeButton.style.padding = "15px 30px";
+resumeButton.style.margin = "10px";
+resumeButton.style.fontSize = "22px";
+resumeButton.style.borderRadius = "10px";
+resumeButton.style.backgroundColor = "#4CAF50"; // Green
+resumeButton.style.color = "white";
+resumeButton.style.border = "none";
+resumeButton.style.cursor = "pointer";
+resumeButton.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
+resumeButton.addEventListener("click", () => {
+    paused = false;
+    hidePauseMenu();
+    gameLoop(); // Resume game loop
+});
+
+// New game button
+const newGameButton = document.createElement("button");
+newGameButton.innerText = "New Game";
+newGameButton.style.padding = "15px 30px";
+newGameButton.style.margin = "10px";
+newGameButton.style.fontSize = "22px";
+newGameButton.style.borderRadius = "10px";
+newGameButton.style.backgroundColor = "#f44336"; // Red
+newGameButton.style.color = "white";
+newGameButton.style.border = "none";
+newGameButton.style.cursor = "pointer";
+newGameButton.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
+newGameButton.addEventListener("click", () => {
+    paused = false;
+    hidePauseMenu();
+    player1.score = 0;
+    player2.score = 0;
+    resetBall();
+    gameLoop();
+});
+
+// Append buttons to the pause menu
+pauseMenu.appendChild(resumeButton);
+pauseMenu.appendChild(newGameButton);
+
+// Append the pause menu to the body
+document.body.appendChild(pauseMenu);
+
+// Show the pause menu
+function showPauseMenu() {
+    pauseMenu.style.display = "flex"; // Show menu
+    cancelAnimationFrame(gameLoop); // Stop the game loop
+}
+
+// Hide the pause menu
+function hidePauseMenu() {
+    pauseMenu.style.display = "none"; // Hide menu
+}
+
 	// Start the game
 	function gameLoop() {
+
+		if (paused) return;
+		gameStarted = true;
 		ctx.fillStyle = backgroundColor;
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 	
@@ -251,7 +439,6 @@ function moveIA() {
 		}
 		requestAnimationFrame(gameLoop);
 	}
-	gameLoop();
 }
 
 // Check if route is `/pong` and initialize the game
