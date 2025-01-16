@@ -1,0 +1,33 @@
+1. Relier le formulaire de la page Register a une fonction javascript qui fetch les informations a django.
+2. Empecher la redirection brut grace a l'url : Pour l'instant, meme si vous n'etes pas connecte vous pouvez ecrire le chemi absolu d'une page reserve aux utilisateur (ex: https://localhost:8443/logout) et arriver sur la page.
+3. Se renseigner sur django channels et permettre a un joueur de "chercher" une partie. Deux joueurs cherchant une partie doivent etre matcher. Adapter le Pong JS en fonction des inputs de chaque joueurs. (+ garder un historique des resultats dans la DB)
+3bis. Permettre a un joueur de chercher un style de partie differente : (1vs1, 1vs1vs1vs1, tournoi)
+4. Implementer le deuxieme jeux
+5. Ajouter une page User qui permet a un utilisateur de voir ses donnees personelles et de les modifier
+6. Ajouter une page Leaderboard
+7. Comprendre cette partie du pdf : 
+	"If your container solution is Docker:
+	When your computers in clusters run under Linux, you will use Docker
+	in rootless mode for security reasons. This comes with 2 sideways:
+	• Your Docker runtime files must be located in /goinfre or
+	/sgoinfre.
+	• You can’t use so called “bind-mount volumes” between the host
+	and the container if non-root UIDs are used in the container.
+	Depending on the project, your situation and the context, several
+	fallbacks exist: Docker in a VM, rebuild you container after your
+	changes, craft your own docker image with root as unique UID."
+8. ?
+
+
+
+[MODULE CHOISIS] 7/7
+
+1	MAJOR module: Use a Framework to build the backend.
+2	MAJOR module: Standard user management, authentication, users across tournaments.
+3	MAJOR module: Remote players
+4	MAJOR module: Multiplayers (more than 2 in the same game).
+5	MAJOR module: Add Another Game with User History and Matchmaking.
+6	MAJOR module: Introduce an AI Opponent.
+
+6.5	MINOR module: Use a framework or a toolkit to build the frontend.
+7	MINOR module: Use a database for the backend.
