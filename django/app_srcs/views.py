@@ -30,4 +30,4 @@ def checkUserAuthenticated(request):
     if request.user.is_authenticated:
         return JsonResponse({'authenticated': True}, status=200)
     else:
-        return JsonResponse({'authenticated': False}, status=401)
+        return JsonResponse({'authenticated': False}, status=401) # change this to 200 and adapt the js response

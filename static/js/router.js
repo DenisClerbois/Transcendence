@@ -154,6 +154,8 @@ document.addEventListener('click', function(event) {
 		fetchLogin(event);
 	if (event.target && event.target.classList.contains('logout'))
 		fetchLogout(event);
+	if (event.target && event.target.classList.contains('Register'))
+		fetchRegister(event);
 })
 
 
@@ -180,5 +182,61 @@ async function updateNavbar() {
 		else
 			link.style.display = 'none';
 	});
+}
+
+
+function AlertAndClean(message) {
+	AddAlert(message);
+}
+
+
+// Client-side validation of form (Server side should also be done)
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions
+async function fetchRegister(event) {
+	event.preventDefault();
 	
+	const regex_email = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+	const regex_password = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+
+	var formData = new FormData(document.querySelector('form'));
+	
+	const email = formData.get("email");
+	const email_confirmed = formData.get("email confirmation");
+	const username = formData.get("username");
+	const password = formData.get("password");
+	const password_confirmed = formData.get("password confirmation");
+	
+	if (!regex_email.exec(email))
+		return AddAlert('Error : Email syntax not respected.');
+	if (email != email_confirmed)
+		return AddAlert('Error : Emails different.');
+	if (!username)
+		return AddAlert('Error : Username empty.');
+	if (!regex_password.exec(password))
+		return AddAlert('Error : Password syntax not respected.');
+	if (password != password_confirmed)
+		return AddAlert('Error : Passwords different.');
+
+	try {
+		const response = await fetch('https://localhost:8443/api/register/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				// 'X-CSRFToken': csrfToken,
+			},
+			body: JSON.stringify({email:email, username: username,password: password}),
+		});
+		if (!response.ok){
+			AddAlert('Error on Register. Try again.')
+			document.querySelector("Form").reset();
+		}
+		else {
+			window.history.pushState({}, "", '/home');
+			fetchBody();
+			updateNavbar();
+		}
+	}
+	catch (error) {
+		console.error(`${error}`); // Useless ?
+	}
 }
