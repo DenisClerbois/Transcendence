@@ -141,8 +141,8 @@ document.addEventListener("keyup", (e) => {
 function drawPaddle(x, y, color) {
 	ctx.fillStyle = color;
 	ctx.fillRect(x, y, paddleWidth, paddleHeight);
-	ctx.strokeStyle = "black"; // Set border color to black
-    ctx.lineWidth = 1; // Set the border thickness
+	ctx.strokeStyle = "black";
+    ctx.lineWidth = 1;
     ctx.strokeRect(x, y, paddleWidth, paddleHeight); // Draw the border
 }
 
@@ -325,13 +325,13 @@ let paused = false;
 let gameStarted = false;
 
 document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && gameStarted) { // Only allow pausing when the game has started
+    if (e.key === "Escape" && gameStarted) {
         paused = !paused;
         if (paused) {
             showPauseMenu();
         } else {
             hidePauseMenu();
-            gameLoop(); // Resume game loop
+            gameLoop();
         }
     }
 });
@@ -360,7 +360,7 @@ resumeButton.style.padding = "15px 30px";
 resumeButton.style.margin = "10px";
 resumeButton.style.fontSize = "22px";
 resumeButton.style.borderRadius = "10px";
-resumeButton.style.backgroundColor = "#4CAF50"; // Green
+resumeButton.style.backgroundColor = "#4CAF50";
 resumeButton.style.color = "white";
 resumeButton.style.border = "none";
 resumeButton.style.cursor = "pointer";
@@ -378,7 +378,7 @@ newGameButton.style.padding = "15px 30px";
 newGameButton.style.margin = "10px";
 newGameButton.style.fontSize = "22px";
 newGameButton.style.borderRadius = "10px";
-newGameButton.style.backgroundColor = "#f44336"; // Red
+newGameButton.style.backgroundColor = "#f44336";
 newGameButton.style.color = "white";
 newGameButton.style.border = "none";
 newGameButton.style.cursor = "pointer";

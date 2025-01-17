@@ -3,6 +3,7 @@ const routes = {
 	"/login":"/static/templates/login.html",
 	"/register":"/static/templates/register.html",
 	"/pong":"/static/templates/pong.html",
+	"/shifumi":"/static/templates/shifumi.html",
 	"/":"/static/templates/login.html",
 	"/logout":"/static/templates/logout.html",
 }
@@ -45,6 +46,16 @@ async function fetchBody() {
 		}
 		return;
 	}
+	else if (window.location.pathname === "/shifumi") {
+		const appDiv = document.querySelector("div#app");
+		appDiv.innerHTML = "";
+
+		if (typeof window.initializeShifumi === "function") {
+			window.initializeShifumi();
+		}
+		return;
+	}
+	
 
 	// Default behavior for other routes
 	try {
