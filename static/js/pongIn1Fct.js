@@ -118,7 +118,8 @@ function initializePong() {
 
 	// Ball Position and Speed
 	let SpeedIncrease = 0;
-	const ball = { x: canvas.width / 2, y: canvas.height / 2, dx: 2.5, dy: 2.5 };
+	const InitSpeed = {dx: 7, dy: 0};
+	const ball = { x: canvas.width / 2, y: canvas.height / 2, dx: InitSpeed.dx, dy: InitSpeed.dy };
 	const paddleSpeed = Math.sqrt(ball.dx ** 2 + ball.dy ** 2) * 1.4;
 
 	const backgroundColor = "#332890";
@@ -126,7 +127,7 @@ function initializePong() {
 	const keys = { w: false, s: false, ArrowUp: false, ArrowDown: false };
 
 	let time = Date.now();
-	let prevPos = { x: canvas.width / 2, y: canvas.height / 2, dx: 2.5, dy: 2.5 };
+	let prevPos = { x: canvas.width / 2, y: canvas.height / 2, dx: InitSpeed.dx, dy: InitSpeed.dy };
 
 document.addEventListener("keydown", (e) => {
 	// if (AI && e.keys == ArrowDown)
@@ -192,7 +193,7 @@ function moveBall() {
 		ball.y > player2.y &&
 		ball.y < player2.y + paddleHeight
 	) {
-		if (keys.ArrowUp || keys.ArrowDown || 1){ //increase speed by 10% if player move the paddle at the same time as it is hit
+		if (keys.ArrowUp || keys.ArrowDown){ //increase speed by 10% if player move the paddle at the same time as it is hit
 			if (Math.sqrt(ball.dx **2 + ball.dy **2) < 40){
 			ball.dx *= 1.1;
 			ball.dy *= 1.1;
@@ -235,8 +236,8 @@ function resetBall() {
     ball.dy = 0;
 	
     setTimeout(() => {
-        ball.dx = (Math.random() > 0.5 ? 1 : -1) * 2.5;
-        ball.dy = (Math.random() > 0.5 ? 1 : -1) * 2.5;
+        ball.dx = (Math.random() > 0.5 ? 1 : -1) * InitSpeed.dx;
+        ball.dy = (Math.random() > 0.5 ? 1 : -1) * InitSpeed.dy;
 		SpeedIncrease = 0; 
     }, 500);
 	
