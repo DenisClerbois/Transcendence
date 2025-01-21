@@ -1,7 +1,9 @@
 1. Relier le formulaire de la page Register a une fonction javascript qui fetch les informations a django.
 2. Empecher la redirection brut grace a l'url : Pour l'instant, meme si vous n'etes pas connecte vous pouvez ecrire le chemi absolu d'une page reserve aux utilisateur (ex: https://localhost:8443/logout) et arriver sur la page.
-3. Se renseigner sur django channels et permettre a un joueur de "chercher" une partie. Deux joueurs cherchant une partie doivent etre matcher. Adapter le Pong JS en fonction des inputs de chaque joueurs. (+ garder un historique des resultats dans la DB)
+
+3. Se renseigner sur DJANGO CHANNELS et permettre a un joueur de "chercher" une partie. Deux joueurs cherchant une partie doivent etre matcher. Adapter le Pong JS en fonction des inputs de chaque joueurs. (+ garder un historique des resultats dans la DB)
 3bis. Permettre a un joueur de chercher un style de partie differente : (1vs1, 1vs1vs1vs1, tournoi)
+
 4. Implementer le deuxieme jeux
 5. Ajouter une page User qui permet a un utilisateur de voir ses donnees personelles et de les modifier
 6. Ajouter une page Leaderboard

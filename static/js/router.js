@@ -6,6 +6,7 @@ const routes = {
 	"/shifumi":"/static/templates/shifumi.html",
 	"/":"/static/templates/login.html",
 	"/logout":"/static/templates/logout.html",
+	"/profile":"/static/templates/profile.html",
 }
 
 function route(event) {
@@ -14,67 +15,83 @@ function route(event) {
 	window.history.pushState({}, "", url);
 	fetchBody();
 }
-// Looks nicer
-// async function fetchRoute(route){
-// 	switch (route) {
-// 		case '/pong':
-// 			return loadPong();
-// 		default:
-// 			return fetchBody(); 
-// 	}
-// }
 
-async function fetchBody() {
-	const route = routes[window.location.pathname];
 
-	// Handle `/pong` route separately
-	if (window.location.pathname === "/pong") {
-		const appDiv = document.querySelector("div#app");
-		if (!document.getElementById("pongCanvas")) {
-			// Create canvas if not already present
-			const canvas = document.createElement("canvas");
-			canvas.id = "pongCanvas";
-			canvas.width = 1000;
-			canvas.height = 500;
-			appDiv.innerHTML = ""; // Clear content before appending canvas
-			appDiv.appendChild(canvas);
-		}
 
-		// Initialize the game using the function from pong.js
-		if (typeof window.initializePong === "function") {
-			window.initializePong();
-		}
-		return;
+function runScriptsInHTML(html) {
+	console.log('test script');
+	const tempDiv = document.createElement('div');
+	tempDiv.innerHTML = html;
+
+	const scripts = tempDiv.querySelectorAll('script');
+	scripts.forEach(script => {
+		console.log(script);
+		const newScript = document.createElement('script');
+		if (script.src)
+			newScript.src = script.src; // External script
+		else
+			newScript.innerHTML = script.innerHTML; // Inline script
+
+		document.body.appendChild(newScript);
+	});
+}
+
+
+function loadPong(){
+	const appDiv = document.querySelector("div#app");
+	if (!document.getElementById("pongCanvas")) {
+		console.log('does that happen ?');
+		// Create canvas if not already present
+		const canvas = document.createElement("canvas");
+		canvas.id = "pongCanvas";
+		canvas.width = 1000;
+		canvas.height = 500;
+		appDiv.innerHTML = ""; // Clear content before appending canvas
+		appDiv.appendChild(canvas);
 	}
-	else if (window.location.pathname === "/shifumi") {
-		const appDiv = document.querySelector("div#app");
-		appDiv.innerHTML = "";
-
-		if (typeof window.initializeShifumi === "function") {
-			window.initializeShifumi();
-		}
-		return;
-	}
-	
-
-	// Default behavior for other routes
-	try {
-		const response = await fetch(route);
-		if (!response.ok) throw new Error(`${response.status}`);
-		const html = await response.text();
-		document.querySelector("div#app").innerHTML = html;
-	} catch (error) {
-		console.error(`${error}`);
+	// Initialize the game using the function from pong.js
+	if (typeof window.initializePong === "function") {
+		window.initializePong();
 	}
 }
 
+function loadShifumi(){
+	console.log("Shifumi loaded");
+	const appDiv = document.querySelector("div#app");
+	appDiv.innerHTML = "";
+
+	if (typeof window.initializeShifumi === "function") {
+		window.initializeShifumi();
+	}
+}
+
+async function fetchBody() {
+	switch (window.location.pathname){
+		case '/pong':
+			return loadPong();
+		case '/shifumi':
+			return loadShifumi();
+		default :
+			try {
+				const route = routes[window.location.pathname];
+				const response = await fetch(route);
+				if (!response.ok)
+					throw new Error(`${response.status}`);
+				const html = await response.text();
+				document.querySelector("div#app").innerHTML = html;
+				runScriptsInHTML(html);
+			} catch (error) { console.error(`${error}`); }
+	}
+}
 
 document.querySelectorAll('a.nav-link').forEach( function(link) {
 	link.addEventListener("click", route);
 });
 window.onpopstate = fetchBody;
-
+updateNavbar();
 fetchBody();
+
+
 
 function AddAlert(message){
 	const app = document.querySelector('div#app');
@@ -107,6 +124,10 @@ async function fetchLogin(event) {
 			body: JSON.stringify({username: username,password: password}),
 		});
 		if (!response.ok){
+			response.json()
+			.then((data) => {
+				console.log(data);
+			})
 			AddAlert('Error on login. Try again.')
 			document.querySelector("Form").reset();
 		}
@@ -170,9 +191,10 @@ document.addEventListener('click', function(event) {
 })
 
 
-window.onload = function() {
-	updateNavbar();
-};
+// weird
+// window.onload = function() {
+// 	updateNavbar();
+// };
 
 
 async function updateNavbar() {
