@@ -1,4 +1,7 @@
 <p class="username"></p>
+<p class="email"></p>
+
+<button type="button" class="btn btn-primary logout">Logout</button>
 
 <script>
 
@@ -9,12 +12,38 @@ async function apiUser(){
 			credentials: 'same-origin',
 		});
 		const data = await response.json();
-		const username = document.querySelector('p.username');
-		username.textContent = `Username : ${data.username}`
+		console.log(data);
+		document.querySelector('p.username').textContent = `Username : ${data.username}`
+		document.querySelector('p.email').textContent = `Email : ${data.email}`
 	} catch (error) {
 		console.log(error);
 	}
 }
+
+async function fetchLogout(event){
+	event.preventDefault();
+	try {
+		const response = await fetch('https://localhost:8443/api/logout/', {
+			method: 'GET',
+			credentials: 'same-origin',
+		});
+		if (!response.ok){
+			AddAlert('ALERT, this should never happen !');
+		}
+		window.history.pushState({}, "", '/login');
+		fetchBody();
+		updateNavbar();
+		console.log('logout success.');
+	}
+	catch (error) {
+		console.error(`${error}`);
+	}
+}
+
+document.addEventListener('click', function(event) {
+if (event.target && event.target.classList.contains('logout'))
+	fetchLogout(event);
+})
 	
 apiUser();
 

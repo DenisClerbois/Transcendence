@@ -65,5 +65,6 @@ def RegisterView(request):
 def userProfile(request):
 	user = request.user
 	return JsonResponse({
-		'username': user.username},
+		'username': user.username,
+		'email': user.email},
 		status=200)
