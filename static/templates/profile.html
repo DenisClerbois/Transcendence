@@ -1,21 +1,21 @@
-HI HTML
+<p class="username"></p>
 
 <script>
-	window.onload = function() {
-		console.log("profile script loaded and launch");
-		async function apiUser(event){
-			event.preventDefault();
-			try {
-				const response = await fetch('/api/userProfile', {
-					method: 'GET',
-					credentials: 'same-origin',
-				});
-				const data = await response.json();
-				consoe.log(data);
-			} catch (error) {
-				console.log(error);
-			}
-		}
-	}
-</script>
 
+async function apiUser(){
+	try {
+		const response = await fetch('/api/userProfile', {
+			method: 'GET',
+			credentials: 'same-origin',
+		});
+		const data = await response.json();
+		const username = document.querySelector('p.username');
+		username.textContent = `Username : ${data.username}`
+	} catch (error) {
+		console.log(error);
+	}
+}
+	
+apiUser();
+
+</script>

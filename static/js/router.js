@@ -10,6 +10,7 @@ const routes = {
 }
 
 function route(event) {
+	console.log(event);
 	event.preventDefault();
 	var url = event.target.href;
 	window.history.pushState({}, "", url);
@@ -39,14 +40,11 @@ function runScriptsInHTML(html) {
 async function fetchBody() {
 	try {
 		const route = routes[window.location.pathname] || '/login'; // change login with 404
-		
 		const response = await fetch(route);
 
 		if (!response.ok)
 			throw new Error(`${response.status}`);
-
 		const html = await response.text();
-
 		document.querySelector("div#app").innerHTML = html;
 		runScriptsInHTML(html);
 	} catch (error) {
