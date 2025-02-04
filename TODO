@@ -18,7 +18,9 @@
 	Depending on the project, your situation and the context, several
 	fallbacks exist: Docker in a VM, rebuild you container after your
 	changes, craft your own docker image with root as unique UID."
-8. ?
+8. Anonymiser les [informations de login](./static/templates/login.html#31)
+9. [cleanup fichiers](django/app_srcs/templates/pong.js) utile?
+10. pong.js bug: taper la balle depuis y ~~> 0 directions ~x=1 ~y=0 donne zig-zag de balle au-dessus et au-dessous de y = 0
 
 
 
