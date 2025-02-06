@@ -10,7 +10,7 @@ function initializePong() {
 		canvas.id = "pongCanvas";
 		canvas.width = 1000;
 		canvas.height = 500;
-		//appDiv.innerHTML = ""; // Clear existing content
+		appDiv.innerHTML = ""; // Clear existing content
 		appDiv.appendChild(canvas);
 	}
 
@@ -18,14 +18,12 @@ function initializePong() {
 		console.error("Canvas not found or failed to initialize.");
 		return;
 	}
-
 	console.log(canvas);
 	const ctx = canvas.getContext("2d");
 
 	// Menu
 	const menuOverlay = document.createElement("div");
 	menuOverlay.id = "menuOverlay";
-
 	appDiv.appendChild(menuOverlay);
 
 	// Add title
@@ -53,8 +51,6 @@ function initializePong() {
 	// pause menu overlay
 	const pauseMenu = document.createElement("div");
 	pauseMenu.id = "pauseMenu";
-	pauseMenu.style.top = "0";
-	pauseMenu.style.left = "0";
 	pauseMenu.style.height = `${canvas.height}px`;
 	pauseMenu.style.width = `${canvas.width}px`;
 	pauseMenu.style.top = `${canvasRect.top}px`;
@@ -72,15 +68,6 @@ function initializePong() {
 	// New game button
 	const newGameButton = document.createElement("button");
 	newGameButton.innerText = "New Game";
-	newGameButton.style.padding = "15px 30px";
-	newGameButton.style.margin = "10px";
-	newGameButton.style.fontSize = "22px";
-	newGameButton.style.borderRadius = "10px";
-	newGameButton.style.backgroundColor = "#f44336";
-	newGameButton.style.color = "white";
-	newGameButton.style.border = "none";
-	newGameButton.style.cursor = "pointer";
-	newGameButton.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
 	newGameButton.addEventListener("click", () => {
 		paused = false;
 		hidePauseMenu();
@@ -89,34 +76,24 @@ function initializePong() {
 		resetBall();
 		gameLoop();
 	});
-
-	// Append buttons to the pause menu
 	pauseMenu.appendChild(resumeButton);
 	pauseMenu.appendChild(newGameButton);
-
-	// Append the pause menu to the body
 	document.body.appendChild(pauseMenu);
 
 	//event listeners to buttons
 	playVsAIButton.addEventListener("click", () => {
-		AI = true; // Set AI mode
+		AI = true;
 		startGame();
 	});
 
 	playLocalButton.addEventListener("click", () => {
-		AI = false; // Set local two-player mode
+		AI = false;
 		startGame();
 	});
-	
-	
 
 	// Start the game after selecting a mode
 	function startGame() {
-		// Remove menu
 		menuOverlay.remove();
-
-		// Start the game loop
-		
 		gameLoop();
 	}
 
@@ -135,11 +112,8 @@ function initializePong() {
 	const InitSpeed = {dx: 7, dy: 0};
 	const ball = { x: canvas.width / 2, y: canvas.height / 2, dx: InitSpeed.dx, dy: InitSpeed.dy };
 	const paddleSpeed = Math.sqrt(ball.dx ** 2 + ball.dy ** 2) * 1.4;
-
 	const backgroundColor = "#332890";
-
 	const keys = { w: false, s: false, ArrowUp: false, ArrowDown: false };
-
 	let time = Date.now();
 	let prevPos = { x: canvas.width / 2, y: canvas.height / 2, dx: InitSpeed.dx, dy: InitSpeed.dy };
 
@@ -229,7 +203,7 @@ function initializePong() {
 		}
 	}
 
-	// Adjust Ball Angle Based on Paddle Hit Position
+	// Paddle Hit
 	function adjustBallAngle(paddle) {
 		const paddleCenter = paddle.y + paddleHeight / 2;
 		const hitPosition = ball.y - paddleCenter;
@@ -241,7 +215,6 @@ function initializePong() {
 		ball.dy = speed * Math.sin(bounceAngle);
 	}
 
-	// Reset Ball to Center
 	function resetBall() {
 
 		ball.x = canvas.width / 2;
@@ -257,7 +230,6 @@ function initializePong() {
 		
 	}
 
-	// Move Paddles
 	function movePaddles() {
 		if (keys.w && player1.y > 0) player1.y -= paddleSpeed;
 		if (keys.s && player1.y < canvas.height - paddleHeight) player1.y += paddleSpeed;
@@ -357,12 +329,10 @@ function initializePong() {
 		cancelAnimationFrame(gameLoop); // Stop the game loop
 	}
 
-	// Hide the pause menu
 	function hidePauseMenu() {
-		pauseMenu.style.display = "none"; // Hide menu
+		pauseMenu.style.display = "none";
 	}
 
-		// Start the game
 		function gameLoop() {
 
 			if (paused) return;
