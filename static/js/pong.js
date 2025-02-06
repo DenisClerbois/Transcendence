@@ -10,7 +10,7 @@ function initializePong() {
 		canvas.id = "pongCanvas";
 		canvas.width = 1000;
 		canvas.height = 500;
-		appDiv.innerHTML = ""; // Clear existing content
+		//appDiv.innerHTML = ""; // Clear existing content
 		appDiv.appendChild(canvas);
 	}
 
@@ -78,7 +78,7 @@ function initializePong() {
 	});
 	pauseMenu.appendChild(resumeButton);
 	pauseMenu.appendChild(newGameButton);
-	document.body.appendChild(pauseMenu);
+	//document.body.appendChild(pauseMenu);
 
 	//event listeners to buttons
 	playVsAIButton.addEventListener("click", () => {
