@@ -10,7 +10,7 @@ function initializePong() {
 		canvas.id = "pongCanvas";
 		canvas.width = 1000;
 		canvas.height = 500;
-		//appDiv.innerHTML = ""; // Clear existing content
+		console.log("test");
 		appDiv.appendChild(canvas);
 	}
 
@@ -78,7 +78,7 @@ function initializePong() {
 	});
 	pauseMenu.appendChild(resumeButton);
 	pauseMenu.appendChild(newGameButton);
-	//document.body.appendChild(pauseMenu);
+	document.body.appendChild(pauseMenu);
 
 	//event listeners to buttons
 	playVsAIButton.addEventListener("click", () => {
@@ -132,7 +132,7 @@ function initializePong() {
 		ctx.fillRect(x, y, paddleWidth, paddleHeight);
 		ctx.strokeStyle = "black";
 		ctx.lineWidth = 1;
-		ctx.strokeRect(x, y, paddleWidth, paddleHeight); // Draw the border
+		ctx.strokeRect(x, y, paddleWidth, paddleHeight);
 	}
 
 	// Draw Ball
@@ -325,7 +325,7 @@ function initializePong() {
 
 	// Show the pause menu
 	function showPauseMenu() {
-		pauseMenu.style.display = "flex"; // Show menu
+		pauseMenu.style.display = "flex";
 		cancelAnimationFrame(gameLoop); // Stop the game loop
 	}
 

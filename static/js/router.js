@@ -50,9 +50,9 @@ async function fetchBody() {
 	}
 }
 
-document.querySelectorAll('a.nav-link').forEach( function(link) {
-	link.addEventListener("click", route);
-});
+//  document.querySelectorAll('a.nav-link').forEach( function(link) {
+//   	link.addEventListener("click", route);
+//   });
 window.onpopstate = fetchBody;
 updateNavbar();
 fetchBody();
