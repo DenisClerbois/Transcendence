@@ -109,9 +109,9 @@ function initializePong() {
 
 	// Ball Position and Speed
 	let SpeedIncrease = 0;
-	const InitSpeed = {dx: 7, dy: 0};
+	const InitSpeed = {dx: 3.5, dy: 0};
 	const ball = { x: canvas.width / 2, y: canvas.height / 2, dx: InitSpeed.dx, dy: InitSpeed.dy };
-	const paddleSpeed = Math.sqrt(ball.dx ** 2 + ball.dy ** 2) * 1.4;
+	const paddleSpeed = 3;
 	const backgroundColor = "#332890";
 	const keys = { w: false, s: false, ArrowUp: false, ArrowDown: false };
 	let time = Date.now();
@@ -157,8 +157,11 @@ function initializePong() {
 		ball.x += ball.dx;
 		ball.y += ball.dy;
 
-		// Ball collision with top and bottom walls
-		if (ball.y - ballRadius < 0 || ball.y + ballRadius > canvas.height) {
+		if (ball.y - ballRadius < 0) {
+			ball.y = ballRadius;
+			ball.dy *= -1;
+		} else if (ball.y + ballRadius > canvas.height) {
+			ball.y = canvas.height - ballRadius;
 			ball.dy *= -1;
 		}
 
