@@ -2,7 +2,7 @@ const routes = {
 	"/login":"/static/templates/login.html",
 	"/register":"/static/templates/register.html",
 	"/pong":"/static/templates/pong.html",
-	"/shifumi":"/static/templates/shifumi.html",
+	"/tictactoe":"/static/templates/tictactoe.html",
 	"/":"/static/templates/login.html",
 	"/profile":"/static/templates/profile.html",
 }

@@ -10,10 +10,8 @@ function initializePong() {
 		canvas.id = "pongCanvas";
 		canvas.width = 1000;
 		canvas.height = 500;
-		console.log("test");
 		appDiv.appendChild(canvas);
 	}
-
 	if (!canvas) {
 		console.error("Canvas not found or failed to initialize.");
 		return;
@@ -107,7 +105,7 @@ function initializePong() {
 	const player2 = { x: canvas.width - paddleWidth, y: canvas.height / 2 - paddleHeight / 2, score: 0, color: "white" };
 	let AI = true;
 
-	// Ball Position and Speed
+	// game options
 	let SpeedIncrease = 0;
 	const InitSpeed = {dx: 3.5, dy: 0};
 	const ball = { x: canvas.width / 2, y: canvas.height / 2, dx: InitSpeed.dx, dy: InitSpeed.dy };
