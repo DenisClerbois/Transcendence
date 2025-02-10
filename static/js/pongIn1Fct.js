@@ -1,6 +1,6 @@
 console.log("pong script loaded");
 
-let currentSocket;
+let Socket;
 
 
 function initializePong() {
@@ -24,22 +24,28 @@ function initializePong() {
 	}
 	
 	function InitWebsocket() {
-		const Socket = new WebSocket("wss://" + window.location.host + "/ws/pong/game_room/");
+		Socket = new WebSocket("wss://" + window.location.host + "/ws/pong/game_room/");
 		Socket.onopen = function(e) {
 			console.log("Connected to the game server");
-			currentSocket = Socket;
 		};
 
 		Socket.onclose = function(e) {
 			console.log("Disconnected from the server");
-			currentSocket = null;
+			Socket = null;
 		};
 		Socket.onmessage = function(e) {
 			const data = JSON.parse(e.data);
+			const player_id = data.message.match("Player: (.*) Action:")[1];
+			const action = data.message.match("Action: (.*) Key:")[1];
+			const key = data.message.match("Key: (.*)")[1];
+			console.log("data received");
+			console.log("id:", player_id);
+			console.log("action:", action);
 	
-			if (data.action && data.player_id) {
-				console.log(`Player ${data.player_id} performed action: ${data.action}`);
-				moveRemotePlayer(data.player_id, data.action);
+			if (action && player_id) {
+				console.log(`Player ${player_id} performed action: ${action} ${key}`);
+				console.log("data received in");
+				moveRemotePlayer(player_id, action, key);
 			}
 		}
 	}
@@ -141,7 +147,7 @@ function initializePong() {
 	const player1 = { ID: "player1", x: 0, y: canvas.height / 2 - paddleHeight / 2, score: 0, color: "white" };
 	const player2 = { ID: "player2", x: canvas.width - paddleWidth, y: canvas.height / 2 - paddleHeight / 2, score: 0, color: "white" };
 	let remote = true;
-	let AI = true;
+	let AI;
 
 	// Ball Position and Speed
 	let SpeedIncrease = 0;
@@ -160,7 +166,7 @@ document.addEventListener("keydown", (e) => {
 	if (e.key in keys){
 		keys[e.key] = true;
 		if (remote)
-			sendPlayerAction("move_down");
+			sendPlayerAction("KeyDown", e.key);
 	}
 });
 
@@ -168,13 +174,19 @@ document.addEventListener("keyup", (e) => {
 	if (e.key in keys) {
 		keys[e.key] = false;
 		if (remote)
-			sendPlayerAction("move_up");
+			sendPlayerAction("KeyUp", e.key);
 	}
 });
 
-function sendPlayerAction(action) {
-	if (currentSocket && currentSocket.readyState === WebSocket.OPEN)
-		socket.send(JSON.stringify({ player_id: "player2"/*player2.ID*/, action }));
+function sendPlayerAction(_action, _key) {
+	let id;
+	if (Socket && Socket.readyState === WebSocket.OPEN){
+		if (_key == "Arrow")
+			id = player2.ID;
+		else
+			id = player1.ID;
+		Socket.send(JSON.stringify({ player_id: "player2", action: _action, key: _key }));
+	}
 	else
 		console.error("WebSocket is not open. Cannot send message.");
 }
@@ -284,11 +296,14 @@ function resetBall() {
 	
 }
 
-function moveRemotePlayer(player_id, action) {
-	if (action === "move_up")
-		player2.y -= paddleSpeed;
-	if (action === "move_down")
-		player2.y += paddleSpeed
+function moveRemotePlayer(player_id, action, key) {
+	console.log("Remote player action:", action, key);
+	if (action == "KeyDown"){
+		keys[key] = true;
+	}
+	else{
+		keys[key] = false;
+}
 }
 
 // Move Paddles
@@ -298,13 +313,8 @@ function movePaddles() {
 	if (AI && (keys.ArrowDown || keys.ArrowUp) && prevPos.y > player2.y && prevPos.y < player2.y + 100){
 		keys.ArrowDown = false;
 		keys.ArrowUp = false;}
-	if (!remote){
-		if (keys.ArrowUp && player2.y > 0) player2.y -= paddleSpeed;
-		if (keys.ArrowDown && player2.y < canvas.height - paddleHeight) player2.y += paddleSpeed;
-	}
-	// else{
-	// 	checkRemotePlayer();
-	// }
+	if (keys.ArrowUp && player2.y > 0) {player2.y -= paddleSpeed;}
+	if (keys.ArrowDown && player2.y < canvas.height - paddleHeight) player2.y += paddleSpeed;
 }
 
 function adjustPos(newVal, speed, lim) {

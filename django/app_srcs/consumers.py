@@ -38,13 +38,16 @@ class MultiplayerConsumer(AsyncWebsocketConsumer):
             data = json.loads(text_data)
             action = data.get('action')
             player_id = data.get('player_id')
+            score = data.get('score')
+            key = data.get('key')
 
             # Broadcast the action to all players in the room
             await self.channel_layer.group_send(
                 self.room_name,
                 {
                     "type": "game_update",
-                    "message": f"Player {player_id} performed {action}",
+                    "message": f"Player: {player_id} Action: {action} Key: {key}",
+                    "score": f"Player {player_id} scored {score} points",
                 },
             )
             print(f"[RECEIVE] Action broadcasted: Player {player_id} performed {action}")
