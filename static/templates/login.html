@@ -1,3 +1,22 @@
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">Home</button>
+	</li>
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">Profile</button>
+	</li>
+  </ul>
+  <div class="tab-content" id="myTabContent">
+	<div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">...</div>
+	<div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">...</div>
+	<div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">...</div>
+	<div class="tab-pane fade" id="disabled-tab-pane" role="tabpanel" aria-labelledby="disabled-tab" tabindex="0">...</div>
+  </div>
+  
+
+
+
+
 <form method="POST">
 	<div class="mb-3">
 		<label class="form-label">
@@ -11,45 +30,7 @@
 			<input type="password" class="form-control" name="password">
 		</label>
 	</div>
-	<button type="button" class="btn btn-primary login">Submit</button>
+	<button type="button" data-path='/api/login/' class="btn btn-primary connexion">Submit</button>
 </form>
 
-<script>
-	async function fetchLogin(event) {
-		event.preventDefault();
-		var formData = new FormData(document.querySelector('form'));
-		const username = formData.get("username");
-		const password = formData.get("password");
-	
-		try {
-			const response = await fetch('https://localhost:8443/api/login/', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					// 'X-CSRFToken': csrfToken,
-				},
-				body: JSON.stringify({username: username,password: password}),
-			});
-			if (!response.ok){
-				data = await response.json();
-				console.log(data);
-				AddAlert('Error on login. Try again.')
-				document.querySelector("Form").reset();
-			}
-			else {
-				window.history.pushState({}, "", '/pong');
-				fetchBody();
-				updateNavbar();
-			}
-		}
-		catch (error) {
-			console.error(`${error}`);
-		}
-	}
-
-document.addEventListener('click', function(event) {
-	if (event.target && event.target.classList.contains('login'))
-		fetchLogin(event);
-})
-
-</script>
+<link rel="stylesheet" href="/static/css/connexion.css">
