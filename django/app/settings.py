@@ -23,13 +23,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.getenv("DEBUG", default=0))
+# DEBUG = int(os.getenv("DEBUG", default=0))
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
 
 # Application definition
 
 INSTALLED_APPS = [
+	'daphne',
+	'channels',
+	'channels_postgres',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -76,7 +79,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'app.wsgi.application'
-
+ASGI_APPLICATION = 'app.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -89,6 +92,14 @@ DATABASES = {
 		'PASSWORD': os.getenv("DB_PASSWORD"),
 		'HOST': os.getenv("POSTGRES_CONTAINER_NAME"),
 		'PORT': os.getenv("POSTGRES_PORT"),
+    },
+	'channels_postgres': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.getenv("CHNL_DB"),
+		'USER': os.getenv("CHNL_DB_USER"),
+		'PASSWORD': os.getenv("CHNL_DB_PASSWORD"),
+		'HOST': os.getenv("CHNL_POSTGRES_CONTAINER_NAME"),
+		'PORT': os.getenv("CHNL_POSTGRES_PORT"),
     }
 }
 
@@ -134,3 +145,25 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CHANNEL_LAYERS = {
+	"default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",}
+    # 'default': {
+    #     "BACKEND": "channels_postgres.core.PostgresChannelLayer",
+    #     "CONFIG": {
+    #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #         'NAME': os.getenv("CHNL_DB"),
+	# 	    'USER': os.getenv("CHNL_DB_USER"),
+	# 	    'PASSWORD': os.getenv("CHNL_DB_PASSWORD"),
+	# 	    'HOST': os.getenv("CHNL_POSTGRES_CONTAINER_NAME"),
+	# 	    'PORT': os.getenv("CHNL_POSTGRES_PORT"),
+    #     },
+    # },
+}
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+CHANNEL_CLOSE_TIMEOUT = 15
+
+DEBUG = True;

@@ -1,9 +1,13 @@
 console.log("pong script loaded");
 
+let currentSocket;
+
+
 function initializePong() {
 	
+	
 	const appDiv = document.getElementById("app");
-
+	
 	let canvas = document.getElementById("pongCanvas");
 	if (!canvas && window.location.pathname === "/pong") {
 		canvas = document.createElement("canvas");
@@ -13,12 +17,34 @@ function initializePong() {
 		appDiv.innerHTML = ""; // Clear existing content
 		appDiv.appendChild(canvas);
 	}
-
+	
 	if (!canvas) {
 		console.error("Canvas not found or failed to initialize.");
 		return;
 	}
+	
+	function InitWebsocket() {
+		const Socket = new WebSocket("wss://" + window.location.host + "/ws/pong/game_room/");
+		Socket.onopen = function(e) {
+			console.log("Connected to the game server");
+			currentSocket = Socket;
+		};
 
+		Socket.onclose = function(e) {
+			console.log("Disconnected from the server");
+			currentSocket = null;
+		};
+		Socket.onmessage = function(e) {
+			const data = JSON.parse(e.data);
+	
+			if (data.action && data.player_id) {
+				console.log(`Player ${data.player_id} performed action: ${data.action}`);
+				moveRemotePlayer(data.player_id, data.action);
+			}
+		}
+	}
+
+	InitWebsocket()
 	console.log(canvas);
 	const ctx = canvas.getContext("2d");
 
@@ -112,8 +138,9 @@ function initializePong() {
 	const ballRadius = 10;
 
 	// Paddle Positions
-	const player1 = { x: 0, y: canvas.height / 2 - paddleHeight / 2, score: 0, color: "white" };
-	const player2 = { x: canvas.width - paddleWidth, y: canvas.height / 2 - paddleHeight / 2, score: 0, color: "white" };
+	const player1 = { ID: "player1", x: 0, y: canvas.height / 2 - paddleHeight / 2, score: 0, color: "white" };
+	const player2 = { ID: "player2", x: canvas.width - paddleWidth, y: canvas.height / 2 - paddleHeight / 2, score: 0, color: "white" };
+	let remote = true;
 	let AI = true;
 
 	// Ball Position and Speed
@@ -130,13 +157,27 @@ function initializePong() {
 	let prevPos = { x: canvas.width / 2, y: canvas.height / 2, dx: InitSpeed.dx, dy: InitSpeed.dy };
 
 document.addEventListener("keydown", (e) => {
-	// if (AI && e.keys == ArrowDown)
-	if (e.key in keys) keys[e.key] = true;
+	if (e.key in keys){
+		keys[e.key] = true;
+		if (remote)
+			sendPlayerAction("move_down");
+	}
 });
 
 document.addEventListener("keyup", (e) => {
-	if (e.key in keys) keys[e.key] = false;
+	if (e.key in keys) {
+		keys[e.key] = false;
+		if (remote)
+			sendPlayerAction("move_up");
+	}
 });
+
+function sendPlayerAction(action) {
+	if (currentSocket && currentSocket.readyState === WebSocket.OPEN)
+		socket.send(JSON.stringify({ player_id: "player2"/*player2.ID*/, action }));
+	else
+		console.error("WebSocket is not open. Cannot send message.");
+}
 
 // Draw Paddle
 function drawPaddle(x, y, color) {
@@ -243,6 +284,13 @@ function resetBall() {
 	
 }
 
+function moveRemotePlayer(player_id, action) {
+	if (action === "move_up")
+		player2.y -= paddleSpeed;
+	if (action === "move_down")
+		player2.y += paddleSpeed
+}
+
 // Move Paddles
 function movePaddles() {
 	if (keys.w && player1.y > 0) player1.y -= paddleSpeed;
@@ -250,8 +298,13 @@ function movePaddles() {
 	if (AI && (keys.ArrowDown || keys.ArrowUp) && prevPos.y > player2.y && prevPos.y < player2.y + 100){
 		keys.ArrowDown = false;
 		keys.ArrowUp = false;}
-	if (keys.ArrowUp && player2.y > 0) player2.y -= paddleSpeed;
-	if (keys.ArrowDown && player2.y < canvas.height - paddleHeight) player2.y += paddleSpeed;
+	if (!remote){
+		if (keys.ArrowUp && player2.y > 0) player2.y -= paddleSpeed;
+		if (keys.ArrowDown && player2.y < canvas.height - paddleHeight) player2.y += paddleSpeed;
+	}
+	// else{
+	// 	checkRemotePlayer();
+	// }
 }
 
 function adjustPos(newVal, speed, lim) {
