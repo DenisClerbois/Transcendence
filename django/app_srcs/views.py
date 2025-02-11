@@ -61,17 +61,32 @@ def RegisterView(request):
 
 
 
-@login_required
-def userProfile(request):
-	user = request.user
-	return JsonResponse({
-		'username': user.username,
-		'email': user.email},
-		status=200)
-
-
-
-# # EXEMPLE POUR OLIVIER
 # @login_required
-# def getProfile()
-# 	return (JsonResponse(username))
+# def userProfile(request):
+# 	user = request.user
+# 	return JsonResponse({
+# 		'username': user.username,
+# 		'email': user.email},
+# 		status=200)
+
+
+
+# EXEMPLE POUR OLIVIER
+@login_required
+def getProfile(request):
+	user = request.user #the same user as "User" imported from django.contrib.auth.models in models.py
+	try:
+		profile = user.playerprofile  # Directly access OneToOneField (always lowercase)
+	except PlayerProfile.DoesNotExist:
+		return JsonResponse({"error": "Profile not found"}, status=404) #bon code??
+	
+	profile_data = {
+		"username": user.username,
+		"email": user.email,
+		"has_profile_pic": profile.has_profile_pic, #bool
+		# other user data fields
+	}
+	# if profile.has_profile_pic:
+	# 	profile_data["profile_pic_url"] = f"/ProfilePicPath/{user.id}"
+
+	return JsonResponse(profile_data)
