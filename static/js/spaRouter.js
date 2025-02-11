@@ -1,10 +1,13 @@
 const routes = {
 	"/login":"/static/templates/login.html",
+	"/":"/static/templates/login.html",
 	"/register":"/static/templates/register.html",
 	"/pong":"/static/templates/pong.html",
 	"/tictactoe":"/static/templates/tictactoe.html",
-	"/":"/static/templates/login.html",
 	"/profile":"/static/templates/profile.html",
+	"/leaderbord":"/static/templates/leaderbord.html",
+	"/home":"/static/templates/home.html",
+
 }
 
 function route(event) {
@@ -32,18 +35,11 @@ function runScriptsInHTML(html) {
 }
 
 async function fetchBody() {
-	try {
-		const route = routes[window.location.pathname]; // change login with 404
-		const response = await fetch(route);
-
-		if (!response.ok)
-			throw new Error(`${response.status}`);
-		const html = await response.text();
-		document.querySelector("div#app").innerHTML = html;
-		runScriptsInHTML(html);
-	} catch (error) {
-		console.error(`${error}`);
-	}
+	const route = routes[window.location.pathname] || '/static/templates/404.html';
+	const response = await fetch(route);
+	const html = await response.text();
+	document.querySelector("div#app").innerHTML = html;
+	runScriptsInHTML(html);
 }
 
  document.body.querySelectorAll('a').forEach( function(link) {

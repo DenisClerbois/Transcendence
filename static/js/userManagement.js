@@ -1,12 +1,16 @@
 
 
+
+
 // create dic to match status code to function.
 const statusHandlers = {
     200: () => { /* Handle success */ 
-		window.history.pushState({}, "", '/pong');
+		window.history.pushState({}, "", '/home');
+		document.querySelector('div.public').style.display= 'none';
+		document.querySelector('div.private').style.display= 'block';
 		fetchBody();
 	},
-    401: () => { /* Handle unauthorized */ 
+    401: () => { /* Handle unauthorized */
 		alert('Connexion failed.');
 	},
     500: () => { /* Handle server error */
@@ -54,41 +58,31 @@ document.body.addEventListener('click', function(event) {
 });
 
 
-// async function apiUser(){
-// 	try {
-// 		const response = await fetch('/api/userProfile', {
-// 			method: 'GET',
-// 			credentials: 'same-origin',
-// 		});
-// 		const data = await response.json();
-// 		console.log(data);
-// 		document.querySelector('p.username').textContent = `Username : ${data.username}`
-// 		document.querySelector('p.email').textContent = `Email : ${data.email}`
-// 	} catch (error) {
-// 		console.log(error);
-// 	}
-// }
-// async function fetchLogout(event){
-// 	event.preventDefault();
-// 	try {
-// 		const response = await fetch('https://localhost:8443/api/logout/', {
-// 			method: 'GET',
-// 			credentials: 'same-origin',
-// 		});
-// 		if (!response.ok){
-// 			AddAlert('ALERT, this should never happen !');
-// 		}
-// 		window.history.pushState({}, "", '/login');
-// 		fetchBody();
-// 		updateNavbar();
-// 		console.log('logout success.');
-// 	}
-// 	catch (error) {
-// 		console.error(`${error}`);
-// 	}
-// }
+async function apiUser(){
+	try {
+		const response = await fetch('/api/getProfile', {
+			method: 'GET',
+			credentials: 'same-origin',
+		});
+		const data = await response.json();
+		console.log(data);
+		document.querySelector('p.username').textContent = `Username : ${data.username}`
+		document.querySelector('p.email').textContent = `Email : ${data.email}`
+	} catch (error) {
+		console.log(error);
+	}
+}
 
-// document.addEventListener('click', function(event) {
-// if (event.target && event.target.classList.contains('logout'))
-// 	fetchLogout(event);
-// });
+
+async function logout(){
+	const response = await fetch('https://localhost:8443/api/logout/');
+	window.history.pushState({}, "", '/login');
+	fetchBody();
+	document.querySelector('div.public').style.display= 'block';
+	document.querySelector('div.private').style.display= 'none';
+}
+
+document.body.addEventListener('click', function(event) {
+if (event.target && event.target.matches('button.logout'))
+	logout();
+});

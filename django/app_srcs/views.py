@@ -68,3 +68,10 @@ def userProfile(request):
 		'username': user.username,
 		'email': user.email},
 		status=200)
+
+
+
+# # EXEMPLE POUR OLIVIER
+# @login_required
+# def getProfile()
+# 	return (JsonResponse(username))
