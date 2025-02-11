@@ -62,3 +62,12 @@ class MultiplayerConsumer(AsyncWebsocketConsumer):
             print(f"[GAME_UPDATE] Message sent: {message}")
         except Exception as e:
             print(f"[ERROR] Game update failed: {e}")
+
+class WaitingRoomQueue(AsyncWebsocketConsumer):
+    async def connect(self):
+        print("Connect To Waiting Room")
+    async def disconnect(self, close_code):
+        print("Disconnected From Waiting Room", close_code)
+    async def receive(self, text_data):
+        print("RECEIVE INPUT", text_data)
+        data = json.loads(text_data)

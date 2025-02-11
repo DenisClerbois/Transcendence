@@ -1,39 +1,40 @@
-  <form method="POST">
+<form method="POST" class="/api/register/">
     <div class="mb-3">
       <label class="form-label">
         email
         <input type="text" class="form-control" name="email">
-        <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
       </label>
     </div>
     <div class="mb-3">
-      <label class="form-label">
-        Confirm email
-        <input type="text" class="form-control" name="email confirmation">
-      </label>
+        <label class="form-label">
+            Confirm email
+            <input type="text" class="form-control" name="email confirmation">
+          </label>
     </div>
     <div class="mb-3">
-      <label class="form-label">
-        Username
-        <input type="text" class="form-control" name="username">
-      </label>
+        <label class="form-label">
+            Username
+            <input type="text" class="form-control" name="username">
+        </label>
     </div>
     <div>
-      <label for="inputPassword5" class="form-label">
-        Password
-        <input type="password" id="inputPassword5" class="form-control" name="password" aria-describedby="passwordHelpBlock">
-    </div>
-    <div id="passwordHelpBlock" class="form-text">
-      Your password must be 
-      - at least 8 characters
-      - must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number
-      - Can contain special characters
+        <label for="inputPassword5" class="form-label">
+            Password
+            <input type="password" id="inputPassword5" class="form-control" name="password" aria-describedby="passwordHelpBlock">
+        </label>
     </div>
     <div class="mb-3">
-      <label class="form-label">
-        Confirm password
-        <input type="password" class="form-control" name="password confirmation">
-      </label>
+        <label class="form-label">
+            Confirm password
+            <input type="password" class="form-control" name="password confirmation">
+        </label>
     </div>
-    <button type="button" class="btn btn-primary Register">Register</button>
-  </form>
+    <div id="passwordHelpBlock" class="form-text">
+        Your password must be 
+        - at least 8 characters
+        - must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number
+    </div>
+    <button type="button" data-path='/api/register/' class="btn btn-primary connexion">Submit</button>
+</form>
+
+<link rel="stylesheet" href="/static/css/connexion.css">

@@ -12,6 +12,8 @@ import re
 @csrf_exempt
 def LoginView(request):
 	if (request.method == 'POST'):
+		# if request.User.is_authenticated:
+		# 	return JsonResponse({'message': 'You are already logged in.'}, status=401)
 		data = json.loads(request.body)
 		username = data.get('username')
 		password = data.get('password')
@@ -56,3 +58,20 @@ def RegisterView(request):
 			return JsonResponse({'message': 'Error on logged in.'}, status=401)
 		login(request, user)
 		return JsonResponse({'message': 'User account created.'}, status=200)
+
+
+
+@login_required
+def userProfile(request):
+	user = request.user
+	return JsonResponse({
+		'username': user.username,
+		'email': user.email},
+		status=200)
+
+
+
+# # EXEMPLE POUR OLIVIER
+# @login_required
+# def getProfile()
+# 	return (JsonResponse(username))
