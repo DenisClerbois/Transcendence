@@ -1,0 +1,23 @@
+body {
+	font-family: Arial, sans-serif;
+	text-align: center;
+}
+
+#players {
+	list-style-type: none;
+	padding: 0;
+}
+
+#players li {
+	margin: 5px;
+	padding: 10px;
+	background: #f4f4f4;
+	display: inline-block;
+}
+
+#start-button {
+	margin-top: 20px;
+	padding: 10px 20px;
+	font-size: 16px;
+	cursor: pointer;
+}

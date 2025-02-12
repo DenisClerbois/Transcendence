@@ -27,6 +27,7 @@ services:
       - transcendence
     depends_on:
       - django
+    restart: on-failure
 
   postgres:
     image: postgres:17.2-alpine3.21

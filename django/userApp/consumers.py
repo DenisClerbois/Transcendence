@@ -64,10 +64,35 @@ class MultiplayerConsumer(AsyncWebsocketConsumer):
             print(f"[ERROR] Game update failed: {e}")
 
 class WaitingRoomQueue(AsyncWebsocketConsumer):
+    active_players = {}
+
     async def connect(self):
-        print("Connect To Waiting Room")
+        self.room_name = "pong_lobby"
+        self.room_group_name = f"lobby_{self.room_name}"
+        print("[ROOM NAME] :", self.room_group_name)
+
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.accept()
+
+        self.active_players[self.channel_name] = self.scope["user"].username
+
+        await self.send_lobby_update()
+
     async def disconnect(self, close_code):
-        print("Disconnected From Waiting Room", close_code)
-    async def receive(self, text_data):
-        print("RECEIVE INPUT", text_data)
-        data = json.loads(text_data)
+        if self.channel_name in self.active_players:
+            del self.active_players[self.channel_name]
+
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        await self.send_lobby_update()
+
+    async def send_lobby_update(self):
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                "type": "lobby_update",
+                "players": list(self.active_players.values()),
+            },
+        )
+
+    async def lobby_update(self, event):
+        await self.send(text_data=json.dumps({"players": event["players"]}))

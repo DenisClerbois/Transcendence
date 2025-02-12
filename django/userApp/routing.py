@@ -4,6 +4,7 @@ from .consumers import WaitingRoomQueue
 
 websocket_urlpatterns = [
     re_path(r'ws/pong/(?P<room_name>\w+)/$', MultiplayerConsumer.as_asgi()),
-	re_path(r'ws/waiting_room/(?P<waiting_room>\w+)/$', WaitingRoomQueue.as_asgi()),
+	re_path(r'ws/lobby/$', WaitingRoomQueue.as_asgi()),
+	# re_path(r'ws/lobby/(?P<room_name>\w+)/$', WaitingRoomQueue.as_asgi()),
 
 ]
