@@ -1,17 +1,17 @@
-from django.db import models
+# from django.db import models
 
 # Create your models(database) here.
-class User(models.Model):
-	username = models.CharField(max_length=16)
-	password = models.CharField(max_length=16)
+# class User(models.Model):
+# 	username = models.CharField(max_length=16)
+# 	password = models.CharField(max_length=16)
 
 
 
 
 
 
-# from django.contrib.auth.models import User
-# from django.db import models #django's layer over postgres database
+from django.contrib.auth.models import User
+from django.db import models #django's layer over postgres database
 
 # class PongGameStats(models.Model):
 #     highest_score = model.IntegerField(default=0)
