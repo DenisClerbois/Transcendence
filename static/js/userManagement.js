@@ -3,7 +3,7 @@
 
 
 // create dic to match status code to function.
-const statusHandlers = {
+const connexionStatusHandlers = {
     200: () => { /* Handle success */ 
 		window.history.pushState({}, "", '/home');
 		document.querySelector('div.public').style.display= 'none';
@@ -41,7 +41,7 @@ async function connexion(path) {
 		},
 		body: JSON.stringify(obj),
 	});
-	const handler = statusHandlers[response.status];
+	const handler = connexionStatusHandlers[response.status];
 	if (handler)
     	handler();
 	else
@@ -58,20 +58,32 @@ document.body.addEventListener('click', function(event) {
 });
 
 
-// async function apiUser(){
-// 	try {
-// 		const response = await fetch('/api/getProfile', {
-// 			method: 'GET',
-// 			credentials: 'same-origin',
-// 		});
-// 		const data = await response.json();
-// 		console.log(data);
-// 		document.querySelector('p.username').textContent = `Username : ${data.username}`
-// 		document.querySelector('p.email').textContent = `Email : ${data.email}`
-// 	} catch (error) {
-// 		console.log(error);
-// 	}
-// }
+const profileStatusHandlers = {
+    200: () => { /* Handle success */ 
+	},
+    401: () => { /* Handle unauthorized */
+		alert('You should connect first.');
+		window.history.pushState({}, "", '/login');
+		fetchBody();
+	},
+    500: () => { /* Handle server error */
+		alert('Server error.');
+	},
+};
+
+
+
+async function apiUser(){
+	const response = await fetch('https://localhost:8443/api/profile');
+	if (!response.ok)
+		return alert(`Error: ${response.status}`);
+	const data = await response.json();
+	console.log(data);
+
+
+	// document.querySelector('p.username').textContent = `Username : ${data.username}`
+	// document.querySelector('p.email').textContent = `Email : ${data.email}`
+}
 
 
 async function logout(){
