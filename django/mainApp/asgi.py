@@ -1,5 +1,5 @@
 """
-ASGI config for app project.
+ASGI config for mainApp project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -13,7 +13,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from app_srcs.routing import websocket_urlpatterns
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mainApp.settings')
 
 application = ProtocolTypeRouter({
     # "https": get_asgi_application(),

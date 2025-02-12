@@ -27,14 +27,12 @@ class User(models.Model):
 #     level = models.FloatField(default=1.0) #level setting the AI difficulty, evolving depending on past games
 #     #etc
 
-# class PlayerProfile(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE) #copy user data from auth app
-#     join_date = models.DateField(null=True)
-#     profile_picture = model.BooleanField(default=False) #if set to True, profile pic named after user unique id
+class PlayerProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE) #copy user data from auth app
+    has_profile_pic = models.BooleanField(default=False) #if set to True, profile pic named after user unique id
 #     pong_game_stats = models.OneToOneField(PongGameStats, on_delete=models.CASCADE, null=True, blank=True)
 #     other_game_stats = models.OneToOneField(OtherGameStats, on_delete=models.CASCADE, null=True, blank=True)
 #     friends_list = ArrayField(models.IntegerField(null=True, blank=True), null=True, blank=True) #unique id array
 
-
-#     def str(self):  # ~ofstream overload equivalent
-#         return self.user.username
+    def str(self):  # ~ofstream overload equivalent
+        return self.user.username

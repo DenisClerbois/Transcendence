@@ -8,8 +8,8 @@ ENV PYTHONUNBUFFER 1
 COPY . .
 
 RUN pip install --upgrade pip && \
-	pip install -r /usr/src/app/tools/requirements.txt
+	pip install -r /usr/src/app/dockerTools/requirements.txt
 	
-CMD ["/usr/src/app/tools/entrypoint.sh"]
+CMD ["/usr/src/app/dockerTools/entrypoint.sh"]
 
 
