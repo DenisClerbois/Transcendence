@@ -10,6 +10,8 @@ const routes_free_access = {
 	"/":"/static/templates/login.html",
 	"/register":"/static/templates/register.html",
 	"/home":"/static/templates/home.html",
+	"/lobby":"/static/templates/lobby.html"
+
 }
 
 const routes = {...routes_auth_required,

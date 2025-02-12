@@ -27,7 +27,7 @@ def LoginView(request):
 
 @login_required
 def LogoutView(request):
-	logout(request);
+	logout(request)
 	return JsonResponse({'message': 'User logged out.'}, status=200)
 
 
