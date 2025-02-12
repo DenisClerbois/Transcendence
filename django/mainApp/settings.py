@@ -30,6 +30,9 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
 # Application definition
 
 INSTALLED_APPS = [
+	'daphne',
+	'channels',
+	'channels_postgres',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -76,6 +79,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'mainApp.wsgi.application'
+ASGI_APPLICATION = 'mainApp.asgi.application'
 
 
 # Database
@@ -134,3 +138,12 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CHANNEL_LAYERS = {
+	"default": {
+		"BACKEND": "channels.layers.InMemoryChannelLayer",},
+    }
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+CHANNEL_CLOSE_TIMEOUT = 15
