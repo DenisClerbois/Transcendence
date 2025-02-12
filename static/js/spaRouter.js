@@ -1,14 +1,19 @@
-const routes = {
+const routes_auth_required = {
+	"/profile":"/static/templates/profile.html",
+	// "/pong":"/static/templates/pong.html",
+	// "/tictactoe":"/static/templates/tictactoe.html",
+	// "/leaderbord":"/static/templates/leaderbord.html",
+}
+
+const routes_free_access = {
 	"/login":"/static/templates/login.html",
 	"/":"/static/templates/login.html",
 	"/register":"/static/templates/register.html",
-	// "/pong":"/static/templates/pong.html",
-	// "/tictactoe":"/static/templates/tictactoe.html",
-	"/profile":"/static/templates/profile.html",
-	// "/leaderbord":"/static/templates/leaderbord.html",
 	"/home":"/static/templates/home.html",
-
 }
+
+const routes = {...routes_auth_required,
+				...routes_free_access}
 
 function route(event) {
 	event.preventDefault();
