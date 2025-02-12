@@ -1,15 +1,19 @@
-const routes = {
-	"/login":"/static/templates/login.html",
-	"/":"/static/templates/login.html",
-	"/register":"/static/templates/register.html",
-	// "/pong":"/static/templates/pong.html",
-	// "/tictactoe":"/static/templates/tictactoe.html",
-	"/profile":"/static/templates/profile.html",
-	// "/leaderbord":"/static/templates/leaderbord.html",
-	"/home":"/static/templates/home.html",
-	"/lobby":"/static/templates/lobby.html"
-
+const routes_auth_required = {
+	"/profile":"/static/html/profile.html",
+	"/home":"/static/html/home.html",
+	// "/pong":"/static/html/pong.html",
+	// "/tictactoe":"/static/html/tictactoe.html",
+	// "/leaderbord":"/static/html/leaderbord.html",
 }
+
+const routes_free_access = {
+	"/login":"/static/html/login.html",
+	"/":"/static/html/login.html",
+	"/register":"/static/html/register.html",
+}
+
+const routes = {...routes_auth_required,
+				...routes_free_access}
 
 function route(event) {
 	event.preventDefault();
@@ -36,17 +40,19 @@ function runScriptsInHTML(html) {
 }
 
 async function fetchBody() {
-	const route = routes[window.location.pathname] || '/static/templates/404.html';
+	const route = routes[window.location.pathname] || '/static/html/404.html';
 	const response = await fetch(route);
+	if (window.location.pathname == '/profile')
+		apiUser();
 	const html = await response.text();
 	document.querySelector("div#app").innerHTML = html;
 	runScriptsInHTML(html);
 }
 
- document.body.querySelectorAll('a').forEach( function(link) {
-  	link.addEventListener("click", route);
-  });
-window.onpopstate = fetchBody;
+document.body.querySelectorAll('a').forEach( function(link) {
+	link.addEventListener("click", route);
+});
+window.onpopstate = fetchBody; // Back/forward button
 fetchBody();
 
 
@@ -64,22 +70,10 @@ fetchBody();
 // }
 
 
-// async function checkIfAuthenticated() {
-// 	try {
-// 		const response = await fetch('/api/checkUserAuthenticated/', {
-// 			method: 'GET',
-// 			credentials: 'same-origin'
-// 		});
-// 		if (response.ok)
-// 			return true;
-// 		else
-// 			return false;
-// 	} 
-// 	catch (error) {
-// 		console.error("Error checking authentication:", error);
-// 		return false;
-// 	}
-// }
+async function auth() {
+	const response = await fetch('/api/checkUserAuthenticated/');
+	return response.ok ? true : false;
+}
 
 // async function updateNavbar() {
 // 	const isAuthenticated = await checkIfAuthenticated();

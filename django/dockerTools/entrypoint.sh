@@ -15,6 +15,7 @@ if not User.objects.filter(username=username).exists():
 	User.objects.create_superuser(username=username, email=email, password=password)
 EOF
 
-gunicorn --workers 3 --bind 0.0.0.0:8000 mainApp.wsgi:application
+exec watchfiles --filter python 'gunicorn --workers 3 --bind 0.0.0.0:8000 mainApp.wsgi:application'
+#gunicorn --workers 3 --bind 0.0.0.0:8000 mainApp.wsgi:application
 # COMMENT : only design to support dev server. Gunicorn should be better
 # python manage.py runserver 0.0.0.0:8000

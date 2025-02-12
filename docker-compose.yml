@@ -5,7 +5,7 @@ services:
       context: ./django
     container_name: django
     volumes:
-      - ./static:/static
+      - ./django:/usr/src/app
     depends_on:
       - postgres
     expose:
@@ -48,4 +48,5 @@ networks:
 volumes:
   data:
   static:
+  
 
