@@ -58,20 +58,20 @@ document.body.addEventListener('click', function(event) {
 });
 
 
-async function apiUser(){
-	try {
-		const response = await fetch('/api/getProfile', {
-			method: 'GET',
-			credentials: 'same-origin',
-		});
-		const data = await response.json();
-		console.log(data);
-		document.querySelector('p.username').textContent = `Username : ${data.username}`
-		document.querySelector('p.email').textContent = `Email : ${data.email}`
-	} catch (error) {
-		console.log(error);
-	}
-}
+// async function apiUser(){
+// 	try {
+// 		const response = await fetch('/api/getProfile', {
+// 			method: 'GET',
+// 			credentials: 'same-origin',
+// 		});
+// 		const data = await response.json();
+// 		console.log(data);
+// 		document.querySelector('p.username').textContent = `Username : ${data.username}`
+// 		document.querySelector('p.email').textContent = `Email : ${data.email}`
+// 	} catch (error) {
+// 		console.log(error);
+// 	}
+// }
 
 
 async function logout(){

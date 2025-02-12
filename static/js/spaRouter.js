@@ -2,10 +2,10 @@ const routes = {
 	"/login":"/static/templates/login.html",
 	"/":"/static/templates/login.html",
 	"/register":"/static/templates/register.html",
-	"/pong":"/static/templates/pong.html",
-	"/tictactoe":"/static/templates/tictactoe.html",
+	// "/pong":"/static/templates/pong.html",
+	// "/tictactoe":"/static/templates/tictactoe.html",
 	"/profile":"/static/templates/profile.html",
-	"/leaderbord":"/static/templates/leaderbord.html",
+	// "/leaderbord":"/static/templates/leaderbord.html",
 	"/home":"/static/templates/home.html",
 
 }
