@@ -7,6 +7,7 @@ const routes = {
 	"/profile":"/static/templates/profile.html",
 	// "/leaderbord":"/static/templates/leaderbord.html",
 	"/home":"/static/templates/home.html",
+	"/lobby":"/static/templates/lobby.html"
 
 }
 
