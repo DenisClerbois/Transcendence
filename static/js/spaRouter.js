@@ -1,15 +1,15 @@
 const routes_auth_required = {
-	"/profile":"/static/templates/profile.html",
-	// "/pong":"/static/templates/pong.html",
-	// "/tictactoe":"/static/templates/tictactoe.html",
-	// "/leaderbord":"/static/templates/leaderbord.html",
+	"/profile":"/static/html/profile.html",
+	"/home":"/static/html/home.html",
+	// "/pong":"/static/html/pong.html",
+	// "/tictactoe":"/static/html/tictactoe.html",
+	// "/leaderbord":"/static/html/leaderbord.html",
 }
 
 const routes_free_access = {
-	"/login":"/static/templates/login.html",
-	"/":"/static/templates/login.html",
-	"/register":"/static/templates/register.html",
-	"/home":"/static/templates/home.html",
+	"/login":"/static/html/login.html",
+	"/":"/static/html/login.html",
+	"/register":"/static/html/register.html",
 }
 
 const routes = {...routes_auth_required,
