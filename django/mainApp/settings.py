@@ -90,11 +90,14 @@ ASGI_APPLICATION = 'mainApp.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv("DB"),
-		'USER': os.getenv("DB_USER"),
+        'NAME': os.getenv("POSTGRES_DB"),
+		'USER': os.getenv("POSTGRES_USER"),
 		'PASSWORD': os.getenv("DB_PASSWORD"),
 		'HOST': os.getenv("POSTGRES_CONTAINER_NAME"),
 		'PORT': os.getenv("POSTGRES_PORT"),
+        'OPTIONS': {
+            'options': '-c search_path=public,pg_catalog',
+        },
     }
 }
 
