@@ -37,7 +37,7 @@ services:
     env_file:
       - ./.env/dev.env
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - .data:/var/lib/postgresql/data
       - ./psql/:/docker-entrypoint-initdb.d
     networks:
       - transcendence
@@ -47,7 +47,7 @@ networks:
     driver: bridge
 
 volumes:
-  pgdata:
+  .data:
   static:
   
 

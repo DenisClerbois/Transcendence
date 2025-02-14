@@ -64,26 +64,44 @@ class MultiplayerConsumer(AsyncWebsocketConsumer):
             print(f"[ERROR] Game update failed: {e}")
 
 class WaitingRoomQueue(AsyncWebsocketConsumer):
-    active_players = {}
+    active_players = {}  # Tracks all connected players
+    ready_players = []  # Tracks players who are ready
 
     async def connect(self):
         self.room_name = "pong_lobby"
         self.room_group_name = f"lobby_{self.room_name}"
-        print("[ROOM NAME] :", self.room_group_name)
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
         self.active_players[self.channel_name] = self.scope["user"].username
-
         await self.send_lobby_update()
 
     async def disconnect(self, close_code):
         if self.channel_name in self.active_players:
             del self.active_players[self.channel_name]
+        if self.channel_name in self.ready_players:
+            self.ready_players.remove(self.channel_name)
 
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
         await self.send_lobby_update()
+
+    async def receive(self, text_data):
+        try:
+            data = json.loads(text_data)
+            action = data.get("action")
+            # player = self.scope["user"].username
+           
+            if action == "ready":
+                if self.channel_name not in self.ready_players:
+                    self.ready_players.append(self.channel_name)
+
+                await self.pair_players()
+
+            await self.send_lobby_update()
+
+        except Exception as e:
+            print(f"[ERROR] Receive failed: {e}")
 
     async def send_lobby_update(self):
         await self.channel_layer.group_send(
@@ -91,34 +109,34 @@ class WaitingRoomQueue(AsyncWebsocketConsumer):
             {
                 "type": "lobby_update",
                 "players": list(self.active_players.values()),
+                "ready_count": len(self.ready_players),
             },
         )
 
     async def lobby_update(self, event):
-        await self.send(text_data=json.dumps({"players": event["players"]}))
+        await self.send(text_data=json.dumps({
+            "players": event["players"],
+            "ready_count": event["ready_count"]
+        }))
 
-    async def receive(self, text_data):
-        print(f"[RECEIVE] Data: {text_data}")
-        try:
-            data = json.loads(text_data)
-            action = data.get('action')
-            player = self.scope["user"].username
+    async def pair_players(self):
+        while len(self.ready_players) >= 2:
+            player1 = self.ready_players.pop(0)
+            player2 = self.ready_players.pop(0)
 
-            # Broadcast the action to all players in the room
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    "type": "join_game",
-                    "players": list(self.active_players.values()),
-                    "player":  self.scope["user"].username,
-                    "action": action,
-                    
-                },
-            )
-            print(f"[RECEIVE] Action broadcasted: {player} {action}")
-        except Exception as e:
-            print(f"[ERROR] Receive failed: {e}")
-    async def join_game(self, event):
-        print("[JOIN GAME FUNCTION]")
-        await self.send(text_data=json.dumps({"player": event["player"], "action": event["action"]}))
- 
+            await self.send_to_player(player1, {"action": "redirect"})
+            await self.send_to_player(player2, {"action": "redirect"})
+
+    async def send_to_player(self, player_channel, message):
+        await self.channel_layer.send(
+            player_channel,
+            {
+                "type": "redirect_player",
+                "message": message,
+            },
+        )
+
+    async def redirect_player(self, event):
+        await self.send(text_data=json.dumps(event["message"]))
+
+# peut etre envoyer les informations necessaire a pong sur un pong server side, genre les players la room pour creer la websocket etc. >>> peut etre important de faire pong server side pour ca?

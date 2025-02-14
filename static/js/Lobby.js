@@ -1,55 +1,43 @@
 const socket = new WebSocket("wss://" + window.location.host + "/ws/lobby/");
-let PlayersReady = 0;
 let ready = false;
 
 socket.onmessage = function (event) {
     const data = JSON.parse(event.data);
-    const playerList = document.getElementById("players");
-    const newPlayer = data["player"];
-    const action = data["action"];
-    playerList.innerHTML = "";
-    if (!action) {
-        data.players.forEach(player => {
-            const li = document.createElement("li");
-            li.textContent = player;
-            playerList.appendChild(li);
-        });
-    }
-    console.log(data);
-    if (newPlayer && action == "ready") {
-        console.log("action = ", action);
-        PlayersReady += 1;
-        if (PlayersReady >= 2) {
-            console.log("coucoucocuocucoucou");
-            window.location.href = "/pong/";
-            PlayersReady -= 1;
-        }
-    }
-    else {
-        if (data.players.length >= 2) {
-            document.getElementById("start-button").disabled = false;
-            document.getElementById("start-button").textContent = "Ready to Play";
-        } else if (PlayersReady == 0) {
-            document.getElementById("start-button").disabled = true;
-            document.getElementById("start-button").textContent = "Waiting For Players...";
-        }
-    }
-    console.log("receive", newPlayer, PlayersReady);
 
+    if (data.action === "redirect") {
+        window.location.href = "/pong/";
+        return; // Exit function early to avoid errors
+    }
+    
+    const playerList = document.getElementById("players");
+    const startButton = document.getElementById("start-button");
+
+    playerList.innerHTML = "";
+    data.players.forEach(player => {
+        const li = document.createElement("li");
+        li.textContent = player;
+        playerList.appendChild(li);
+    });
+
+    document.getElementById("Connected").innerHTML = `Players Connected: ${data.players.length}`;
+    document.getElementById("ReadyCount").innerHTML = `Players Ready: ${data.ready_count}`;
+
+    if (data.players.length >= 2) {
+        startButton.disabled = false;
+        startButton.textContent = "Ready to Play";
+    } else {
+        startButton.disabled = true;
+        startButton.textContent = "Waiting for players...";
+    }
+
+    if (data.action === "redirect") {
+        window.location.href = "/pong";
+    }
 };
 
 document.getElementById("start-button").addEventListener("click", function () {
-    console.log("click");
-    if (PlayersReady < 2 && !ready) {
-        PlayersReady += 1;
-        console.log("click", PlayersReady);
+    if (!ready) {
         ready = true;
-        socket.send(JSON.stringify({ action: "ready" }))
-    }
-    if (PlayersReady >= 2) {
-        console.log("coucoucocuocucoucou");
-        window.location.href = "/pong/";
-        PlayersReady -= 1;
+        socket.send(JSON.stringify({action: "ready"}));
     }
 });
-
