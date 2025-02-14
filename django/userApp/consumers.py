@@ -109,6 +109,7 @@ class WaitingRoomQueue(AsyncWebsocketConsumer):
                 self.room_group_name,
                 {
                     "type": "join_game",
+                    "players": list(self.active_players.values()),
                     "player":  self.scope["user"].username,
                     "action": action,
                     
@@ -118,4 +119,6 @@ class WaitingRoomQueue(AsyncWebsocketConsumer):
         except Exception as e:
             print(f"[ERROR] Receive failed: {e}")
     async def join_game(self, event):
+        print("[JOIN GAME FUNCTION]")
         await self.send(text_data=json.dumps({"player": event["player"], "action": event["action"]}))
+ 
