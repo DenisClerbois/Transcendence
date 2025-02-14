@@ -101,15 +101,15 @@ class WaitingRoomQueue(AsyncWebsocketConsumer):
         print(f"[RECEIVE] Data: {text_data}")
         try:
             data = json.loads(text_data)
-            player = data.get('player')
             action = data.get('action')
+            player = self.scope["user"].username
 
             # Broadcast the action to all players in the room
             await self.channel_layer.group_send(
-                self.room_name,
+                self.room_group_name,
                 {
                     "type": "join_game",
-                    "player": player,
+                    "player":  self.scope["user"].username,
                     "action": action,
                     
                 },
@@ -117,5 +117,5 @@ class WaitingRoomQueue(AsyncWebsocketConsumer):
             print(f"[RECEIVE] Action broadcasted: {player} {action}")
         except Exception as e:
             print(f"[ERROR] Receive failed: {e}")
-    async def join_game(self):
-        print("GAME JOINED")
+    async def join_game(self, event):
+        await self.send(text_data=json.dumps({"player": event["player"], "action": event["action"]}))
