@@ -2,22 +2,19 @@
 
 
 
-// create dic to match status code to function.
+// create dic obj to match status code to function.
 const connexionStatusHandlers = {
     200: () => { /* Handle success */ 
 		window.history.pushState({}, "", '/home');
-		document.querySelector('div.public').style.display= 'none';
-		document.querySelector('div.private').style.display= 'block';
 		fetchBody();
 	},
     401: () => { /* Handle unauthorized */
-		alert('Connexion failed.');
+		alertNonModal('Connexion failed.');
 	},
     500: () => { /* Handle server error */
-		alert('Server error.');
+		alertNonModal('Server error.');
 	},
 };
-
 
 /**
  * handle both login & register
@@ -27,6 +24,14 @@ const connexionStatusHandlers = {
  * Server side has to be done
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions
  */
+// I TOUGHT :  If our script was directly added to index.html like router.js, it woudn't apply to this html.
+// BUT : if you linked it to an existing element (like the body part) it will !!
+document.body.addEventListener('click', function(event) {
+    if (event.target && event.target.matches('button.connexion')) {
+        connexion(event.target.dataset.path);
+    }
+});
+
 async function connexion(path) {
 	var formData = new FormData(document.querySelector('form'));
 	let obj = {};
@@ -48,53 +53,36 @@ async function connexion(path) {
 		console.log(`Unhandled status: ${response.status}`);
 }
 
-
-// I TOUGHT :  If our script was directly added to index.html like router.js, it woudn't apply to this html.
-// BUT : if you linked it to an existing element (like the body part) it will !!
-document.body.addEventListener('click', function(event) {
-    if (event.target && event.target.matches('button.connexion')) {
-        connexion(event.target.dataset.path);
-    }
-});
-
-
-const profileStatusHandlers = {
-    200: () => { /* Handle success */ 
-	},
-    401: () => { /* Handle unauthorized */
-		alert('You should connect first.');
-		window.history.pushState({}, "", '/login');
-		fetchBody();
-	},
-    500: () => { /* Handle server error */
-		alert('Server error.');
-	},
-};
+// const profileStatusHandlers = {
+//     200: () => { /* Handle success */ 
+// 	},
+//     401: () => { /* Handle unauthorized */
+// 		alertNonModal('You should connect first.');
+// 		window.history.pushState({}, "", '/login');
+// 		fetchBody();
+// 	},
+//     500: () => { /* Handle server error */
+// 		alertNonModal('Server error.');
+// 	},
+// };
 
 
 
 async function apiUser(){
-	const response = await fetch('https://localhost:8443/api/profile');
-	if (!response.ok)
-		return alert(`Error: ${response.status}`);
-	const data = await response.json();
-	console.log(data);
-
-
-	// document.querySelector('p.username').textContent = `Username : ${data.username}`
-	// document.querySelector('p.email').textContent = `Email : ${data.email}`
+	// const response = await fetch('https://localhost:8443/api/profile');
+	// if (!response.ok)
+	// 	return alert(`Error: ${response.status}`);
+	// const data = await response.json();
+	// console.log(data);
 }
 
-
-async function logout(){
-	const response = await fetch('https://localhost:8443/api/logout/');
-	window.history.pushState({}, "", '/login');
-	fetchBody();
-	document.querySelector('div.public').style.display= 'block';
-	document.querySelector('div.private').style.display= 'none';
-}
 
 document.body.addEventListener('click', function(event) {
-if (event.target && event.target.matches('button.logout'))
-	logout();
-});
+	if (event.target && event.target.matches('button.logout'))
+		logout();
+	});
+async function logout(){
+	const response = await fetch('https://localhost:8443/api/logout/');
+	window.history.pushState({}, "", '/');
+	fetchBody();
+}

@@ -1,0 +1,33 @@
+/* Make sure the body and html take up the full height */
+html, body {
+    height: 100%;
+    margin: 0;
+    background-image: url('https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'); /* Add the image URL here */
+    background-size: cover; /* Make the background image cover the entire page */
+    background-position: center center; /* Center the image */
+    background-attachment: fixed; /* Keep the background fixed when scrolling */
+}
+
+
+/* Use flexbox to center the content */
+body {
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: center;     /* Centers vertically */
+    background-color: #f8f9fa; /* Optional background color */
+    flex-direction: column;   /* Allow vertical stacking of content */
+}
+
+/* Ensure the card takes the full width but doesn't overflow */
+.card {
+    width: 100%;
+    max-width: 600px; /* Optional max width for the card */
+}
+
+dialog {
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    z-index: 9999;
+    border: none;
+}
