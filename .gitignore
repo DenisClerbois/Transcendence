@@ -4,4 +4,8 @@
 
 .trash
 .data
+.pyc
 virtualEnv/
+migrations/*
+__pycache__
+__init__.py

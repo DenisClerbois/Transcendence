@@ -69,11 +69,11 @@ async function connexion(path) {
 
 
 async function apiUser(){
-	// const response = await fetch('https://localhost:8443/api/profile');
-	// if (!response.ok)
-	// 	return alert(`Error: ${response.status}`);
-	// const data = await response.json();
-	// console.log(data);
+	const response = await fetch('https://localhost:8443/api/profile');
+	if (!response.ok)
+		return alert(`Error: ${response.status}`);
+	const data = await response.json();
+	console.log(data);
 }
 
 
