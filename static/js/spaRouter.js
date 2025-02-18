@@ -6,8 +6,8 @@ const routes_auth_required = {
 	// "/leaderbord":"/static/html/leaderbord.html",
 }
 const routes_free_access = {
-	"/login":"/static/html/login.html",
 	"/":"/static/html/login.html",
+	"/login":"/static/html/login.html",
 	"/register":"/static/html/register.html",
 }
 const routes = {...routes_auth_required,
@@ -93,8 +93,6 @@ async function fetchBody() {
 
 	const route = routes[path];
 	const response = await fetch(route);
-	if (path == '/profile')
-		apiUser();
 	const html = await response.text();
 	document.querySelector("div#app").innerHTML = html;
 	runScriptsInHTML(html);
