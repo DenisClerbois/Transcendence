@@ -12,19 +12,50 @@ import re
 
 # Create your views here.
 @csrf_exempt
+# def LoginView(request):
+# 	if (request.method == 'POST'):
+# 		# if request.User.is_authenticated:
+# 		# 	return JsonResponse({'message': 'You are already logged in.'}, status=401)
+# 		data = json.loads(request.body)
+# 		print("[DEBUG LOGIN] json =", data)
+# 		username = data.get('username')
+# 		password = data.get('password')
+# 		user = authenticate(request, username=username, password=password)
+# 		print("[DEBUG LOGIN] user =", user)
+# 		if user is not None:
+# 			login(request, user)
+# 			return JsonResponse({'message': 'User logged in.'}, status=200)
+# 		else:
+# 			return JsonResponse({'message': 'Error on logged in.'}, status=401)
 def LoginView(request):
-	if (request.method == 'POST'):
-		# if request.User.is_authenticated:
-		# 	return JsonResponse({'message': 'You are already logged in.'}, status=401)
-		data = json.loads(request.body)
-		username = data.get('username')
-		password = data.get('password')
-		user = authenticate(request, username=username, password=password)
-		if user is not None:
-			login(request, user)
-			return JsonResponse({'message': 'User logged in.'}, status=200)
-		else:
-			return JsonResponse({'message': 'Error on logged in.'}, status=401)
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        print("[DEBUG LOGIN] json =", data)
+
+        username = data.get('username')
+        password = data.get('password')
+
+        print("[DEBUG LOGIN] Trying to authenticate user with username:", username)
+
+        # Check if the user exists in the database directly for debugging purposes
+        try:
+            user = User.objects.get(username=username)
+            print("[DEBUG LOGIN] User found in the database:", user)
+        except User.DoesNotExist:
+            print("[DEBUG LOGIN] No user found with username:", username)
+            return JsonResponse({'message': 'User not found.'}, status=404)
+
+        # Now attempt authentication
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            print("[DEBUG LOGIN] Authentication successful, logging in user.")
+            login(request, user)
+            return JsonResponse({'message': 'User logged in.'}, status=200)
+        else:
+            print("[DEBUG LOGIN] Authentication failed.")
+            return JsonResponse({'message': 'Invalid username or password.'}, status=401)
+
 
 @login_required
 def LogoutView(request):

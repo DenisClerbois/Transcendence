@@ -1,6 +1,5 @@
 from django.urls import path
-from matchmakingApp.views import get_lobby_data
-
+from . import views
 urlpatterns = [
-    path("api/lobby/", get_lobby_data, name="lobby_data"),
+    path("api/home/", views.get_lobby_data, name="lobby_data"),
 ]

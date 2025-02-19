@@ -155,3 +155,5 @@ CHANNEL_LAYERS = {
 CORS_ALLOW_ALL_ORIGINS = True
 
 CHANNEL_CLOSE_TIMEOUT = 15
+
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend']

@@ -1,68 +1,68 @@
 let ready;
 let socket;
 
-function InitWebsocketLobby() {
-	socket = new WebSocket("wss://" + window.location.host + "/ws/home/");
-	socket.onopen = function(e) {
-		console.log("Connected to the game server");
-	};
+// function InitWebsocketLobby() {
+// 	socket = new WebSocket("wss://" + window.location.host + "/ws/home/");
+// 	socket.onopen = function(e) {
+// 		console.log("Connected to the Matchmaking server");
+// 	};
 
-	socket.onclose = function(e) {
-		console.log("Disconnected from the server");
-		socket = null;
-	};
-	socket.onmessage = function (event) {
-		const data = JSON.parse(event.data);
+// 	socket.onclose = function(e) {
+// 		console.log("Disconnected from the server");
+// 		socket = null;
+// 	};
+// 	socket.onmessage = function (event) {
+// 		const data = JSON.parse(event.data);
 
-		if (data.action === "redirect") {
-			window.location.href = "/pong/";
-			return; // Exit function early to avoid errors
-		}
+// 		if (data.action === "redirect") {
+// 			window.location.href = "/pong/";
+// 			return; // Exit function early to avoid errors
+// 		}
 
-		const playerList = document.getElementById("players");
-		const startButton = document.getElementById("start-button");
+// 		const playerList = document.getElementById("players");
+// 		const startButton = document.getElementById("start-button");
 
-		playerList.innerHTML = "";
-		data.players.forEach(player => {
-			const li = document.createElement("li");
-			li.textContent = player;
-			playerList.appendChild(li);
-		});
+// 		playerList.innerHTML = "";
+// 		data.players.forEach(player => {
+// 			const li = document.createElement("li");
+// 			li.textContent = player;
+// 			playerList.appendChild(li);
+// 		});
 
-		document.getElementById("Connected").innerHTML = `Players Connected: ${data.players.length}`;
-		document.getElementById("ReadyCount").innerHTML = `Players Ready: ${data.ready_count}`;
+// 		document.getElementById("Connected").innerHTML = `Players Connected: ${data.players.length}`;
+// 		document.getElementById("ReadyCount").innerHTML = `Players Ready: ${data.ready_count}`;
 
-		if (data.players.length >= 2) {
-			startButton.disabled = false;
-			startButton.textContent = "Ready to Play";
-		} else {
-			startButton.disabled = true;
-			startButton.textContent = "Waiting for players...";
-		}
+// 		if (data.players.length >= 2) {
+// 			startButton.disabled = false;
+// 			startButton.textContent = "Ready to Play";
+// 		} else {
+// 			startButton.disabled = true;
+// 			startButton.textContent = "Waiting for players...";
+// 		}
 
-		if (data.action === "redirect") {
-			window.location.href = "/pong";
-		}
-	};
-}
+// 		if (data.action === "redirect") {
+// 			window.location.href = "/pong";
+// 		}
+// 	};
+// }
 
-document.getElementById("start-button").addEventListener("click", function () {
-	if (!ready) {
-		ready = true;
-		socket.send(JSON.stringify({ action: "ready" }));
-	}
-});
+// document.getElementById("start-button").addEventListener("click", function () {
+// 	if (!ready) {
+// 		ready = true;
+// 		socket.send(JSON.stringify({ action: "ready" }));
+// 	}
+// });
 
-async function InitMatchmaking() {
-	ready = false;
-	if (!socket)
-		InitWebsocketLobby();
+// async function InitMatchmaking() {
+// 	ready = false;
+// 	if (!socket)
+// 		InitWebsocketLobby();
 
 	
-}
+// }
 
-if (window.location.pathname == "/home")
-	InitMatchmaking()
+// if (window.location.pathname == "/home")
+// 	InitMatchmaking()
 
 //NEW DESIGN IDEA
 
@@ -83,13 +83,13 @@ if (window.location.pathname == "/home")
 
 
 
-/*const socket = new WebSocket("wss://" + window.location.host + "/ws/lobby/");
-let ready = false;
+// const socket = new WebSocket("wss://" + window.location.host + "/ws/lobby/");
+// let ready = false;
 
 // Fetch lobby data from backend API every 5 seconds
 async function fetchLobbyData() {
 	try {
-		const response = await fetch("/api/lobby/");
+		const response = await fetch("/api/home/");
 		const data = await response.json();
 		updateLobbyUI(data.players, data.ready_count);
 	} catch (error) {
@@ -112,31 +112,34 @@ function updateLobbyUI(players, readyCount) {
 	document.getElementById("Connected").innerHTML = `Players Connected: ${players.length}`;
 	document.getElementById("ReadyCount").innerHTML = `Players Ready: ${readyCount}`;
 
-	if (players.length >= 2) {
-		startButton.disabled = false;
-		startButton.textContent = "Ready to Play";
-	} else {
+	if (ready) {
 		startButton.disabled = true;
-		startButton.textContent = "Waiting for players...";
+		startButton.textContent = "Waiting For Players...";
+	}
+	else {
+		startButton.disabled = false;
+		startButton.textContent = "Matchmaking";
 	}
 }
 
 // Handle WebSocket messages for real-time updates
-socket.onmessage = function (event) {
-	const data = JSON.parse(event.data);
+function InitWebsocketLobby() {
+	socket = new WebSocket("wss://" + window.location.host + "/ws/home/");
+	socket.onmessage = function (event) {
+		const data = JSON.parse(event.data);
 
-	if (data.action === "redirect") {
-		window.location.href = "/pong/";
-		return; // Exit function early to avoid errors
-	}
+		if (data.action === "redirect") {
+			window.location.href = "/pong/";
+			return; // Exit function early to avoid errors
+		}
 
-	if (data.players.length === 0) {
-		console.warn("No players received from WebSocket!");
-	}
-    
-	updateLobbyUI(data.players, data.ready_count);
-};
+		if (data.players.length === 0) {
+			console.warn("No players received from WebSocket!");
+		}
 
+		updateLobbyUI(data.players, data.ready_count);
+	};
+}
 // Handle clicking the "Ready" button
 document.getElementById("start-button").addEventListener("click", function () {
 	if (!ready) {
@@ -146,4 +149,12 @@ document.getElementById("start-button").addEventListener("click", function () {
 });
 
 // Fetch lobby data periodically for stability
-setInterval(fetchLobbyData, 5000);*/
+async function InitMatchmaking() {
+	ready = false;
+	if (!socket)
+		InitWebsocketLobby();
+	setInterval(fetchLobbyData, 5000);
+}
+
+if (window.location.pathname == "/home")
+	InitMatchmaking()
