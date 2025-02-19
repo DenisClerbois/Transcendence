@@ -4,25 +4,32 @@ const routes_auth_required = {
 	// "/tictactoe":"/static/html/tictactoe.html",
 	// "/leaderbord":"/static/html/leaderbord.html",
 }
-
 const routes_free_access = {
 	"/pong":"/static/notUse/pong.html",
 	"/login":"/static/html/login.html",
-	"/":"/static/html/login.html",
 	"/register":"/static/html/register.html",
 }
-
 const routes = {...routes_auth_required,
 				...routes_free_access}
-	
+
+
+
+/**
+ * LINK NAVBAR WITH UPDATING FUNCTION
+ */
+document.body.querySelectorAll('a').forEach( function(link) {
+	link.addEventListener("click", route);
+});
 function route(event) {
 	event.preventDefault();
-	var url = event.target.href;
-	window.history.pushState({}, "", url);
+	window.history.pushState({}, "", event.target.href);
 	fetchBody();
 }
 
-/* Load and execute any script find in the html template */
+
+/**
+ * LOAD AND EXECUTE ANY SCRIPT FIND IN HTML
+ */
 function runScriptsInHTML(html) {
 	const tempDiv = document.createElement('div');
 	tempDiv.innerHTML = html;
@@ -39,35 +46,56 @@ function runScriptsInHTML(html) {
 	});
 }
 
+/**
+ * UPDATENAV CHANGE NAVBAR BY HIDDING PART OF IT
+ */
+function updateNav() {
+	const path = window.location.pathname;
+
+	if (path in routes){
+		const bool = path in routes_auth_required;
+
+		const pubElem = document.querySelector('div.public');
+		const priElem = document.querySelector('div.private');
+
+		if (pubElem && priElem){
+			pubElem.hidden = bool;
+			priElem.hidden = !bool;
+		}
+		else
+			console.error('BUG: no public or private div.');
+	}
+}
+
+
+/**
+ * USE ALERTNONMODAL TO ADD A NON MODAL (= NON BLOCKING) POPUP WITH SPECIFIC ALERT MESSAGE.
+ */
+const closeButton = document.querySelector("dialog button");
+const popup = document.querySelector('dialog');
+if (!closeButton || !popup)
+	console.log('BUG: dialog button not found..');
+closeButton.addEventListener("click", () => {
+	popup.close();
+ });
+function alertNonModal(alert){
+	popup.querySelector('p').textContent = alert;
+	popup.show();
+}
+
+
+
 async function fetchBody() {
-	const route = routes[window.location.pathname] || '/static/html/404.html';
+	const path = window.location.pathname;
+
+	updateNav();
+
+	const route = routes[path];
 	const response = await fetch(route);
-	if (window.location.pathname == '/profile')
-		apiUser();
 	const html = await response.text();
 	document.querySelector("div#app").innerHTML = html;
 	runScriptsInHTML(html);
 }
-
-document.body.querySelectorAll('a').forEach( function(link) {
-	link.addEventListener("click", route);
-});
-window.onpopstate = fetchBody; // Back/forward button
-fetchBody();
-
-
-
-// function AddAlert(message){
-// 	const app = document.querySelector('div#app');
-// 	let alert = app.querySelector('.alert');
-// 	if (alert) {
-// 		alert.remove();
-// 	}
-// 	alert = document.createElement('div');
-// 	alert.classList.add('alert', 'alert-light'); // Bootstrap class
-// 	alert.textContent = message;
-// 	app.appendChild(alert);
-// }
 
 
 async function auth() {
@@ -75,22 +103,38 @@ async function auth() {
 	return response.ok ? true : false;
 }
 
-// async function updateNavbar() {
-// 	const isAuthenticated = await checkIfAuthenticated();
-// 	const publicLinks = document.querySelectorAll('li.nav-item.public');
 
-// 	publicLinks.forEach(link => {
-// 		if (isAuthenticated)
-// 			link.style.display = 'none';
-// 		else
-// 			link.style.display = 'inline';
-// 	});
 
-// 	const privateLinks = document.querySelectorAll('li.nav-item.private');
-// 	privateLinks.forEach(link => {
-// 		if (isAuthenticated)
-// 			link.style.display = 'inline';
-// 		else
-// 			link.style.display = 'none';
-// 	});
-// }
+
+async function updateContent(){
+	const connect = await auth();
+	const path = window.location.pathname;
+
+	if (!(path in routes)){
+		window.history.pushState({}, "", connect ? '/home' : '/');
+		alertNonModal('This page doesn\'t exist.');
+	}
+	else {
+		if (path in routes_auth_required && !connect){
+			alertNonModal('You have to be login to access this ressource.');
+			window.history.pushState({}, "", '/');
+		}
+		if (path in routes_free_access && connect){
+			alertNonModal('You are already login.');
+			window.history.pushState({}, "", '/home');
+		}
+	}
+	fetchBody();
+}
+
+
+
+/**
+ * BACK && FORWARD BUTTON
+ */
+window.onpopstate = fetchBody;
+/**
+ * EACH TIME THE SCRIPT IS LOADED (WHEN PRESSING TAB IN THE URL), EXECUTE UPDATECONTENT FUNCTION
+ */
+updateContent()
+
