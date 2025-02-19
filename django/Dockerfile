@@ -7,6 +7,8 @@ ENV PYTHONUNBUFFER 1
 
 COPY ./dockerTools/requirements.txt /usr/src/app/dockerTools/requirements.txt
 
+RUN	apt-get update && apt-get install -y postgresql-client
+
 RUN pip install --upgrade pip && \
 	pip install -r /usr/src/app/dockerTools/requirements.txt
 	

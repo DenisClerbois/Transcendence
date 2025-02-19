@@ -1,7 +1,6 @@
 const routes_auth_required = {
 	"/profile":"/static/html/profile.html",
 	"/home":"/static/html/home.html",
-	"/lobby":"/static/html/lobby.html"
 	// "/tictactoe":"/static/html/tictactoe.html",
 	// "/leaderbord":"/static/html/leaderbord.html",
 }
@@ -15,7 +14,7 @@ const routes_free_access = {
 
 const routes = {...routes_auth_required,
 				...routes_free_access}
-
+	
 function route(event) {
 	event.preventDefault();
 	var url = event.target.href;

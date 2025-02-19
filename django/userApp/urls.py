@@ -5,7 +5,6 @@ urlpatterns = [
 	path("api/login/", views.LoginView, name="login"),
 	path("api/logout/", views.LogoutView, name="logout"),
 	path("api/register/", views.RegisterView, name="register"),
-	#path("api/userProfile/", views.userProfile, name="userProfile"),
 	path("api/profile", views.getProfile, name="profile"),
 	path("api/checkUserAuthenticated/", views.checkUserAuthenticated, name="checkUserAuthenticated"),
 ]
