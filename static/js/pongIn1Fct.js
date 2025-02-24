@@ -1,4 +1,4 @@
-console.log("pong script loaded");
+console.log("coucou pong script loaded");
 
 let Socket;
 
@@ -24,7 +24,17 @@ function initializePong() {
 	}
 	
 	function InitWebsocket() {
-		Socket = new WebSocket("wss://" + window.location.host + "/ws/pong/game_room/");
+		const room_id = sessionStorage.getItem("room_id");
+
+		if (!room_id) {
+			console.error("Room ID is missing! WebSocket cannot connect.");
+			return;
+		}
+	
+		console.log("Room_id received: ", room_id);
+	
+		Socket = new WebSocket(`wss://${window.location.host}/ws/pong/room_name/${encodeURIComponent(room_id)}/`);
+	
 		Socket.onopen = function(e) {
 			console.log("Connected to the game server");
 		};

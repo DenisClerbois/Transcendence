@@ -1,11 +1,11 @@
 const routes_auth_required = {
+	"/pong":"/static/notUse/pong.html",
 	"/profile":"/static/html/profile.html",
 	"/home":"/static/html/home.html",
 	// "/tictactoe":"/static/html/tictactoe.html",
 	// "/leaderbord":"/static/html/leaderbord.html",
 }
 const routes_free_access = {
-	"/pong":"/static/notUse/pong.html",
 	"/login":"/static/html/login.html",
 	"/register":"/static/html/register.html",
 }

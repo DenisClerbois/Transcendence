@@ -29,10 +29,4 @@ class Player(models.Model):
     """Represents a player in a lobby, can be extended later."""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     lobby = models.ForeignKey(Lobby, on_delete=models.CASCADE, related_name="players")
-    ready = models.BooleanField(default=False)  # New attribute: track if player is ready
     joined_at = models.DateTimeField(auto_now_add=True)  # Timestamp when player joined
-
-    def toggle_ready(self):
-        """Switch player readiness state."""
-        self.ready = not self.ready
-        self.save()

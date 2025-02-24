@@ -21,5 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 	path("", include("userManagementApp.urls")),
 	path("", include("matchmakingApp.urls")),
-	path("pong/", include("pongApp.urls")),
+	path("", include("pongApp.urls")),
 ]

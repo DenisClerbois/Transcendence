@@ -1,4 +1,4 @@
-console.log("pong script loaded");
+console.log("sa mere pong script loaded");
 
 function initializePong() {
 	

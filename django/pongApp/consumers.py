@@ -8,7 +8,11 @@ from asgiref.sync import async_to_sync
 class MultiplayerConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         print(f"[CONNECT] Channel Name: {self.channel_name}")
-        self.room_name = "game_room"
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        
+        # Optionally, perform any other operations like creating a group
+        self.room_group_name = f"pong_{self.room_name}"
+        print(f"[CONNECT] room name: {self.room_name}, group = {self.room_group_name}")
         try:
             await self.channel_layer.group_add(
                 self.room_name,
