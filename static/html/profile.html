@@ -1,4 +1,16 @@
-<p class="username"></p>
-<p class="email"></p>
+<div id="profile-display">
+    <p><strong>Username:</strong> <span id="username">Loading...</span></p>
+    <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+    <button class="btn btn-primary" onclick="editProfile()">Edit Profile</button>
+</div>
+
+<div id="profile-edit" style="display: none;">
+    <p><strong>Username:</strong> <input type="text" id="usernameInput" required></p>
+    <p><strong>Email:</strong> <input type="email" id="emailInput" required></p>
+    <button class="btn btn-primary" onclick="saveProfile()">Save Profile</button>
+    <button class="btn btn-primary" onclick="cancelEdit()">Cancel</button>
+</div>
+
+<script src="/static/js/profilePage.js" type="text/javascript"></script>
 
 <button type="button" class="btn btn-primary logout">Logout</button>

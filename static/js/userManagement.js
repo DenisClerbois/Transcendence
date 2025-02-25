@@ -66,17 +66,6 @@ async function connexion(path) {
 // 	},
 // };
 
-
-
-// async function apiUser(){
-// 	const response = await fetch('https://localhost:8443/api/user/profile');
-// 	if (!response.ok)
-// 		return alert(`Error: ${response.status}`);
-// 	const data = await response.json();
-// 	console.log(data);
-// }
-
-
 // document.body.addEventListener('click', function(event) {
 // 	if (event.target && event.target.matches('button.logout'))
 // 		logout();
