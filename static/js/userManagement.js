@@ -50,7 +50,7 @@ async function connexion(path) {
 	if (handler)
     	handler();
 	else
-		console.log(`Unhandled status: ${response.status}`);
+		console.log(`BUUG: Unhandled status: ${response.status}`);
 }
 
 // const profileStatusHandlers = {
@@ -68,21 +68,21 @@ async function connexion(path) {
 
 
 
-async function apiUser(){
-	const response = await fetch('https://localhost:8443/api/profile');
-	if (!response.ok)
-		return alert(`Error: ${response.status}`);
-	const data = await response.json();
-	console.log(data);
-}
+// async function apiUser(){
+// 	const response = await fetch('https://localhost:8443/api/user/profile');
+// 	if (!response.ok)
+// 		return alert(`Error: ${response.status}`);
+// 	const data = await response.json();
+// 	console.log(data);
+// }
 
 
-document.body.addEventListener('click', function(event) {
-	if (event.target && event.target.matches('button.logout'))
-		logout();
-	});
-async function logout(){
-	const response = await fetch('https://localhost:8443/api/logout/');
-	window.history.pushState({}, "", '/');
-	fetchBody();
-}
+// document.body.addEventListener('click', function(event) {
+// 	if (event.target && event.target.matches('button.logout'))
+// 		logout();
+// 	});
+// async function logout(){
+// 	const response = await fetch('https://localhost:8443/api/user/logout/');
+// 	window.history.pushState({}, "", '/');
+// 	fetchBody();
+// }

@@ -11,7 +11,7 @@ import re
 
 # Create your views here.
 @csrf_exempt
-def LoginView(request):
+def log(request):
 	if (request.method == 'POST'):
 		# if request.User.is_authenticated:
 		# 	return JsonResponse({'message': 'You are already logged in.'}, status=401)
@@ -26,19 +26,19 @@ def LoginView(request):
 			return JsonResponse({'message': 'Error on logged in.'}, status=401)
 
 @login_required
-def LogoutView(request):
+def logout(request):
 	logout(request)
 	return JsonResponse({'message': 'User logged out.'}, status=200)
 
 
-def checkUserAuthenticated(request):
+def auth(request):
 	if request.user.is_authenticated:
 		return JsonResponse({'authenticated': True}, status=200)
 	else:
 		return JsonResponse({'authenticated': False}, status=401) # change this to 200 and adapt the js response
 
 @csrf_exempt
-def RegisterView(request):
+def register(request):
 	# Use raw string for regex patterns in Python
 	regex_email = r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
 	regex_password = r"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$"
@@ -73,21 +73,21 @@ def RegisterView(request):
 
 
 # EXEMPLE POUR OLIVIER
-@login_required
-def getProfile(request):
-	user = request.user #the same user as "User" imported from django.contrib.auth.models in models.py
-	try:
-		profile = user.playerprofile  # Directly access OneToOneField (always lowercase)
-	except PlayerProfile.DoesNotExist:
-		return JsonResponse({"error": "Profile not found"}, status=404) #bon code??
+# @login_required
+# def getProfile(request):
+# 	user = request.user #the same user as "User" imported from django.contrib.auth.models in models.py
+# 	try:
+# 		profile = user.playerprofile  # Directly access OneToOneField (always lowercase)
+# 	except PlayerProfile.DoesNotExist:
+# 		return JsonResponse({"error": "Profile not found"}, status=404) #bon code??
 	
-	profile_data = {
-		"username": user.username,
-		"email": user.email,
-		# "has_profile_pic": profile.has_profile_pic, #bool
-		# other user data fields
-	}
-	# if profile.has_profile_pic:
-	# 	profile_data["profile_pic_url"] = f"/ProfilePicPath/{user.id}"
+# 	profile_data = {
+# 		"username": user.username,
+# 		"email": user.email,
+# 		# "has_profile_pic": profile.has_profile_pic, #bool
+# 		# other user data fields
+# 	}
+# 	# if profile.has_profile_pic:
+# 	# 	profile_data["profile_pic_url"] = f"/ProfilePicPath/{user.id}"
 
-	return JsonResponse(profile_data)
+# 	return JsonResponse(profile_data)
