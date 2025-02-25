@@ -42,6 +42,7 @@ class GameLoopConsumer:
 			p1: {'ArrowDown': False, 'ArrowUp': False},
 			p2: {'ArrowDown': False, 'ArrowUp': False},
 		}
+		self.player = [p1, p2]
 		self.game_const.initSpeed = self.game_state['speed']
 		self.game_const.paddle.speed = sqrt(self.game_state['vector'][0] ** 2 + self.game_state['vector'][1] ** 2) * self.game_const.initSpeed * 1.4
 		self.is_running = True
@@ -64,12 +65,12 @@ class GameLoopConsumer:
 		self.is_running = False
 	def move_paddles(self, player1, player2):
 		if player1["keyhold"]:
-			if player1["action"] == "up":
+			if self.game_state[self.player[0]] == "up":
 				self.check_paddle_movement(self.game_state["player1"]["paddle"][1], -1 * self.game_const.paddle.speed, "player1")
 			else:
 				self.check_paddle_movement(self.game_state["player1"]["paddle"][1], self.game_const.paddle.speed, "player1")
 		if player2["keyhold"]:
-			if player1["action"] == "up":
+			if self.game_state[self.player[2]] == "up":
 				self.check_paddle_movement(self.game_state["player2"]["paddle"][1], -1 * self.game_const.paddle.speed, "player2")
 			else:
 				self.check_paddle_movement(self.game_state["player2"]["paddle"][1], self.game_const.paddle.speed, "player2")
