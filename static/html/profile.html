@@ -1,16 +1,26 @@
+<!--    django/userManagementApp/views.py
+        static/js/profilePage.js
+-->
+
+<!--User profile values display view. Insert ALL PlayerProfile variables-->
 <div id="profile-display">
-    <p><strong>Username:</strong> <span id="username">Loading...</span></p>
-    <p><strong>Email:</strong> <span id="email">Loading...</span></p>
-    <button class="btn btn-primary" onclick="editProfile()">Edit Profile</button>
+    <p><strong>Username:</strong><span class="display" name="username">Loading...</span></p>
+    <p><strong>Email:</strong><span class="display" name="email">Loading...</span></p>
+    <p><strong>TeethLength:</strong><span class="display" name="teeth_length">Loading...</span></p>
+    <p><strong>Id:</strong><span class="display" name="id">Loading...</span></p>
+    <button class="btn btn-primary switchEdit">Edit Profile</button>
 </div>
 
-<div id="profile-edit" style="display: none;">
-    <p><strong>Username:</strong> <input type="text" id="usernameInput" required></p>
-    <p><strong>Email:</strong> <input type="email" id="emailInput" required></p>
-    <button class="btn btn-primary" onclick="saveProfile()">Save Profile</button>
-    <button class="btn btn-primary" onclick="cancelEdit()">Cancel</button>
+<!--User profile edit view. Insert ONLY PlayerProfile modifyable variabes-->
+<div id="profile-edit" hidden>
+    <p><strong>Username:</strong><input type="text" class="input" name="username" required ></p>
+    <p><strong>Email:</strong><input type="email" class="input" name="email" required ></p>
+    <p><strong>TeethLength:</strong><input type="number" class="input" name="teeth_length" required></p>
+
+    <button class="btn btn-primary save">Save Profile</button>
+    <button class="btn btn-primary switchDisplay">Cancel</button>
 </div>
 
 <script src="/static/js/profilePage.js" type="text/javascript"></script>
-
+<p></p>
 <button type="button" class="btn btn-primary logout">Logout</button>
