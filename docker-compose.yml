@@ -41,6 +41,16 @@ services:
     networks:
       - transcendence
     restart: always
+  
+  redis:
+    container_name: redis
+    image: "redis:alpine"
+    expose:
+      - "6379"
+    depends_on:
+      - django
+    networks:
+      - transcendence
 
 networks:
   transcendence:

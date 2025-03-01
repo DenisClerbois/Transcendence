@@ -64,7 +64,7 @@ function updateNav() {
 			priElem.hidden = !bool;
 		}
 		else
-			console.error('BUG: no public or private div.');
+			console.log('BUG: no public or private div.');
 	}
 }
 
@@ -100,7 +100,7 @@ async function fetchBody() {
 
 
 async function auth() {
-	const response = await fetch('/api/checkUserAuthenticated/');
+	const response = await fetch('https://localhost:8443/api/user/auth/');
 	return response.ok ? true : false;
 }
 
@@ -132,6 +132,7 @@ async function updateContent(){
 
 /**
  * BACK && FORWARD BUTTON
+ * HAS TO BE PROTECTED FOR COMING BACK AFTER CONNEXION !!!! ERROR
  */
 window.onpopstate = fetchBody;
 /**
