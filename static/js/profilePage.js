@@ -44,7 +44,7 @@ function updateHtml(data) {
  */
 async function fetchProfile() {
     try {
-        const response = await fetch('/api/profile');
+        const response = await fetch('/api/user/profile');
         if (!response.ok) {
             throw new Error('Failed to fetch profile data.');
         }
@@ -68,7 +68,7 @@ async function saveProfile() {
             updatedData[key] = inElem.value;
         }
     }
-    const response = await fetch('/api/profileUpdate/', {
+    const response = await fetch('/api/user/profileUpdate/', {
         method: 'POST',
         headers:  { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedData),

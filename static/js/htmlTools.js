@@ -10,27 +10,20 @@ document.addEventListener("keypress", function (event) {
     }
 });
 
-// getProfilePic
-async function fetchProfilePic() {
-    try {
-        const response = await fetch('/api/getProfilePicPath/');
-        if (!response.ok) throw new Error("Not authenticated");
+// // getProfilePic
+// async function fetchProfilePic() {
+//     try {
+//         const response = await fetch('/api/user/getProfilePicPath/');
+//         if (!response.ok) throw new Error("Not authenticated");
 
-        const data = await response.json();
-        if (data.path != null) {
-            document.querySelector("#profile-pic").src = data.path;
-        }
-    } catch (error) {
-        console.log("User not logged in. Using default avatar.");
-    }
-}
-
-// Logout function
-document.querySelector("#logout-btn").addEventListener("click", async () => {
-    await fetch("/api/logout/", { method: "POST" });
-    window.history.pushState({}, "", '/');
-	fetchBody();
-});
+//         const data = await response.json();
+//         if (data.path != null) {
+//             document.querySelector("#profile-pic").src = data.path;
+//         }
+//     } catch (error) {
+//         console.log("User not logged in. Using default avatar.");
+//     }
+// }
 
 // Ensure profile image is updated on page load
-fetchProfilePic();
+// fetchProfilePic();
