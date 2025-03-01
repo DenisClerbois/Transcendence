@@ -14,7 +14,7 @@ from .utils import userDataErrorFinder
 
 
 # Create your views here.
-def LoginView(request):
+def log(request):
 	if (request.method == 'POST'):
 		# if request.User.is_authenticated:
 		# 	return JsonResponse({'message': 'You are already logged in.'}, status=401)
@@ -28,37 +28,31 @@ def LoginView(request):
 		else:
 			return JsonResponse({'message': 'Error on logged in.'}, status=401)
 
-# @login_required
-def LogoutView(request):
-	if request.user.is_authenticated:
-		logout(request)
-		return JsonResponse({'message': 'User logged out.'}, status=200)
-	return JsonResponse({'message': "User not authenticated. Can't logout"}, status=401)
+@login_required
+def logout(request):
+	logout(request)
+	return JsonResponse({'message': 'User logged out.'}, status=200)
 
 
-def checkUserAuthenticated(request):
+def auth(request):
 	if request.user.is_authenticated:
 		return JsonResponse({'authenticated': True}, status=200)
 	else:
 		return JsonResponse({'authenticated': False}, status=401) # change this to 200 and adapt the js response
 
-def RegisterView(request):
+def register(request):
 	data = json.loads(request.body)
 	# Check format and duplicates
 	dataErrors = userDataErrorFinder(data, "username", "email", "password")
 	if bool(dataErrors):
-		print(dataErrors)
-		return JsonResponse(dataErrors, status=402)
-	# Create the user
+		return JsonResponse(dataErrors, status=401)
 
+	# Create the user
 	user = User.objects.create_user(username=data.get('username'),
 									email=data.get('email'),
 									password=data.get('password'))
 	if user is None:
-		print("USER IS NONE")
 		return JsonResponse({'message': 'Error on user creation.'}, status=401)
-	else:
-		print("GOING TO TRY LOGGING IN")
 	login(request, user)
 	return JsonResponse({'message': 'User account created.'}, status=200)
 

@@ -22,7 +22,4 @@ if not User.objects.filter(username=username).exists():
 EOF
 
 
-exec watchfiles --filter python 'gunicorn --workers 3 --bind 0.0.0.0:8000 mainApp.wsgi:application'
-#gunicorn --workers 3 --bind 0.0.0.0:8000 mainApp.wsgi:application
-# COMMENT : only design to support dev server. Gunicorn should be better
-# python manage.py runserver 0.0.0.0:8000
+exec watchfiles --filter python 'daphne -b 0.0.0.0 -p 8000 mainApp.asgi:application'

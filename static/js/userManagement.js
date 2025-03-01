@@ -21,6 +21,7 @@ const connexionStatusHandlers = {
 };
 
 async function connexion(path) {
+	console.log(path);
 	var formData = new FormData(document.querySelector('form'));
 	let obj = {};
 	formData.forEach((value, key) => {
@@ -34,15 +35,16 @@ async function connexion(path) {
 		},
 		body: JSON.stringify(obj),
 	});
+	console.log(response);
 	const handler = connexionStatusHandlers[response.status];
 	if (handler)
     	handler();
 	else
-		console.log(`Unhandled status: ${response.status}`);
+		console.log(`BUUG: Unhandled status: ${response.status}`);
 }
 
 async function logout(){
-	const response = await fetch('https://localhost:8443/api/logout/');
+	const response = await fetch('https://localhost:8443/api/user/logout/');
 	window.history.pushState({}, "", '/');
 	fetchBody();
 }
