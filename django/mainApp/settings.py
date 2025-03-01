@@ -146,6 +146,7 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             "hosts": [('redis', 6379)],  # "redis" est le nom du service dans Docker
+			"capacity":1000
         },
     },
 }
