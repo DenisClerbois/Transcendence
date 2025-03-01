@@ -83,8 +83,9 @@ class GameLoopConsumer:
 			self.game_state["ball"][0] += (self.game_state["vector"][0] * self.game_state["speed"])
 			self.game_state["ball"][1] += (self.game_state["vector"][1] * self.game_state["speed"])
 	def check_collision(self):
-		if self.game_state["ball"][1] + self.game_const.ballRadius + self.game_state["vector"][1] * self.game_state["speed"] > self.game_const.board.y:
-		elif self.game_state["ball"][1] - self.game_const.ballRadius - self.game_state["vector"][1] * self.game_state["speed"] < 0:
+		# if self.game_state["ball"][1] + self.game_const.ballRadius + self.game_state["vector"][1] * self.game_state["speed"] > self.game_const.board.y:
+		# elif self.game_state["ball"][1] - self.game_const.ballRadius - self.game_state["vector"][1] * self.game_state["speed"] < 0:
+		self
 	def increaseSpeed(self):
 		self
 	def scoreAndResetBall(self):
