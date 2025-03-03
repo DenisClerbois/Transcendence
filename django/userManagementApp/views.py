@@ -25,12 +25,15 @@ def log(request):
 		if user is not None:
 			login(request, user)
 			return JsonResponse({'message': 'User logged in.'}, status=200)
+		elif User.objects.filter(username=username).exists():
+			return JsonResponse({'password': 'invalid'}, status=401)
 		else:
-			return JsonResponse({'message': 'Error on logged in.'}, status=401)
+			return JsonResponse({'username': 'invalid'}, status=401)
 
+#nom de merde pour eviter une boucle recursive
 @login_required
 def logoute(request):
-	logout(request)
+	logout(request) #fonction django
 	return JsonResponse({'message': 'User logged out.'}, status=200)
 
 
@@ -43,7 +46,7 @@ def auth(request):
 def register(request):
 	data = json.loads(request.body)
 	# Check format and duplicates
-	dataErrors = userDataErrorFinder(data, "username", "email", "password")
+	dataErrors = userDataErrorFinder(data)
 	if bool(dataErrors):
 		return JsonResponse(dataErrors, status=401)
 
@@ -88,6 +91,7 @@ def profileUpdate(request):
 
 		# Update user details
 		user = request.user
+		playerprofile = user.playerprofile
 		# static/js/profilePage.js
 		for key, arg in data.items():
 			print(key)
@@ -97,10 +101,11 @@ def profileUpdate(request):
 				case "email":
 					user.email = arg
 				case "teeth_length":
-					user.teeth_length = arg
+					playerprofile.teeth_length = arg
 				case _:
 					print("profileUpdate() data anomaly: key={}, arg={}".format(key, arg))
 		user.save()
+		playerprofile.save()
 		return JsonResponse(data, status=200)
 	return JsonResponse({'status': 'error', 'error': 'Invalid request'}, status=400)
 

@@ -117,7 +117,7 @@ async function updateContent(){
 	}
 	else {
 		if (path in routes_auth_required && !connect){
-			alertNonModal('You have to be login to access this ressource.');
+			alertNonModal('You have to be logged in to access this ressource.');
 			window.history.pushState({}, "", '/');
 		}
 		if (path in routes_free_access && connect){

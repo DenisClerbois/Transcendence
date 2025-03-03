@@ -1,7 +1,8 @@
 /* HTML EVENT MANAGEMENT */
 document.body.addEventListener('click', function(event) {
-	if (event.target && event.target.matches('button.connexion'))
+	if (event.target && event.target.matches('button.connexion')) {
 		connexion(event.target.dataset.path);
+	}
 	if (event.target && event.target.matches('button.logout'))
 		logout();
 });
@@ -12,35 +13,30 @@ const connexionStatusHandlers = {
 		window.history.pushState({}, "", '/home');
 		fetchBody();
 	},
-    401: () => { /* Handle unauthorized */
-		alertNonModal('Connexion failed.');
-	},
+    401: (errorData) => {
+		formErrorStyle(errorData);
+	}, 
     500: () => { /* Handle server error */
 		alertNonModal('Server error.');
 	},
 };
 
 async function connexion(path) {
-	console.log(path);
-	var formData = new FormData(document.querySelector('form'));
-	let obj = {};
-	formData.forEach((value, key) => {
-		obj[key] = value;
-	})
+	let formFields = getFormFields();
 	const response = await fetch(`https://localhost:8443${path}`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 			'X-CSRFToken': getCsrfToken(),
 		},
-		body: JSON.stringify(obj),
+		body: JSON.stringify(formFields),
 	});
-	console.log(response);
+	let responseData = await response.json();
 	const handler = connexionStatusHandlers[response.status];
 	if (handler)
-    	handler();
+    	handler(responseData);
 	else
-		console.log(`BUUG: Unhandled status: ${response.status}`);
+		console.log(`Unexpected status: ${response.status}`);
 }
 
 async function logout(){
@@ -52,4 +48,23 @@ async function logout(){
 function getCsrfToken() {
     let csrfToken = document.cookie.match(/csrftoken=([\w-]+)/);
     return csrfToken ? csrfToken[1] : null;
+}
+function getFormFields() {
+	var formData = new FormData(document.querySelector('form'));
+	let obj = {};
+	formData.forEach((value, key) => {
+		obj[key] = value;
+	})
+	return obj;
+}
+
+function formErrorStyle(errorData) {
+    let formFields = document.getElementsByClassName('form-control');
+	for (const error in errorData) {
+        let formField = formFields.namedItem(error); if (!formField) continue;
+		let errMsgObj = formField.closest('label').querySelector('.form-error-msg'); if (!errMsgObj) continue;
+		formField.classList.add('input-error');
+		errMsgObj.textContent = errorData[error];
+        errMsgObj.style.display = "block"
+    }
 }

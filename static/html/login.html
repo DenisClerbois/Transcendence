@@ -13,18 +13,20 @@
 	<div class="tab-pane fade" id="disabled-tab-pane" role="tabpanel" aria-labelledby="disabled-tab" tabindex="0">...</div>
   </div> -->
 
-<form method="POST">
+<form method="POST" class="userDataForm">
 	<div class="mb-3">
 		<label class="form-label">
 			Username
 			<input type="text" class="form-control" name="username">
+			<p class="form-error-msg"></p>
 		</label>
 	</div>
 	<div class="mb-3">
 		<label class="form-label">
 			Password
 			<input type="password" class="form-control" name="password">
+			<p class="form-error-msg"></p>
 		</label>
 	</div>
-	<button type="button" data-path='/api/user/login/' class="btn btn-primary connexion" id="loginButton">Submit</button>
+	<button type="button" class="btn btn-primary connexion" id="loginButton" data-path="/api/user/login/">Submit</button>
 </form>

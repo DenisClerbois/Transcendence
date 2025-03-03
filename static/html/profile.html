@@ -4,18 +4,56 @@
 
 <!--User profile values display view. Insert ALL PlayerProfile variables-->
 <div id="profile-display">
-    <p><strong>Username:</strong><span class="display" name="username">Loading...</span></p>
-    <p><strong>Email:</strong><span class="display" name="email">Loading...</span></p>
-    <p><strong>TeethLength:</strong><span class="display" name="teeth_length">Loading...</span></p>
-    <p><strong>Id:</strong><span class="display" name="id">Loading...</span></p>
+    <div class="mb-3">
+        <label class="display-label">
+            <strong>Username</strong>
+            <p class="display-control-plaintext display" name="username">Loading...</p>
+        </label>
+    </div>
+    <div class="mb-3">
+        <label class="display-label">
+            <strong>Email</strong>
+            <p class="display-control-plaintext display" name="email">Loading...</p>
+        </label>
+    </div>
+    <div class="mb-3">
+        <label class="display-label">
+            <strong>Teeth Length</strong>
+            <p class="display-control-plaintext display" name="teeth_length">Loading...</p>
+        </label>
+    </div>
+    <div class="mb-3">
+        <label class="display-label">
+            <strong>Id</strong>
+            <p class="display-control-plaintext display" name="id">Loading...</p>
+        </label>
+    </div>
     <button class="btn btn-primary switchEdit">Edit Profile</button>
 </div>
 
 <!--User profile edit view. Insert ONLY PlayerProfile modifyable variabes-->
 <div id="profile-edit" hidden>
-    <p><strong>Username:</strong><input type="text" class="input" name="username" required ></p>
-    <p><strong>Email:</strong><input type="email" class="input" name="email" required ></p>
-    <p><strong>TeethLength:</strong><input type="number" class="input" name="teeth_length" required></p>
+    <div class="mb-3">
+		<label class="form-label">
+			Username
+			<input type="text" class="form-control input" name="username">
+			<p class="form-error-msg"></p>
+		</label>
+	</div>
+    <div class="mb-3">
+        <label class="form-label">
+          Email
+          <input type="text" class="form-control input" name="email" required>
+          <p class="form-error-msg"></p>
+        </label>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">
+          Teeth Length
+          <input type="number" class="form-control input" name="teeth_length" required>
+          <p class="form-error-msg"></p>
+        </label>
+      </div>
 
     <button class="btn btn-primary save">Save Profile</button>
     <button class="btn btn-primary switchDisplay">Cancel</button>

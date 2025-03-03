@@ -15,21 +15,26 @@ def usernameInDB(username):
 def emailInDB(email):
 	return User.objects.filter(email=email).exists()
 
-def emailErrorFinder(email):
+def emailErrFind(email):
 	if not email or not goodEmailFormat(email):
 		return 'invalid format'
 	elif emailInDB(email):
 		return 'already in use'
 	return None
 
-def usernameErrorFinder(username):
+def usernameErrFind(username):
 	if not username:
 		return 'invalid format'
 	elif usernameInDB(username):
 		return 'already in use'
 	return None
 
-def passwordErrorFinder(password):
+def dupplicateErrFind(target, string, stringConf):
+	if string != stringConf:
+		return 'unmatching {}'.format(target)
+	return None
+
+def passwordErrFind(password):
 	if not password or not goodPasswordFormat(password):
 		return 'invalid format'
 	return None 
@@ -43,13 +48,17 @@ def userDataErrorFinder(data, *argv):
 	for arg in argv:
 		match arg:
 			case "email":
-				error = emailErrorFinder(data.get('email'))
+				error = emailErrFind(data.get('email'))
+			case "email confirmation":
+				error = dupplicateErrFind('email', data.get('email'), data.get('email confirmation'))
 			case "username":
-				error = usernameErrorFinder(data.get('username'))
+				error = usernameErrFind(data.get('username'))
 			case "password":
-				error = passwordErrorFinder(data.get('password'))
+				error = passwordErrFind(data.get('password'))
+			case "password confirmation":
+				error = dupplicateErrFind('password', data.get('password'), data.get('password confirmation'))
 			case _:
-				print("userDataErrorFinder() data anomaly: arg={}".format(arg))
+				print("userDataErrFind() data anomaly: arg={}".format(arg))
 		if error:
 			responseObj[arg] = error
 	return responseObj

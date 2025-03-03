@@ -31,3 +31,16 @@ dialog {
     z-index: 9999;
     border: none;
 }
+
+.form-control { 
+    border: 2px solid rgb(162, 162, 162);
+}
+
+.input-error {
+    border: 2px solid rgb(203, 44, 44);
+}
+
+.form-error-msg {
+    color: rgb(203, 44, 44);
+    display: none;
+}
