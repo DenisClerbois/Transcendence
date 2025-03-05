@@ -74,6 +74,7 @@ def getProfile(request):
 		"username": user.username,
 		"email": user.email,
 		"teeth_length": profile.teeth_length,
+		"nickname": profile.nickname,
 		"id": user.id,
 		# other user data fields
 	}
@@ -102,12 +103,14 @@ def profileUpdate(request):
 					user.email = arg
 				case "teeth_length":
 					playerprofile.teeth_length = arg
+				case "nickname":
+					playerprofile.nickname = arg
 				case _:
 					print("profileUpdate() data anomaly: key={}, arg={}".format(key, arg))
 		user.save()
 		playerprofile.save()
 		return JsonResponse(data, status=200)
-	return JsonResponse({'status': 'error', 'error': 'Invalid request'}, status=400)
+	return JsonResponse({'error': 'Invalid request'}, status=400)
 
 # def getProfilePicPath(request):
 # 	if request.user.is_authenticated:

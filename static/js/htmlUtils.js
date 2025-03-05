@@ -12,10 +12,14 @@ document.addEventListener("keypress", function (event) {
 
 document.addEventListener("input", function (event) {
     let formField = event.target.closest(".form-control"); if (!formField) return;
-    event.target.classList.remove('input-error');
+    removeFormErrorStyle(formField);
+});
+
+function removeFormErrorStyle(formField) {
+    formField.classList.remove('input-error');
     let errMsgObj = formField.closest('label').querySelector('.form-error-msg'); if (!errMsgObj) return;
     errMsgObj.style.display = "none"
-});
+}
 
 // // getProfilePic
 // async function fetchProfilePic() {

@@ -2,7 +2,7 @@
 if (!window.user_modifiables) {
     //django/userManagementApp/views.py
     //static/html/profile.html
-    window.user_modifiables = ["username", "email", "teeth_length"];
+    window.user_modifiables = ["username", "email", "teeth_length", "nickname"];
     window.user_constants = ["id"];
     window.user_variables = [...window.user_modifiables, ...window.user_constants];
 }
@@ -23,11 +23,14 @@ function switchDisplay() {
 
 function setFormFields() {
     let displayElems = document.getElementsByClassName('display');
-    let inputElems =  document.getElementsByClassName('input');
+    let formFields =  document.getElementsByClassName('form-control');
     for (const key of user_modifiables) {
         let dispElem = displayElems.namedItem(key);
-        let inputElem = inputElems.namedItem(key);
-        if (dispElem && inputElem) {inputElem.value = dispElem.textContent}
+        let formField = formFields.namedItem(key);
+        if (dispElem && formField) {
+            formField.value = dispElem.textContent
+            removeFormErrorStyle(formField);
+        }
     }
 }
 
@@ -59,13 +62,13 @@ async function fetchProfile() {
 async function saveProfile() {
     //dynamic json of modified data
     let updatedData = {};
-    let inputElems = document.getElementsByClassName('input');
+    let formFields = document.getElementsByClassName('form-control');
     let displayElems = document.getElementsByClassName('display');
     for (const key of user_modifiables) {
-        let inElem = inputElems.namedItem(key);
+        let formField = formFields.namedItem(key);
         let dispElem = displayElems.namedItem(key);
-        if (inElem && dispElem && inElem.value != dispElem.textContent) {
-            updatedData[key] = inElem.value;
+        if (formField && dispElem && formField.value != dispElem.textContent) {
+            updatedData[key] = formField.value;
         }
     }
     const response = await fetch('/api/user/profileUpdate/', {
@@ -79,12 +82,7 @@ async function saveProfile() {
         updateHtml(data);
         switchDisplay();
     } else {
-        errMsg = "Error:\n";
-        for (const error in data) {
-            errMsg += `${error}: ` + `${data[error]}`;
-            errMsg += "\n";
-        }
-        alert(errMsg);
+        formErrorStyle(data);
     }
 }
 fetchProfile();
