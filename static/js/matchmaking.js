@@ -1,4 +1,4 @@
-import { CreateCanvas, Game, drawBall, drawPaddle, drawScores } from './pongFunctions.js'
+import { CreateCanvas, Game, drawBall, drawPaddle, drawScores } from './PongFunctions.js'
 
 let socket = null;
 let isKeyDown = false;
@@ -6,7 +6,6 @@ let keys = ['ArrowUp', 'ArrowDown'];
 let lastGameState = null;
 let currentGameState = null;
 let lastUpdateTime = performance.now();
-const updateInterval = 1000 / 60; // Simulate 60 FPS rendering
 
 document.body.addEventListener('click', function (event) {
 	if (event.target && event.target.matches('button.matchmaking')) {
@@ -38,8 +37,8 @@ async function matchmaking() {
 			// console.log("Game struct = ", Game);
 		}
 		if (data_json['gameState']) {
-			lastGameState = currentGameState;
 			currentGameState = data_json['gameState'].message;
+			lastGameState = currentGameState;
 			lastUpdateTime = performance.now();
 			if (!start){
 				start = true;
@@ -80,12 +79,27 @@ function handleKeyUp(event) {
 function renderPong() {
 	Game.ctx.fillStyle = "blue";
 	Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
-	// console.log("GameState = ", GameState, "Game =", Game);
 
-	drawPaddle(currentGameState.paddle1[0], currentGameState.paddle1[1]);
-	drawPaddle(currentGameState.paddle2[0], currentGameState.paddle2[1]);
-	drawBall(currentGameState.ball[0], currentGameState.ball[1]);
-	drawScores(currentGameState.score[0], currentGameState.score[1]);
+	// fill gaps between gameState updates
+	if (performance.now() - lastUpdateTime > 10 && performance.now() - lastUpdateTime < 29 && lastGameState.ball[0] > Game.paddleSize.width
+		&& lastGameState.ball[0] < Game.canvas.width - Game.paddleSize.width){
+		lastGameState.ball[0] += (lastGameState.vector[0] * lastGameState.speed * 1 / 4)
+		lastGameState.ball[1] += (lastGameState.vector[1] * lastGameState.speed * 1 / 4)
+	}
+	drawPaddle(lastGameState.paddle1[0], lastGameState.paddle1[1]);;
+	drawPaddle(lastGameState.paddle2[0], lastGameState.paddle2[1]);
+	drawBall(lastGameState.ball[0], lastGameState.ball[1]);
+	drawScores(lastGameState.score[0], lastGameState.score[1]);
 	
 	requestAnimationFrame(renderPong);
+}
+
+function showPauseMenu() {
+    Game.pauseMenu.style.display = "flex"; // Show menu
+    cancelAnimationFrame(renderPong); // Stop the game loop
+}
+
+// Hide the pause menu
+function hidePauseMenu() {
+    Game.pauseMenu.style.display = "none"; // Hide menu
 }

@@ -4,42 +4,6 @@ let Socket;
 
 
 function initializePong() {
-	
-	
-	
-	
-	
-	
-	function InitWebsocket() {
-		Socket = new WebSocket("wss://" + window.location.host + "/ws/pong/game_room/");
-		Socket.onopen = function(e) {
-			console.log("Connected to the game server");
-		};
-
-		Socket.onclose = function(e) {
-			console.log("Disconnected from the server");
-			Socket = null;
-		};
-		Socket.onmessage = function(e) {
-			const data = JSON.parse(e.data);
-			const player_id = data.message.match("Player: (.*) Action:")[1];
-			const action = data.message.match("Action: (.*) Key:")[1];
-			const key = data.message.match("Key: (.*)")[1];
-			console.log("data received");
-			console.log("id:", player_id);
-			console.log("action:", action);
-	
-			if (action && player_id) {
-				console.log(`Player ${player_id} performed action: ${action} ${key}`);
-				console.log("data received in");
-				moveRemotePlayer(player_id, action, key);
-			}
-		}
-	}
-
-	InitWebsocket()
-	console.log(canvas);
-	const ctx = canvas.getContext("2d");
 
 	// Menu
 	const menuOverlay = document.createElement("div");
