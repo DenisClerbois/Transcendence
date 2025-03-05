@@ -25,7 +25,8 @@ def create_player_profile(sender, instance, created, **kwargs):
 
 class PlayerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE) #copy user data from auth app
-    has_profile_pic = models.BooleanField(default=False) #if set to True, profile pic named after user unique id
+    teeth_length = models.IntegerField(default = 2)
+    # profile_pic_path = models.CharField(max_length=20, null=True),
 #     pong_game_stats = models.OneToOneField(PongGameStats, on_delete=models.CASCADE, null=True, blank=True)
 #     other_game_stats = models.OneToOneField(OtherGameStats, on_delete=models.CASCADE, null=True, blank=True)
     # friends_list = ArrayField(models.IntegerField(null=True, blank=True), null=True, blank=True) #unique id array
