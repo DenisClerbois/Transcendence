@@ -30,10 +30,9 @@ def log(request):
 		else:
 			return JsonResponse({'username': 'invalid'}, status=401)
 
-#nom de merde pour eviter une boucle recursive
 @login_required
-def logoute(request):
-	logout(request) #fonction django
+def log_out(request):
+	logout(request)
 	return JsonResponse({'message': 'User logged out.'}, status=200)
 
 
