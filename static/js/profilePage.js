@@ -6,7 +6,7 @@ fetchProfile();
 async function fetchProfile() {
     try {
         console.log("E");
-        const response = await fetch('/api/profile');
+        const response = await fetch('/api/user/profile');
         console.log("F");
         if (!response.ok) {
             throw new Error('Failed to fetch profile data.');
@@ -52,7 +52,7 @@ async function saveProfile() {
     const emailInput = document.getElementById('emailInput').value;
 
     try {
-        const response = await fetch('/api/profileUpdate/', {
+        const response = await fetch('/api/user/profileUpdate/', {
             method: 'POST',
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
             body: new URLSearchParams({

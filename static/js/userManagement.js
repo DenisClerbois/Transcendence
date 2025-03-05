@@ -66,12 +66,12 @@ async function connexion(path) {
 // 	},
 // };
 
-// document.body.addEventListener('click', function(event) {
-// 	if (event.target && event.target.matches('button.logout'))
-// 		logout();
-// 	});
-// async function logout(){
-// 	const response = await fetch('https://localhost:8443/api/user/logout/');
-// 	window.history.pushState({}, "", '/');
-// 	fetchBody();
-// }
+document.body.addEventListener('click', function(event) {
+	if (event.target && event.target.matches('button.logout'))
+		logout();
+	});
+async function logout(){
+	const response = await fetch('https://localhost:8443/api/user/log_out/');
+	window.history.pushState({}, "", '/');
+	fetchBody();
+}

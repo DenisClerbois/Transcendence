@@ -27,7 +27,7 @@ def log(request):
 			return JsonResponse({'message': 'Error on logged in.'}, status=401)
 
 @login_required
-def logout(request):
+def log_out(request):
 	logout(request)
 	return JsonResponse({'message': 'User logged out.'}, status=200)
 
