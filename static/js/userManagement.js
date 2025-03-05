@@ -40,7 +40,7 @@ async function connexion(path) {
 }
 
 async function logout(){
-	const response = await fetch('https://localhost:8443/api/user/logout/');
+	const response = await fetch('https://localhost:8443/api/user/log_out/');
 	window.history.pushState({}, "", '/');
 	fetchBody();
 }
