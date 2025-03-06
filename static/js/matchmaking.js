@@ -53,9 +53,8 @@ function updateUI() {
 	ui3.hidden = !ui3.hidden;
 }
 function handleQuit(event){
-	if (event.target && event.target.matches('button.close')){
+	if (event.target && event.target.matches('button.close'))
 		socket.send(JSON.stringify({type: 'quit'}));
-	}
 }
 function handleKeyDown(event) {
 	if (!isKeyDown && keys.includes(event.key)){
