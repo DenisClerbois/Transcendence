@@ -14,6 +14,7 @@ from .utils import userDataErrorFinder
 
 
 # Create your views here.
+@csrf_exempt
 def log(request):
 	if (request.method == 'POST'):
 		# if request.User.is_authenticated:
@@ -42,6 +43,7 @@ def auth(request):
 	else:
 		return JsonResponse({'authenticated': False}, status=401) # change this to 200 and adapt the js response
 
+@csrf_exempt
 def register(request):
 	data = json.loads(request.body)
 	# Check format and duplicates

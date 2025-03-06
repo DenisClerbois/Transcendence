@@ -24,11 +24,11 @@ class GameData:
 	initSpeed: int
 
 # GLOBALE
-FPS30 = 1 / 30
+FPS30 = 1 / 60
 NB_PLAYER = 4
 
 class Pong:
-	def __init__(self, p1_keys, p2_keys):
+	def __init__(self, p1_keys, p2_keys, end_Function, players):
 		self.game_const = GameData(
 			board=Board(x=1000, y=500),
 			paddle=Paddle(width=12, height=100, speed=0),
@@ -36,13 +36,18 @@ class Pong:
 			initSpeed=5,
 		)
 		self._vector = [1 / sqrt(2), 1 / sqrt(2)]
-		self._speed = 200 * (1 / 30) 
+		self._speed = 300 * FPS30
 		self._score = [0, 0]
 		self._ball = [self.game_const.board.x / 2, self.game_const.board.y / 2]
 		self.p1_keys = p1_keys #what are those???
 		self.p2_keys = p2_keys
 		self._paddle1 = [1, self.game_const.board.y / 2 - self.game_const.paddle.height / 2]
 		self._paddle2 = [self.game_const.board.x - self.game_const.paddle.width, self.game_const.board.y / 2 - self.game_const.paddle.height / 2]
+		self._players = players
+
+		self.game_const.initSpeed = self._speed
+		self.game_const.paddle.speed = sqrt(self._vector[0] ** 2 + self._vector[1] ** 2) * self._speed * 1.4
+		self.endF = end_Function 
 
 	def update(self):
 		self.move_ball()
@@ -60,7 +65,7 @@ class Pong:
 			'p1_keys': self.p1_keys,
 			'p2_keys': self.p2_keys,
 			}
-	
+
 	def move_paddles(self):
 		paddleSpeed = self.game_const.paddle.speed
 		if self.p1_keys["ArrowUp"]:
@@ -146,7 +151,15 @@ class Pong:
 		"""need to think about the pause/delay state in between the score and the service"""
 		self._speed = const.initSpeed
 		self._vector[0] *= -1  #send the service to the opposite way with the same impulse as before score (maybe rand val or fix val)
+		self.checkEndGame()
 
+	def checkEndGame(self):
+		if abs(self._score[0] - self._score[1]) > 1:
+			if self._score[0] >= 11:
+				asyncio.create_task(self.endF(self._players[1]))
+			elif self._score[1] >= 11:
+				asyncio.create_task(self.endF(self._players[0]))
+ 
 class Game:
 
 	def __init__(self, players):
@@ -162,7 +175,7 @@ class Game:
 		pass
 
 	async def beg(self):
-		self.pong = Pong(self._players[0].keys, self._players[1].keys, self.end())
+		self.pong = Pong(self._players[0].keys, self._players[1].keys, self.end, self._players)
 		self._id = uuid.uuid4().hex
 		for p in self._players:
 			await self._channel_layer.group_add(self._id, p.channel_name)
@@ -174,7 +187,6 @@ class Game:
 				'players': [p.username for p in self._players],
 				'gameConst': self.pong.get_gameConst()
 			})
-		await self._channel_layer.group_send(self._id, {'type': 'msg', 'event':'data', 'pong': self.pong.get_gameConst()})
 		await asyncio.sleep(1)
 		for i in range(3, 0, -1):
 			await self._channel_layer.group_send(self._id, {'type': 'msg', 'event': 'Countdown'})
@@ -189,6 +201,7 @@ class Game:
 			await asyncio.sleep(FPS30)
 
 	async def end(self, looser):
+		print("LOOOOOOSER >>>>>>", looser)
 		self._isRunning = False
 		self.looser = looser
 		self._players.remove(looser)
@@ -201,7 +214,6 @@ class Game:
 		for p in self._players:
 			await self._channel_layer.group_discard(self._id, p.channel_name)
 		await looser.close()
-
 
 class Manager:
 	
@@ -325,7 +337,7 @@ class Consumer(AsyncWebsocketConsumer):
 		match message_type:
 			case 'input':
 				dic = {'keydown': True, 'keyup': False}
-				self.keys[data['key']] = dic[data['type']]
+				self.keys[data['key']] = dic[data['bool']]
 			case 'quit':
 				await self.game.end(self) if self.game else self.manager.rmv(self)
 				self.left = True
