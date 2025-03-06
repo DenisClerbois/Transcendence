@@ -24,6 +24,12 @@
     </div>
     <div class="mb-3">
         <label class="display-label">
+            <strong>Nickname</strong>
+            <p class="display-control-plaintext display" name="nickname">Loading...</p>
+        </label>
+    </div>
+    <div class="mb-3">
+        <label class="display-label">
             <strong>Id</strong>
             <p class="display-control-plaintext display" name="id">Loading...</p>
         </label>
@@ -36,24 +42,31 @@
     <div class="mb-3">
 		<label class="form-label">
 			Username
-			<input type="text" class="form-control input" name="username">
+			<input type="text" class="form-control" name="username">
 			<p class="form-error-msg"></p>
 		</label>
 	</div>
     <div class="mb-3">
         <label class="form-label">
           Email
-          <input type="text" class="form-control input" name="email" required>
+          <input type="text" class="form-control" name="email" required>
           <p class="form-error-msg"></p>
         </label>
       </div>
       <div class="mb-3">
         <label class="form-label">
           Teeth Length
-          <input type="number" class="form-control input" name="teeth_length" required>
+          <input type="number" class="form-control" name="teeth_length" required>
           <p class="form-error-msg"></p>
         </label>
       </div>
+      <div class="mb-3">
+		<label class="form-label">
+			Nickname
+			<input type="text" class="form-control" name="nickname">
+			<p class="form-error-msg"></p>
+		</label>
+	</div>
 
     <button class="btn btn-primary save">Save Profile</button>
     <button class="btn btn-primary switchDisplay">Cancel</button>
