@@ -34,6 +34,9 @@ async function socketConnexion(path) {
 				document.removeEventListener("keydown", handleKeyDown);
 				document.removeEventListener("keyup", handleKeyUp);
 				break;
+			case 'Error':
+				alert(data_json['log']); // Meilleure alerte necessaire
+				break;
 		}
 		console.log(data_json);
 	};
