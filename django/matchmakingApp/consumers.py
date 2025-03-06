@@ -1,5 +1,4 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
-import json
 import asyncio
 from dataclasses import dataclass, asdict
 from math import sqrt, cos, sin, pi
@@ -177,8 +176,6 @@ class matchmakingConsumer(AsyncWebsocketConsumer):
 
 	async def connect(self):
 		await self.accept()
-		if self in self.queue:
-			return self.close()
 		self.username = self.scope['user'].username
 		if len(self.queue):
 			await self.match()
@@ -223,7 +220,6 @@ class matchmakingConsumer(AsyncWebsocketConsumer):
 		game_loop_consumer.start_game_loop()
 	
 	async def receive(self, text_data):
-		dic = {'keydown': True, 'keyup': False}
 		data = json.loads(text_data)
 		gameState = active_game_loops[self.room_name].game_state
 		gameState[self.username][data['key']] = dic[data['type']]

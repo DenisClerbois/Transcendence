@@ -1,78 +1,90 @@
-fetchProfile(); 
+//Avoid redeclaration by checking if already defined in global scope
+if (!window.user_modifiables) {
+    //django/userManagementApp/views.py
+    //static/html/profile.html
+    window.user_modifiables = ["username", "email", "teeth_length"];
+    window.user_constants = ["id"];
+    window.user_variables = [...window.user_modifiables, ...window.user_constants];
+}
+
+document.querySelector("button.switchDisplay").addEventListener("click", switchDisplay);
+document.querySelector("button.switchEdit").addEventListener("click", switchToEdit);
+document.querySelector("button.save").addEventListener("click", saveProfile)
+
+function switchToEdit() {
+    setFormFields();
+    switchDisplay();
+}
+
+function switchDisplay() {
+    document.getElementById('profile-display').hidden = !document.getElementById('profile-display').hidden;
+    document.getElementById('profile-edit').hidden = !document.getElementById('profile-edit').hidden;
+}
+
+function setFormFields() {
+    let displayElems = document.getElementsByClassName('display');
+    let inputElems =  document.getElementsByClassName('input');
+    for (const key of user_modifiables) {
+        let dispElem = displayElems.namedItem(key);
+        let inputElem = inputElems.namedItem(key);
+        if (dispElem && inputElem) {inputElem.value = dispElem.textContent}
+    }
+}
+
+function updateHtml(data) {
+    let displayElems = document.getElementsByClassName('display');
+    for (const key of user_variables) {
+        let dispElem = displayElems.namedItem(key);
+        if (dispElem) {dispElem.textContent = data[key] ? data[key] : dispElem.textContent;}
+    }
+}
 
 /**
  * FETCH USER PROFILE DATA FROM BACKEND
  */
 async function fetchProfile() {
     try {
-        console.log("E");
-        const response = await fetch('/api/profile');
-        console.log("F");
+        const response = await fetch('/api/user/profile');
         if (!response.ok) {
             throw new Error('Failed to fetch profile data.');
         }
-        console.log(response);
         const data = await response.json();
-        console.log(data);
-
-        // Update profile display
-        document.getElementById('username').textContent = data.username;
-        document.getElementById('email').textContent = data.email;
-
-        // Populate edit fields (only editable ones)
-        document.getElementById('usernameInput').value = data.username;
-        document.getElementById('emailInput').value = data.email;
+        updateHtml(data);
 
     } catch (error) {
         console.error('Error fetching profile:', error);
     }
 }
 
-/**
- * SWITCH TO EDIT MODE
- */
-function editProfile() {
-    document.getElementById('profile-display').style.display = 'none';
-    document.getElementById('profile-edit').style.display = 'block';
-}
-
-/**
- * SWITCH BACK TO DISPLAY MODE WITHOUT SAVING
- */
-function cancelEdit() {
-    document.getElementById('profile-edit').style.display = 'none';
-    document.getElementById('profile-display').style.display = 'block';
-}
-
-/**
- * SEND UPDATED PROFILE DATA TO BACKEND
- */
 async function saveProfile() {
-    const usernameInput = document.getElementById('usernameInput').value;
-    const emailInput = document.getElementById('emailInput').value;
-
-    try {
-        const response = await fetch('/api/profileUpdate/', {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            body: new URLSearchParams({
-                'username': usernameInput,
-                'email': emailInput
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.status === 'success') {
-            // Update displayed profile
-            document.getElementById('username').textContent = data.username;
-            document.getElementById('email').textContent = data.email;
-            // Return to display mode
-            cancelEdit();
-        } else {
-            alertNonModal(data.error || "An error occurred.");
+    //dynamic json of modified data
+    let updatedData = {};
+    let inputElems = document.getElementsByClassName('input');
+    let displayElems = document.getElementsByClassName('display');
+    for (const key of user_modifiables) {
+        let inElem = inputElems.namedItem(key);
+        let dispElem = displayElems.namedItem(key);
+        if (inElem && dispElem && inElem.value != dispElem.textContent) {
+            updatedData[key] = inElem.value;
         }
-    } catch (error) {
-        console.error('Error updating profile:', error);
+    }
+    const response = await fetch('/api/user/profileUpdate/', {
+        method: 'POST',
+        headers:  { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData),
+    });
+    const data = await response.json();
+
+    if (response.ok) {
+        updateHtml(data);
+        switchDisplay();
+    } else {
+        errMsg = "Error:\n";
+        for (const error in data) {
+            errMsg += `${error}: ` + `${data[error]}`;
+            errMsg += "\n";
+        }
+        alert(errMsg);
     }
 }
+fetchProfile();

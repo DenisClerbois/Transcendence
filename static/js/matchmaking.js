@@ -6,53 +6,59 @@ let keys = ['ArrowUp', 'ArrowDown'];
 let lastGameState = null;
 let currentGameState = null;
 let lastUpdateTime = performance.now();
+let start = false;
 
-document.body.addEventListener('click', function (event) {
-	if (event.target && event.target.matches('button.matchmaking')) {
-		matchmaking();
-	}
-	else if (event.target && event.target.matches('button.close')) {
-		if (socket) {
-			socket.close();
-		}
+document.body.addEventListener('click', function(event) {
+	if (event.target){
+		if (event.target.matches('button.matchmaking'))
+			socketConnexion('matchmaking/classique');
+		if (event.target.matches('button.tournament'))
+			socketConnexion('matchmaking/tournament');
 	}
 });
 
-let start = false;
-async function matchmaking() {
-	socket = new WebSocket('wss://localhost:8443/ws/matchmaking/');
-	socket.onmessage = (e) => {
-		const data_json = JSON.parse(e.data);
-		// console.log(data_json);
-		if (data_json['gameFound']) {
-			document.addEventListener("keydown", handleKeyDown);
-			document.addEventListener("keyup", handleKeyUp);
-			updateUI();
-			CreateCanvas();
-		}
-		if (data_json['gameConst']) {
-			// console.log("Game Const = ", data_json['gameConst']);
-			Game.paddleSize = { width: data_json.gameConst.gameConst.paddle.width, height: data_json.gameConst.gameConst.paddle.height };
-			Game.ballRadius = data_json.gameConst.gameConst.ballRadius;
-			// console.log("Game struct = ", Game);
-		}
-		if (data_json['gameState']) {
-			currentGameState = data_json['gameState'].message;
-			lastGameState = currentGameState;
-			lastUpdateTime = performance.now();
-			if (!start){
-				start = true;
-				requestAnimationFrame(renderPong);
-			}
-		}
-
-	};
+async function socketConnexion(path) {
+	socket = new WebSocket(`wss://localhost:8443/ws/${path}/`);
 	socket.onopen = () => {
+		console.log('ws open')
+		document.addEventListener("click", handleQuit);
 		updateUI();
 	};
+	socket.onmessage = (e) => {
+		const data_json = JSON.parse(e.data)['event'];
+		// console.log(data_json);
+		switch (data_json['event']) {
+			case 'Game':
+				// data_json['gameconst']
+				Game.paddleSize = { width: data_json['gameconst'].paddle.width, height: data_json['gameconst'].paddle.height };
+				Game.ballRadius = data_json['gameconst'].ballRadius;
+				updateUI(); //specific a la page pong
+				CreateCanvas();
+				break;
+			case 'data':
+				currentGameState = data_json['pong'];
+				console.log(currentGameState);
+				lastGameState = currentGameState;
+				lastUpdateTime = performance.now();
+				if (!start){
+					start = true;
+					requestAnimationFrame(renderPong);
+				}
+			case 'Countdown':
+				break;
+			case 'Go':
+				document.addEventListener("keydown", handleKeyDown);
+				document.addEventListener("keyup", handleKeyUp);
+				break;
+			case 'End':
+				document.removeEventListener("keydown", handleKeyDown);
+				document.removeEventListener("keyup", handleKeyUp);
+				break;
+		}
+	};
 	socket.onclose = () => {
-		document.removeEventListener("keydown", handleKeyDown);
-		document.removeEventListener("keyup", handleKeyUp);
+		console.log('ws close')
+		document.removeEventListener("click", handleQuit);
 		updateUI();
 	};
 }
@@ -60,18 +66,25 @@ async function matchmaking() {
 function updateUI() {
 	const ui1 = document.querySelector('div.UI1');
 	const ui2 = document.querySelector('div.UI2');
+	const ui3 = document.querySelector('div.card-header');
 	ui1.hidden = !ui1.hidden;
 	ui2.hidden = !ui2.hidden;
+	ui3.hidden = !ui3.hidden;
+}
+function handleQuit(event){
+	if (event.target && event.target.matches('button.close')){
+		socket.send(JSON.stringify({type: 'quit'}));
+	}
 }
 function handleKeyDown(event) {
-	if (!isKeyDown && keys.includes(event.key)) {
-		socket.send(JSON.stringify({ 'type': event.type, 'key': event.key }));
+	if (!isKeyDown && keys.includes(event.key)){
+		socket.send(JSON.stringify({type: 'input', bool:'event.type', key: event.key}));
 		isKeyDown = true;
 	}
 }
 function handleKeyUp(event) {
 	if (keys.includes(event.key)) {
-		socket.send(JSON.stringify({ 'type': event.type, 'key': event.key }));
+		socket.send(JSON.stringify({type: 'input', bool:'event.type', key: event.key}));
 		isKeyDown = false;
 	}
 }
@@ -94,12 +107,12 @@ function renderPong() {
 	requestAnimationFrame(renderPong);
 }
 
-function showPauseMenu() {
-    Game.pauseMenu.style.display = "flex"; // Show menu
-    cancelAnimationFrame(renderPong); // Stop the game loop
-}
+// function showPauseMenu() {
+//     Game.pauseMenu.style.display = "flex"; // Show menu
+//     cancelAnimationFrame(renderPong); // Stop the game loop
+// }
 
-// Hide the pause menu
-function hidePauseMenu() {
-    Game.pauseMenu.style.display = "none"; // Hide menu
-}
+// // Hide the pause menu
+// function hidePauseMenu() {
+//     Game.pauseMenu.style.display = "none"; // Hide menu
+// }
