@@ -23,9 +23,10 @@ services:
       - "8443:443"
     volumes:
       - ./static:/static
-    networks:
-      - transcendence
-    depends_on:
+      - ./django/media:/app/media # shared repository between nginx and django, 
+    networks:                       # Why it's necessary:
+      - transcendence               # files uploaded to django are stored in django container
+    depends_on:                     # This gives nginx access to user files (profile pic) stored in django volume
       - django
 
   postgres:

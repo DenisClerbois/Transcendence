@@ -16,3 +16,12 @@ watchfiles==1.0.4
 
 # psycopg2 library to connect to PostgreSQL
 psycopg2==2.9.10
+
+# file type detector
+python-magic==0.4.27
+
+# de/serialize images from model to json
+djangorestframework==3.14.0
+
+# Python image library
+pillow==11.1.0

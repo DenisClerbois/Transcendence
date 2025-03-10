@@ -7,10 +7,15 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import PlayerProfile
+import magic
 import json
 import os
-from . import utils
+# from . import utils
+from django.conf import settings
 from .utils import userDataErrorFinder
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import ProfilePictureSerializer
 
 
 # Create your views here.
@@ -72,7 +77,6 @@ def getProfile(request):
 	profile_data = {
 		"username": user.username,
 		"email": user.email,
-		"teeth_length": profile.teeth_length,
 		"nickname": profile.nickname,
 		"id": user.id,
 		# other user data fields
@@ -80,7 +84,7 @@ def getProfile(request):
 
 	return JsonResponse(profile_data, status=200)
 
-@csrf_exempt
+# @csrf_exempt
 @login_required
 def profileUpdate(request):
 	if request.method == "POST" and request.user.is_authenticated:
@@ -100,8 +104,6 @@ def profileUpdate(request):
 					user.username = arg
 				case "email":
 					user.email = arg
-				case "teeth_length":
-					playerprofile.teeth_length = arg
 				case "nickname":
 					playerprofile.nickname = arg
 				case _:
@@ -111,11 +113,35 @@ def profileUpdate(request):
 		return JsonResponse(data, status=200)
 	return JsonResponse({'error': 'Invalid request'}, status=400)
 
-# def getProfilePicPath(request):
-# 	if request.user.is_authenticated:
-# 		profile = getattr(request.user, "playerprofile", None)
-# 		if profile == None:
-# 			return JsonResponse({'error': "Couldn't fetch PlayerProfile"})
-# 		path = str(profile_pic_path)
-# 		return JsonResponse({'path': path}, status=200)
-# 	return JsonResponse({'error': 'Not authenticated'}, status=401)
+@login_required
+def set_profile_pic(request):
+	if 'image' not in request.FILES:
+		return JsonResponse({'error': 'No image file provided'}, status=400)
+	
+	image_file = request.FILES['image']
+	
+	if image_file.size > settings.MAX_UPLOAD_SIZE:
+		return JsonResponse({'error': f"File size exceeds maximum allowed ({settings.MAX_UPLOAD_SIZE / 1024 / 1024}MB)"},
+							status=400)
+	
+	mime = magic.Magic(mime=True) #file type detector
+	file_type = mime.from_buffer(image_file.read(1024)) #detect file type from head
+	image_file.seek(0) #reset reading pointer
+	if file_type not in settings.ALLOWED_IMAGE_TYPES:
+		return JsonResponse({'error': f'Invalid file type. Allowed types: {settings.ALLOWED_IMAGE_TYPES.join(", ")}'},
+							status=400)
+
+	profile = request.user.playerprofile
+	if profile.profile_picture and os.path.isfile(profile.profile_picture.path): #if user already has profile pic
+		os.remove(profile.profile_picture.path)
+	profile.profile_picture.save(image_file.name, image_file) # will call model's set_profile_image_path and store image
+	profile.save()
+
+	serializer = ProfilePictureSerializer(profile)
+	return JsonResponse(serializer.data, status=200)
+
+@login_required
+def get_profile_pic(request):
+	profile = request.user.playerprofile
+	serializer = ProfilePictureSerializer(profile)
+	return JsonResponse(serializer.data, status=200)
