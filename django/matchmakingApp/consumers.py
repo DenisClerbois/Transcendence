@@ -153,11 +153,11 @@ class Pong:
 		self._vector[0] *= -1  #send the service to the opposite way with the same impulse as before score (maybe rand val or fix val)
 		self.checkEndGame()
 
-	def checkEndGame(self):
+	async def checkEndGame(self):
 		if abs(self._score[0] - self._score[1]) > 1:
-			if self._score[0] >= 11:
+			if self._score[0] >= 3:
 				asyncio.create_task(self.endF(self._players[1]))
-			elif self._score[1] >= 11:
+			elif self._score[1] >= 3:
 				asyncio.create_task(self.endF(self._players[0]))
  
 class Game:
@@ -209,7 +209,6 @@ class Game:
 		await self.winner.msg({'event': 'You won.'})
 		self.looser.game = None
 		self.winner.game = None
-		looser.game = None
 		for p in self._players:
 			await self._channel_layer.group_discard(self._id, p.channel_name)
 

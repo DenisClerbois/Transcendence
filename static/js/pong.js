@@ -1,5 +1,3 @@
-const appDiv = document.getElementById("app");
-
 const Game = {
 	canvas: null,
 	ctx: null,
@@ -39,22 +37,10 @@ function drawScores(player1, player2) {
 
 // GAME FRONT DESIGN //
 function CreateCanvas() {
-	Game.canvas = document.getElementById("pongCanvas");
-	if (!Game.canvas) {
-		Game.canvas = document.createElement("canvas");
-		Game.canvas.id = "pongCanvas";
-		Game.canvas.width = 1000;
-		Game.canvas.height = 500;
-		appDiv.innerHTML = ""; // Clear existing content
-		appDiv.appendChild(Game.canvas);
-	}
-	
-	if (!Game.canvas) {
-		console.error("Canvas not found or failed to initialize.");
-		return;
-	}
-	
-	console.log(Game.canvas);
+	Game.canvas = document.querySelector("canvas#pong");
+	Game.canvas.width = 1000;
+	Game.canvas.height = 500;
+
 	Game.ctx = Game.canvas.getContext("2d");
 }
 
@@ -153,4 +139,4 @@ function CreateCanvas() {
 
 
 
-export { Game, CreateCanvas, drawBall, drawPaddle, drawScores }
+// export { Game, CreateCanvas, drawBall, drawPaddle, drawScores }
