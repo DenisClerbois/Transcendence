@@ -26,23 +26,21 @@
 
 [MODULE CHOISIS] 7/7
 
-1	MAJOR module: Use a Framework to build the backend.
-2	MAJOR module: Standard user management, authentication, users across tournaments.
-3	MAJOR module: Remote players
-4	MAJOR module: Multiplayers (more than 2 in the same game).
-5	MAJOR module: Add Another Game with User History and Matchmaking.
-6	MAJOR module: Introduce an AI Opponent.
+1	MAJOR module: Use a Framework to build the backend.											1
+2	MAJOR module: Standard user management, authentication, users across tournaments.			2
+3	MAJOR module: Remote players																3
+4	MAJOR module: Multiplayers (more than 2 in the same game).									?4
+5	MAJOR module: Add Another Game with User History and Matchmaking.							?
+6	MAJOR module: Introduce an AI Opponent.														?5
 
-6.5	MINOR module: Use a framework or a toolkit to build the frontend.
-7	MINOR module: Use a database for the backend.
+6.5	MINOR module: Use a framework or a toolkit to build the frontend.							5.5
+7	MINOR module: Use a database for the backend.												6
 
 [BONUS POSSIBLE] ?/2.5
 
 0.5	MINOR module: User and Game Stats Dashboards
-1	MAJOR module: Live Chat?
+1	MAJOR module: Live Chat?																	7
 
-0.5 MINOR module: expanding Browser compatibility.
-0.5	MINOR module: Multiple language Support.
 OR
 1	MAJOR MODULE: 3d module
 

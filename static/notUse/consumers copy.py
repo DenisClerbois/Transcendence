@@ -1,4 +1,4 @@
-from channels.generic.websocket import AsyncWebsocketConsumer # type: ignore
+from channels.generic.websocket import AsyncWebsocketConsumer
 import asyncio
 import uuid
 import json
@@ -153,11 +153,11 @@ class Pong:
 		self._vector[0] *= -1  #send the service to the opposite way with the same impulse as before score (maybe rand val or fix val)
 		self.checkEndGame()
 
-	async def checkEndGame(self):
+	def checkEndGame(self):
 		if abs(self._score[0] - self._score[1]) > 1:
-			if self._score[0] >= 3:
+			if self._score[0] >= 11:
 				asyncio.create_task(self.endF(self._players[1]))
-			elif self._score[1] >= 3:
+			elif self._score[1] >= 11:
 				asyncio.create_task(self.endF(self._players[0]))
  
 class Game:
@@ -172,11 +172,7 @@ class Game:
 		self.pong = None
 
 	async def countdown(self):
-		await asyncio.sleep(1)
-		for i in range(3, 0, -1):
-			await self._channel_layer.group_send(self._id, {'type': 'msg', 'event': 'Countdown'})
-			await asyncio.sleep(1)
-		await self._channel_layer.group_send(self._id, {'type': 'msg', 'event': 'Go'})
+		pass
 
 	async def beg(self):
 		self.pong = Pong(self._players[0].keys, self._players[1].keys, self.end, self._players)
@@ -191,16 +187,21 @@ class Game:
 				'players': [p.username for p in self._players],
 				'gameConst': self.pong.get_gameConst()
 			})
-		await self.countdown()
+		await asyncio.sleep(1)
+		for i in range(3, 0, -1):
+			await self._channel_layer.group_send(self._id, {'type': 'msg', 'event': 'Countdown'})
+			await asyncio.sleep(1)
+		await self._channel_layer.group_send(self._id, {'type': 'msg', 'event': 'Go'})
 		await self._run()
 
 	async def _run(self):
 		while self._isRunning:
 			self.pong.update()
-			await self._channel_layer.group_send(self._id, {'type': 'msg', 'event':'Data', 'pong': self.pong.get_gameData()})
+			await self._channel_layer.group_send(self._id, {'type': 'msg', 'event':'data', 'pong': self.pong.get_gameData()})
 			await asyncio.sleep(FPS30)
 
 	async def end(self, looser):
+		print("LOOOOOOSER >>>>>>", looser)
 		self._isRunning = False
 		self.looser = looser
 		self._players.remove(looser)
@@ -209,8 +210,37 @@ class Game:
 		await self.winner.msg({'event': 'You won.'})
 		self.looser.game = None
 		self.winner.game = None
+		looser.game = None
 		for p in self._players:
 			await self._channel_layer.group_discard(self._id, p.channel_name)
+		await looser.close()
+
+class Manager:
+	
+	def __init__(self):
+		self.queue = []
+	
+	async def add(self, user):
+		if user.username not in [u.username for u in self.queue]:
+			self.queue.append(user)
+			user.inqueue = True
+			if len(self.queue) >= 2:
+				players = [self.queue.pop(), self.queue.pop()]
+				asyncio.create_task(self.match(players))
+		else:
+			await user.msg({'Error': 'Already in queue.'})
+			await user.close()
+	
+	def rmv(self, user):
+		if user.inqueue and user.username in [u.username for u in self.queue]:
+			self.queue.remove(user)
+			user.inqueue = False
+
+	async def match(self, players):
+		game = Game(players)
+		await game.beg()
+		await game.winner.close()
+		# add match to history
 
 class Round:
 	def __init__(self, players):
@@ -231,72 +261,45 @@ class Round:
 				asyncGameGroup.create_task(self._manageGame(self._players[:2]))
 				self._players = self._players[2:]
 
+
+class Tournament:
+	def __init__(self, players):
+		self.players = players
 	
-class BaseManager:
-	userWaiting = []
-
-	def __init__(self):
-		self.queue = []
-
-	async def add(self, user):
-		if user.username not in self.userWaiting:
-			self.queue.append(user)
-			self.userWaiting.append(user.username)
-			user.inqueue = True
-			await self.check_start()
-		else:
-			await user.msg({'event': 'Error', 'log': 'Already in queue with this account.'})
-			await user.close()
-
-	def rmv(self, user):
-		if user.inqueue and user.username in self.userWaiting:
-			self.queue.remove(user)
-			self.userWaiting.remove(user.username)
-			user.inqueue = False
-
-
-class Manager(BaseManager):
-	async def check_start(self):
-		if len(self.queue) >= 2:
-			players = [self.queue.pop(), self.queue.pop()]
-			asyncio.create_task(self.match(players))
-
-	async def match(self, players):
-		game = Game(players)
-		await game.beg()
-		await game.winner.msg({'event': 'End', 'result':'You won the game'})
-		await game.winner.close()
-
-
-class TournamentManager(BaseManager):
-	async def check_start(self):
-		if len(self.queue) >= 4:
-			players = self.queue[:4]
-			self.queue = self.queue[4:]
-			asyncio.create_task(self.begRound(players))
-
-	async def begRound(self, players):
-		while len(players) > 1:
-			round = Round(players)
+	async def start(self):
+		while len(self.players) != 1:
+			round = Round(self.players)
 			await round.runGames()
-			players = round.winners
-		winner = players.pop()
-		await winner.msg({'event': 'End', 'result':'You won the game'})
+			self.players = round.winners
+		winner = self.players.pop()
+		await winner.msg({'event': 'You won the tournament'})
 		await winner.close()
 
 
-# class MultiplayerManager(BaseManager):
-# 	async def check_start(self):
-# 		if len(self.queue) >= 4:
-# 			players = self.queue[:4]
-# 			self.queue = self.queue[4:]
-# 			asyncio.create_task(self.match(players))
+class TournamentManager:
+	
+	def __init__(self):
+		self.queue = []
+	
+	async def add(self, user):
+		if user.username not in [u.username for u in self.queue]:
+			self.queue.append(user)
+			user.inqueue = True
+			if len(self.queue) >= 4:
+				asyncio.create_task(self.startTournament(self.queue[:4]))
+				self.queue = self.queue[4:]
+		else:
+			await user.msg({'Error': 'Already in queue.'})
+			await user.close()
+	
+	def rmv(self, user):
+		if user.inqueue and user.username in [u.username for u in self.queue]:
+			self.queue.remove(user)
+			user.inqueue = False
 
-# 	async def match(self, players):
-# 		game = Game(players)
-# 		await game.beg()
-# 		await game.winner.msg({'event': 'End', 'result':'You won the game'})
-# 		await game.winner.close()
+	async def startTournament(self, players):
+		tournament = Tournament(players)
+		await tournament.start()
 
 
 class Consumer(AsyncWebsocketConsumer):
@@ -336,15 +339,10 @@ class Consumer(AsyncWebsocketConsumer):
 				dic = {'keydown': True, 'keyup': False}
 				self.keys[data['key']] = dic[data['bool']]
 			case 'quit':
-				if self.game:
-					await self.game.end(self)
-					self.left = True
-				else:
-					self.manager.rmv(self)
-				await self.close()
+				await self.game.end(self) if self.game else self.manager.rmv(self)
+				self.left = True
 			case _:
 				pass
 
 	async def disconnect(self, close_code=None):
 		pass
-
