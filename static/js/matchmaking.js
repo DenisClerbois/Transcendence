@@ -35,7 +35,7 @@ async function socketConnexion(path) {
 				updateUI(); //specific a la page pong
 				CreateCanvas();
 				break;
-			case 'data':
+			case 'Data':
 				currentGameState = data_json['pong'];
 				lastGameState = currentGameState;
 				lastUpdateTime = performance.now();
