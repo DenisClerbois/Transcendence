@@ -50,10 +50,10 @@ async function socketConnexion(path) {
 				currentGameState = data_json['pong'];
 				lastGameState = currentGameState;
 				lastUpdateTime = performance.now();
-				if (!start){
-					start = true;
+				// if (!start){
+				// 	start = true;
 					requestAnimationFrame(renderPong);
-				}
+				// }
 				break;
 			case 'Countdown':
 				break;
@@ -109,21 +109,23 @@ function renderPong() {
 	if (!lastGameState || ! currentGameState){
 		start = false;
 		return;}
-	Game.ctx.fillStyle = "blue";
-	Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
-
-	// fill gaps between gameState updates
-	// if (performance.now() - lastUpdateTime > 10 && performance.now() - lastUpdateTime < 29 && lastGameState.ball[0] > Game.paddleSize.width
-	// 	&& lastGameState.ball[0] < Game.canvas.width - Game.paddleSize.width){
-	// 	lastGameState.ball[0] += (lastGameState.vector[0] * lastGameState.speed * 1 / 4)
-	// 	lastGameState.ball[1] += (lastGameState.vector[1] * lastGameState.speed * 1 / 4)
+		
+		// fill gaps between gameState updates
+		// if (performance.now() - lastUpdateTime > 10 && performance.now() - lastUpdateTime < 29 && lastGameState.ball[0] > Game.paddleSize.width
+		// 	&& lastGameState.ball[0] < Game.canvas.width - Game.paddleSize.width){
+			// 	lastGameState.ball[0] += (lastGameState.vector[0] * lastGameState.speed * 1 / 4)
+			// 	lastGameState.ball[1] += (lastGameState.vector[1] * lastGameState.speed * 1 / 4)
+			// }
+	// if (performance.now() - lastUpdateTime >= 1000 / 60) {
+		Game.ctx.fillStyle = "black";
+		Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
+		drawPaddle(lastGameState.paddle1[0], lastGameState.paddle1[1]);;
+		drawPaddle(lastGameState.paddle2[0], lastGameState.paddle2[1]);
+		drawBall(lastGameState.ball[0], lastGameState.ball[1]);
+		drawScores(lastGameState.score[0], lastGameState.score[1]);
+		lastUpdateTime = performance.now();
 	// }
-	drawPaddle(lastGameState.paddle1[0], lastGameState.paddle1[1]);;
-	drawPaddle(lastGameState.paddle2[0], lastGameState.paddle2[1]);
-	drawBall(lastGameState.ball[0], lastGameState.ball[1]);
-	drawScores(lastGameState.score[0], lastGameState.score[1]);
-	
-	requestAnimationFrame(renderPong);
+	// requestAnimationFrame(renderPong);
 }
 
 // function showPauseMenu() {

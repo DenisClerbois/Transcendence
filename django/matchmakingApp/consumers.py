@@ -24,7 +24,7 @@ class GameData:
 	initSpeed: int
 
 # GLOBALE
-FPS30 = 1 / 60
+FPS30 = 1 / 30
 NB_PLAYER = 4
 
 class Pong:
@@ -153,11 +153,11 @@ class Pong:
 		self._vector[0] *= -1  #send the service to the opposite way with the same impulse as before score (maybe rand val or fix val)
 		self.checkEndGame()
 
-	async def checkEndGame(self):
-		if abs(self._score[0] - self._score[1]) > 1:
-			if self._score[0] >= 3:
+	def checkEndGame(self):
+		if abs(self._score[0] - self._score[1]) > 0:
+			if self._score[0] >= 2:
 				asyncio.create_task(self.endF(self._players[1]))
-			elif self._score[1] >= 3:
+			elif self._score[1] >= 2:
 				asyncio.create_task(self.endF(self._players[0]))
  
 class Game:
@@ -202,6 +202,7 @@ class Game:
 
 	async def end(self, looser):
 		self._isRunning = False
+		await self._channel_layer.group_send(self._id, {'type': 'msg', 'event':'data', 'pong': self.pong.get_gameData()})
 		self.looser = looser
 		self._players.remove(looser)
 		self.winner = self._players.pop()
