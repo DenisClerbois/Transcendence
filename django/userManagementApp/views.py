@@ -10,7 +10,6 @@ from .models import PlayerProfile
 import magic
 import json
 import os
-# from . import utils
 from django.conf import settings
 from .utils import userDataErrorFinder
 from rest_framework.views import APIView
@@ -22,8 +21,6 @@ from .serializers import ProfilePictureSerializer
 @csrf_exempt
 def log(request):
 	if (request.method == 'POST'):
-		# if request.User.is_authenticated:
-		# 	return JsonResponse({'message': 'You are already logged in.'}, status=401)
 		data = json.loads(request.body)
 		username = data.get('username')
 		password = data.get('password')
@@ -57,9 +54,11 @@ def register(request):
 		return JsonResponse(dataErrors, status=401)
 
 	# Create the user
-	user = User.objects.create_user(username=data.get('username'),
-									email=data.get('email'),
-									password=data.get('password'))
+	user = User.objects.create_user(
+		username=data.get('username'),
+		email=data.get('email'),
+		password=data.get('password')
+	)
 	if user is None:
 		return JsonResponse({'message': 'Error on user creation.'}, status=401)
 	login(request, user)
@@ -70,7 +69,7 @@ def register(request):
 def getProfile(request):
 	user = request.user #the same user as "User" imported from django.contrib.auth.models in models.py
 	try:
-		profile = user.playerprofile  # Directly access OneToOneField (always lowercase)
+		profile = user.profile  # Directly access OneToOneField (always lowercase)
 	except PlayerProfile.DoesNotExist:
 		return JsonResponse({"error": "Profile not found"}, status=404)
 	
@@ -86,10 +85,9 @@ def getProfile(request):
 
 	return JsonResponse(profile_data, status=200)
 
-# @csrf_exempt
 @login_required
 def profileUpdate(request):
-	if request.method == "POST" and request.user.is_authenticated:
+	if request.method == "POST":# and request.user.is_authenticated:
 		data = json.loads(request.body)
 		dataErrors = userDataErrorFinder(data) #no argv since json contains strictly only modified user data fields
 		if bool(dataErrors):
@@ -97,7 +95,7 @@ def profileUpdate(request):
 
 		# Update user details
 		user = request.user
-		playerprofile = user.playerprofile
+		playerprofile = user.profile
 		# static/js/profilePage.js
 		for key, arg in data.items():
 			print(key)
@@ -133,7 +131,7 @@ def set_profile_pic(request):
 		return JsonResponse({'error': f'Invalid file type. Allowed types: {settings.ALLOWED_IMAGE_TYPES.join(", ")}'},
 							status=400)
 
-	profile = request.user.playerprofile
+	profile = request.user.profile
 	if profile.profile_picture and os.path.isfile(profile.profile_picture.path): #if user already has profile pic
 		os.remove(profile.profile_picture.path)
 	profile.profile_picture.save(image_file.name, image_file) # will call model's set_profile_image_path and store image
@@ -144,6 +142,24 @@ def set_profile_pic(request):
 
 @login_required
 def get_profile_pic(request):
-	profile = request.user.playerprofile
+	profile = request.user.profile
 	serializer = ProfilePictureSerializer(profile)
 	return JsonResponse(serializer.data, status=200)
+
+#####GAMER MODE#####...#####...#####...#####ACTIVATED#####
+from .models import Game
+from .models import PlayerProfile
+from .utils import gameDataErrorFinder
+
+@login_required
+def save_game(data, desertor=None): #{uid_player1: score, uid_player2: score}
+	dataErrors = gameDataErrorFinder(data) #utile pour le developpement
+	if bool(dataErrors):
+		return JsonResponse(dataErrors, status=401)
+	game = Game.objects.create(scores=data)
+	for key, value in data.items():
+		game.players.add(PlayerProfile.objects.get(id=key))
+	
+	if desertor:
+		game.desertor = desertor
+		game.save()

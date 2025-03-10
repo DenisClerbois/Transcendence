@@ -10,4 +10,6 @@ urlpatterns = [
 	path("setProfilePic/", views.set_profile_pic, name='set_profile_pic'),
 	path("profileUpdate/", views.profileUpdate, name="profileUpdate"),
 	path("auth/", views.auth, name="auth"),
+	#####GAMER MODE#####...#####...#####...#####ACTIVATED#####
+	path("saveGame/", views.save_game, name='save_game'),
 ]

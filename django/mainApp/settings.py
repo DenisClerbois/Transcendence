@@ -39,7 +39,7 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
 INSTALLED_APPS = [
     'daphne',
 	'channels',
-    'rest_framework',
+    # 'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 	'userManagementApp',
     'matchmakingApp',
+    'socialApp'
 ]
 
 

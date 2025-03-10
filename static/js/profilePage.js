@@ -69,7 +69,6 @@ async function saveProfile() {
             updatedData[key] = formField.value;
         }
     }
-    console.log(updatedData);
     const response = await fetch('/api/user/profileUpdate/', {
         method: 'POST',
         headers:  {
@@ -88,27 +87,13 @@ async function saveProfile() {
     }
 }
 
-async function fetchProfilePic() {
-    const response = await fetch('/api/user/getProfilePic/', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken(),
-        }
-    });
-    if (!response.ok)
-        return;
-    const data = await response.json();
-    return data;
-}
-
 async function uploadProfilePic() {
     const fileInput = document.getElementById('profilePicInput');
     if (!fileInput.isDefaultNamespace.length) return;
     const file = fileInput.files[0];
     const formData = new FormData();
     formData.append('image', file);
-
+    
     const response = await fetch('/api/user/setProfilePic/', {
         method: 'POST',
         headers: {
@@ -121,14 +106,29 @@ async function uploadProfilePic() {
         return;
     }
     const data = await response.json();
-    return data.profile_picture_url;
-}
-
-
-async function setProfilePic() {
-    const data = await fetchProfilePic();
     document.getElementById('profilePic').src = data.profile_picture_url;
 }
+
+async function fetchProfilePicUrl() {
+    const response = await fetch('/api/user/getProfilePic/', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken(),
+        }
+    });
+    return response;
+}
+
+async function setProfilePic() {
+    const response = await fetchProfilePicUrl();
+    if (response.ok) {
+        const data = await response.json();
+        if (data.profile_picture_url != null)
+            document.getElementById('profilePic').src = data.profile_picture_url;
+    }
+}
+
 
 
 

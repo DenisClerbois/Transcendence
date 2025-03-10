@@ -77,3 +77,19 @@ def userDataErrorFinder(data, *argv):
 		if error:
 			responseObj[arg] = error
 	return responseObj
+
+#####GAMER MODE#####...#####...#####...#####ACTIVATED#####
+from django.contrib.auth.models import User
+
+def gamePlayerErrFind(userId):
+	if not User.objects.filter(id=userId).exists():
+		return "unfound user id"
+#might be useful for development
+def gameDataErrorFinder(data):
+	responseObj = {}
+	error = ""
+	for userId in data.keys():
+		error = gamePlayerErrFind(userId)
+		if error:
+			responseObj[userId] = error
+	return responseObj
