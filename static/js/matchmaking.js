@@ -32,18 +32,15 @@ async function socketConnexion(path) {
 				// data_json['gameconst']
 				Game.paddleSize = { width: data_json['gameConst'].paddle.width, height: data_json['gameConst'].paddle.height };
 				Game.ballRadius = data_json['gameConst'].ballRadius;
+				Game.players = 4; //data_json['GameConst'].players;
 				updateUI(); //specific a la page pong
 				CreateCanvas();
 				break;
 			case 'data':
 				currentGameState = data_json['pong'];
 				lastGameState = currentGameState;
-				console.log("this is game state: >>>>> ", lastGameState);
 				lastUpdateTime = performance.now();
-				// if (!start){
-				// 	start = true;
-					requestAnimationFrame(renderPong);
-				// }
+				requestAnimationFrame(renderPong);
 				break;
 			case 'Countdown':
 				break;
@@ -94,22 +91,14 @@ function renderPong() {
 		start = false;
 		return;}
 		
-		// fill gaps between gameState updates
-		// if (performance.now() - lastUpdateTime > 10 && performance.now() - lastUpdateTime < 29 && lastGameState.ball[0] > Game.paddleSize.width
-		// 	&& lastGameState.ball[0] < Game.canvas.width - Game.paddleSize.width){
-			// 	lastGameState.ball[0] += (lastGameState.vector[0] * lastGameState.speed * 1 / 4)
-			// 	lastGameState.ball[1] += (lastGameState.vector[1] * lastGameState.speed * 1 / 4)
-			// }
-	// if (performance.now() - lastUpdateTime >= 1000 / 60) {
-		Game.ctx.fillStyle = "black";
-		Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
-		drawPaddle(lastGameState.paddle1[0], lastGameState.paddle1[1]);;
-		drawPaddle(lastGameState.paddle2[0], lastGameState.paddle2[1]);
-		drawBall(lastGameState.ball[0], lastGameState.ball[1]);
-		drawScores(lastGameState.score[0], lastGameState.score[1]);
-		lastUpdateTime = performance.now();
-	// }
-	// requestAnimationFrame(renderPong);
+	Game.ctx.fillStyle = "black";
+	Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
+	for (let i = 0; i < Game.players; i++){
+			drawPaddle(lastGameState.paddle["p" + (i + 1)][0], lastGameState.paddle["p" + (i + 1)][1], i < 2)
+	}
+	drawBall(lastGameState.ball[0], lastGameState.ball[1]);
+	drawScores(lastGameState.score, Game.players);
+	lastUpdateTime = performance.now();
 }
 
 // function showPauseMenu() {
