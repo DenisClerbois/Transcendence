@@ -22,7 +22,7 @@ class GameData:
 	# players: int
 
 # GLOBALE
-FPS30 = 1 / 30
+FPS30 = 1 / 60
 NB_PLAYER = 4
 
 # __________________

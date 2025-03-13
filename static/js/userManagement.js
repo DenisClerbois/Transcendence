@@ -23,7 +23,8 @@ const connexionStatusHandlers = {
 
 async function connexion(path) {
 	let formFields = getFormFields();
-	const response = await fetch(`https://localhost:8443${path}`, {
+	console.log(`https://` + window.location.host + `${path}`);
+	const response = await fetch(`https://` + window.location.host + `${path}`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -40,7 +41,7 @@ async function connexion(path) {
 }
 
 async function logout(){
-	const response = await fetch('https://localhost:8443/api/user/log_out/');
+	const response = await fetch('https://' + window.location.host + '/api/user/log_out/');
 	window.history.pushState({}, "", '/');
 	fetchBody();
 }

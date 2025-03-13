@@ -26,9 +26,11 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = int(os.getenv("DEBUG", default=0))
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
+ALLOWED_HOSTS += [os.getenv("NEW_HOST", "")]
+print("HOSTS >>>>> ", ALLOWED_HOSTS)
 
 # Application definition
-
+ 
 INSTALLED_APPS = [
     'daphne',
 	'channels',
@@ -42,14 +44,15 @@ INSTALLED_APPS = [
     'matchmakingApp',
 ]
 
-
+ 
 CSRF_COOKIE_HTTPONLY = False # Ensure JavaScript can access the cookie
 
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost',
-    'https://localhost:8443', 
+    'https://localhost:8443',
+	'https://10.2.6.7:8443',
 ]
-
+ 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

@@ -16,3 +16,5 @@ watchfiles==1.0.4
 
 # psycopg2 library to connect to PostgreSQL
 psycopg2==2.9.10
+
+netifaces

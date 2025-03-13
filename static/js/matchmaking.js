@@ -18,7 +18,7 @@ document.body.addEventListener('click', function(event) {
 });
 
 async function socketConnexion(path) {
-	socket = new WebSocket(`wss://localhost:8443/ws/${path}/`);
+	socket = new WebSocket(`wss://` + window.location.host + `/ws/${path}/`);
 	socket.onopen = () => {
 		console.log('ws open')
 		document.addEventListener("click", handleQuit);

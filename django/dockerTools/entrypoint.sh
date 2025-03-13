@@ -5,6 +5,13 @@ echo "Waiting for PostgreSQL to be ready..."
   sleep 3
 done
 
+# NEW_HOST=$(ip a | grep -oP '10\.\d+\.\d+\.\d+' | head -n 1)
+# if [[ -n "$HOST_IP" ]]; then
+#     export ALLOWED_HOSTS="$ALLOWED_HOSTS:$NEW_IP"
+# else
+#     export ALLOWED_HOSTS="$NEW_IP"
+# fi
+
 python manage.py makemigrations
 python manage.py migrate
 
