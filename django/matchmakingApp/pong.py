@@ -43,7 +43,7 @@ class Pong:
 			initSpeed=5,
 			# players=plrs,
 		) 
-		self._vector = [-1 / sqrt(2), -1 / sqrt(2)]
+		self._vector = [1 / sqrt(2), 1 / sqrt(2)]
 		self._speed = 300 * FPS30
 		self._score = [0, 0, 0, 0]
 		self._ball = [self.game_const.board.x / 2, self.game_const.board.y / 2]
@@ -118,7 +118,7 @@ class Pong:
 				if self.OutOfBound():
 					self.scoreAndResetBall()
 		#check for paddle colision left/right, and also for score
-		elif self._ball[0] + Const.ballRadius > Const.board.x - Const.paddle.width\
+		if self._ball[0] + Const.ballRadius > Const.board.x - Const.paddle.width\
 			or self._ball[0] - Const.ballRadius < Const.paddle.width:
 			if not self.colidePaddle("p1" if self._vector[0] <= 0 else "p2"):
 				if self.OutOfBound():
@@ -204,7 +204,7 @@ class Pong:
 		for i in range(self.p_nbr):
 			if self._score[i] >= 11:
 				for j in range(self.p_nbr):
-					if i != j and abs(self._score[i] - self._score[j]) > 1:
+					if i != j and abs(self._score[i] - self._score[j]) < 2:
 						scoreDiff += 1
 				if not scoreDiff:
 					asyncio.create_task(self.endF(self._players[i]))

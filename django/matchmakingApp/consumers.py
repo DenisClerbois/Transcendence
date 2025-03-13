@@ -22,7 +22,7 @@ class Game:
 
 	async def countdown(self):
 		pass
- 
+  
 	async def beg(self):
 		p_keys = [self._players[0].keys, self._players[1].keys, self._players[0].keys, self._players[1].keys]
 		self.pong = Pong(p_keys, self.end, 4, self._players)
