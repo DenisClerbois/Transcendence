@@ -7,3 +7,4 @@
 .pyc
 virtualEnv/
 __pycache__
+django/media/

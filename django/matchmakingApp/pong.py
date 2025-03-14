@@ -19,11 +19,10 @@ class GameData:
 	paddle: Paddle
 	ballRadius: float
 	initSpeed: int
-	# players: int
+	players: int
 
 # GLOBALE
-FPS30 = 1 / 60
-NB_PLAYER = 4
+FPS = 1 / 60
 
 # __________________
 #|        P3        |
@@ -33,7 +32,7 @@ NB_PLAYER = 4
 #|                  |
 #|                  |
 #|________P4________|
-  
+ 
 class Pong:
 	def __init__(self, players_keys, end_Function, players_nb, plrs):
 		self.game_const = GameData(
@@ -41,10 +40,10 @@ class Pong:
 			paddle=Paddle(width=12, height=100, speed=0),
 			ballRadius=10,
 			initSpeed=5,
-			# players=plrs,
+			players=players_nb,
 		) 
 		self._vector = [1 / sqrt(2), 1 / sqrt(2)]
-		self._speed = 300 * FPS30
+		self._speed = 300 * FPS
 		self._score = [0, 0, 0, 0]
 		self._ball = [self.game_const.board.x / 2, self.game_const.board.y / 2]
 		self.p_keys = players_keys

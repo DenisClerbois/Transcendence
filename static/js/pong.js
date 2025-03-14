@@ -1,5 +1,3 @@
-const appDiv = document.getElementById("app");
-
 const Game = {
 	canvas: null,
 	ctx: null,
@@ -47,7 +45,7 @@ function drawScores(scores, playerNbr) {
 	console.log("score = ", scores );
 	if (playerNbr == 2){
 		Game.ctx.fillText(scores[0], Game.canvas.width / 4, 30);
-		Game.ctx.fillText(player[1], (Game.canvas.width * 3) / 4, 30);
+		Game.ctx.fillText(scores[1], (Game.canvas.width * 3) / 4, 30);
 	}
 	else{
 		Game.ctx.fillText(scores[0], 30, (Game.canvas.height / 2) - 30);
@@ -60,22 +58,10 @@ function drawScores(scores, playerNbr) {
 
 // GAME FRONT DESIGN //
 function CreateCanvas() {
-	Game.canvas = document.getElementById("pongCanvas");
-	if (!Game.canvas) {
-		Game.canvas = document.createElement("canvas");
-		Game.canvas.id = "pongCanvas";
-		Game.canvas.width = 1000;
-		Game.canvas.height = 1000;
-		appDiv.innerHTML = ""; // Clear existing content
-		appDiv.appendChild(Game.canvas);
-	}
-	
-	if (!Game.canvas) {
-		console.error("Canvas not found or failed to initialize.");
-		return;
-	}
-	
-	console.log(Game.canvas);
+	Game.canvas = document.querySelector("canvas#pong");
+	Game.canvas.width = 1000;
+	Game.canvas.height = 1000;
+
 	Game.ctx = Game.canvas.getContext("2d");
 }
 
@@ -174,4 +160,4 @@ function CreateCanvas() {
 
 
 
-export { Game, CreateCanvas, drawBall, drawPaddle, drawScores }
+// export { Game, CreateCanvas, drawBall, drawPaddle, drawScores }

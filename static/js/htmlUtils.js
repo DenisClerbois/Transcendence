@@ -20,22 +20,3 @@ function removeFormErrorStyle(formField) {
     let errMsgObj = formField.closest('label').querySelector('.form-error-msg'); if (!errMsgObj) return;
     errMsgObj.style.display = "none"
 }
-
-// // getProfilePic
-// async function fetchProfilePic() {
-//     try {
-//         const response = await fetch('/api/user/getProfilePicPath/');
-//         if (!response.ok) throw new Error("Not authenticated");
-
-//         const data = await response.json();
-//         if (data.path != null) {
-//             document.querySelector("#profile-pic").src = data.path;
-//         }
-//     } catch (error) {
-//         console.log("User not logged in. Using default avatar.");
-//     }
-// }
-
-// Ensure profile image is updated on page load
-// fetchProfilePic();
-

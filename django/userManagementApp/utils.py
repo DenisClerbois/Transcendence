@@ -1,5 +1,6 @@
 import re
 from django.contrib.auth.models import User
+from .models import PlayerProfile
 
 def goodEmailFormat(email):
 	regex_email = r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
@@ -11,6 +12,9 @@ def goodPasswordFormat(pwd):
 
 def usernameInDB(username):
 	return User.objects.filter(username=username).exists()
+
+def nicknameInDB(nickname):
+	return PlayerProfile.objects.filter(nickname=nickname).exists()
 
 def emailInDB(email):
 	return User.objects.filter(email=email).exists()
@@ -34,8 +38,8 @@ def nicknameErrFind(nickname):
 		return 'invalid format'
 	elif len(nickname) > 5:
 		return 'over 5 characters limit'
-	# elif nicknameInDB(nickname):  #How about it's okay if two players have the same nickname?
-	# 	return 'already in use'
+	elif nicknameInDB(nickname):  #How about it's okay if two players have the same nickname?
+		return 'already in use'
 	return None
 
 def duplicateErrFind(target, string, stringConf):
@@ -72,4 +76,20 @@ def userDataErrorFinder(data, *argv):
 				print("userDataErrFind() data anomaly: arg={}".format(arg))
 		if error:
 			responseObj[arg] = error
+	return responseObj
+
+#####GAMER MODE#####...#####...#####...#####ACTIVATED#####
+from django.contrib.auth.models import User
+
+def gamePlayerErrFind(userId):
+	if not User.objects.filter(id=userId).exists():
+		return "unfound user id"
+#might be useful for development
+def gameDataErrorFinder(data):
+	responseObj = {}
+	error = ""
+	for userId in data.keys():
+		error = gamePlayerErrFind(userId)
+		if error:
+			responseObj[userId] = error
 	return responseObj

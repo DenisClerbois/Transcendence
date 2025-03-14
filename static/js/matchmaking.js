@@ -1,4 +1,4 @@
-import { CreateCanvas, Game, drawBall, drawPaddle, drawScores } from './PongFunctions.js'
+// import { CreateCanvas, Game, drawBall, drawPaddle, drawScores } from './PongFunctions.js'
 
 let socket = null;
 let isKeyDown = false;
@@ -17,10 +17,25 @@ document.body.addEventListener('click', function(event) {
 	}
 });
 
+async function setPong(gameConstant) {
+	window.history.pushState({}, '', '/pong');
+	const response = await fetch('/static/html/pong.html');
+	const html = await response.text();
+	document.querySelector("div.all").innerHTML = html;
+	console.log(html);
+	// runScriptsInHTML(html);
+	Game.paddleSize = { width: gameConstant.paddle.width, height: gameConstant.paddle.height };
+	Game.ballRadius = gameConstant.ballRadius;
+	Game.players = gameConstant.players;
+	// updateUI(); //specific a la page pong
+	CreateCanvas();
+}
+
 async function socketConnexion(path) {
 	socket = new WebSocket(`wss://` + window.location.host + `/ws/${path}/`);
 	socket.onopen = () => {
 		console.log('ws open')
+		window.addEventListener('beforeunload', handleUnload)
 		document.addEventListener("click", handleQuit);
 		updateUI();
 	};
@@ -29,14 +44,10 @@ async function socketConnexion(path) {
 		// console.log(data_json);
 		switch (data_json['event']) {
 			case 'Game':
-				// data_json['gameconst']
-				Game.paddleSize = { width: data_json['gameConst'].paddle.width, height: data_json['gameConst'].paddle.height };
-				Game.ballRadius = data_json['gameConst'].ballRadius;
-				Game.players = 4; //data_json['GameConst'].players;
-				updateUI(); //specific a la page pong
-				CreateCanvas();
+				// data_json['gameConst']
+				setPong(data_json['gameConst']);
 				break;
-			case 'data':
+			case 'Data':
 				currentGameState = data_json['pong'];
 				lastGameState = currentGameState;
 				lastUpdateTime = performance.now();
@@ -52,26 +63,32 @@ async function socketConnexion(path) {
 				document.removeEventListener("keydown", handleKeyDown);
 				document.removeEventListener("keyup", handleKeyUp);
 				break;
+			case 'Error':
+				alert(data_json['log']); // Meilleure alerte necessaire
+				break;
 		}
 	};
 	socket.onclose = () => {
 		console.log('ws close')
 		document.removeEventListener("click", handleQuit);
-		updateUI();
+		window.removeEventListener("beforeunload", handleUnload);
 	};
 }
 
 function updateUI() {
 	const ui1 = document.querySelector('div.UI1');
 	const ui2 = document.querySelector('div.UI2');
-	const ui3 = document.querySelector('div.card-header');
 	ui1.hidden = !ui1.hidden;
 	ui2.hidden = !ui2.hidden;
-	ui3.hidden = !ui3.hidden;
 }
 function handleQuit(event){
-	if (event.target && event.target.matches('button.close'))
+	if (event.target && event.target.matches('button.close')){
 		socket.send(JSON.stringify({type: 'quit'}));
+		updateUI();
+	}
+}
+function handleUnload(event) {
+	socket.send(JSON.stringify({type: 'quit'}));
 }
 function handleKeyDown(event) {
 	if (!isKeyDown && keys.includes(event.key)){
@@ -100,13 +117,3 @@ function renderPong() {
 	drawScores(lastGameState.score, Game.players);
 	lastUpdateTime = performance.now();
 }
-
-// function showPauseMenu() {
-//     Game.pauseMenu.style.display = "flex"; // Show menu
-//     cancelAnimationFrame(renderPong); // Stop the game loop
-// }
-
-// // Hide the pause menu
-// function hidePauseMenu() {
-//     Game.pauseMenu.style.display = "none"; // Hide menu
-// }

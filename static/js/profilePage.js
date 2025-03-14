@@ -2,7 +2,7 @@
 if (!window.user_modifiables) {
     //django/userManagementApp/views.py
     //static/html/profile.html
-    window.user_modifiables = ["username", "email", "teeth_length", "nickname"];
+    window.user_modifiables = ["username", "email", "nickname"];
     window.user_constants = ["id"];
     window.user_variables = [...window.user_modifiables, ...window.user_constants];
 }
@@ -10,6 +10,8 @@ if (!window.user_modifiables) {
 document.querySelector("button.switchDisplay").addEventListener("click", switchDisplay);
 document.querySelector("button.switchEdit").addEventListener("click", switchToEdit);
 document.querySelector("button.save").addEventListener("click", saveProfile)
+
+document.querySelector("button.uploadProfilePic").addEventListener("click", uploadProfilePic);
 
 function switchToEdit() {
     setFormFields();
@@ -46,17 +48,13 @@ function updateHtml(data) {
  * FETCH USER PROFILE DATA FROM BACKEND
  */
 async function fetchProfile() {
-    try {
-        const response = await fetch('/api/user/profile');
-        if (!response.ok) {
-            throw new Error('Failed to fetch profile data.');
-        }
-        const data = await response.json();
-        updateHtml(data);
-
-    } catch (error) {
+    const response = await fetch('/api/user/profile');
+    if (!response.ok) {
         console.error('Error fetching profile:', error);
+        return;
     }
+    const data = await response.json();
+    updateHtml(data);
 }
 
 async function saveProfile() {
@@ -73,7 +71,10 @@ async function saveProfile() {
     }
     const response = await fetch('/api/user/profileUpdate/', {
         method: 'POST',
-        headers:  { 'Content-Type': 'application/json' },
+        headers:  {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken(),
+        },
         body: JSON.stringify(updatedData),
     });
     const data = await response.json();
@@ -85,4 +86,51 @@ async function saveProfile() {
         formErrorStyle(data);
     }
 }
+
+async function uploadProfilePic() {
+    const fileInput = document.getElementById('profilePicInput');
+    if (!fileInput.isDefaultNamespace.length) return;
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    const response = await fetch('/api/user/setProfilePic/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+        },
+        body: formData
+    });
+    if (!response.ok) {
+        console.error('Error uploading profile picture');
+        return;
+    }
+    const data = await response.json();
+    document.getElementById('profilePic').src = data.profile_picture_url;
+}
+
+async function fetchProfilePicUrl() {
+    const response = await fetch('/api/user/getProfilePic/', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken(),
+        }
+    });
+    return response;
+}
+
+async function setProfilePic() {
+    const response = await fetchProfilePicUrl();
+    if (response.ok) {
+        const data = await response.json();
+        if (data.profile_picture_url != null)
+            document.getElementById('profilePic').src = data.profile_picture_url;
+    }
+}
+
+
+
+
 fetchProfile();
+setProfilePic();

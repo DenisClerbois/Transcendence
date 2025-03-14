@@ -16,12 +16,19 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Sets path for media content inside django app (!= static directory)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif']
+MAX_UPLOAD_SIZE = 1024 * 1024 * 5 # 5MB
+ 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
-
+ 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.getenv("DEBUG", default=0))
 
@@ -34,6 +41,7 @@ print("HOSTS >>>>> ", ALLOWED_HOSTS)
 INSTALLED_APPS = [
     'daphne',
 	'channels',
+    # 'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 	'userManagementApp',
     'matchmakingApp',
+    'socialApp'
 ]
 
  
