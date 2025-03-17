@@ -22,7 +22,7 @@ async function setPong(gameConstant) {
 	const response = await fetch('/static/html/pong.html');
 	const html = await response.text();
 	document.querySelector("div.all").innerHTML = html;
-	console.log(html);
+	// console.log(html);
 	// runScriptsInHTML(html);
 	Game.paddleSize = { width: gameConstant.paddle.width, height: gameConstant.paddle.height };
 	Game.ballRadius = gameConstant.ballRadius;

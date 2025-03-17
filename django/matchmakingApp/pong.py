@@ -146,7 +146,7 @@ class Pong:
 		self.increaseSpeed(pp)
 		if pp == "p1":
 			self._vector[0] = abs(self._vector[0])
-			print("Launch modified")
+			# print("Launch modified")
 			self.launcher = 0
 		elif pp == "p2":
 			self._vector[0] = -abs(self._vector[0])
