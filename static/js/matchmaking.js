@@ -74,7 +74,7 @@ async function socketConnexion(path) {
 		window.removeEventListener("beforeunload", handleUnload);
 	};
 }
-
+ 
 function updateUI() {
 	const ui1 = document.querySelector('div.UI1');
 	const ui2 = document.querySelector('div.UI2');

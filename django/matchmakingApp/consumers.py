@@ -6,7 +6,7 @@ import json
 from matchmakingApp.pong import Pong, FPS
 
 # GLOBALE
-NB_PLAYER = 4
+NB_PLAYER = 1
   
 class Game:
 
@@ -27,7 +27,7 @@ class Game:
 		await self._channel_layer.group_send(self._id, {'type': 'msg', 'event': 'Go'})
 
 	async def beg(self):
-		p_keys = [self._players[0].keys, self._players[1].keys, self._players[0].keys, self._players[1].keys]
+		p_keys = [self._players[0].keys]
 		self.pong = Pong(p_keys, self.end, NB_PLAYER, self._players)
 		self._id = uuid.uuid4().hex
 		for p in self._players:

@@ -32,9 +32,11 @@ FPS = 1 / 60
 #|                  |
 #|                  |
 #|________P4________|
- 
+  
 class Pong:
 	def __init__(self, players_keys, end_Function, players_nb, plrs):
+		self.AI = None
+		self.p_nbr = 0
 		self.game_const = GameData(
 			board=Board(x=1000, y=1000),
 			paddle=Paddle(width=12, height=100, speed=0),
@@ -43,10 +45,17 @@ class Pong:
 			players=players_nb,
 		) 
 		self._vector = [1 / sqrt(2), 1 / sqrt(2)]
-		self._speed = 300 * FPS
+		self._speed = 400 * FPS
 		self._score = [0, 0, 0, 0]
 		self._ball = [self.game_const.board.x / 2, self.game_const.board.y / 2]
 		self.p_keys = players_keys
+		if players_nb == 1:
+			self.p_nbr = 2
+			self.game_const.players = 2
+			self.p_keys.append({'ArrowUp': False, 'ArrowDown': False})
+			self.AI = PongAI(self, self.p_keys[1])
+		else:
+			self.p_nbr = players_nb
 		self._paddle = {
 			"p1" : [-1, -1],
 			"p2" : [-1, -1],
@@ -63,11 +72,12 @@ class Pong:
 		self.game_const.initSpeed = self._speed
 		self.game_const.paddle.speed = sqrt(self._vector[0] ** 2 + self._vector[1] ** 2) * self._speed * 1.6
 		self.endF = end_Function 
-		self.p_nbr = players_nb
 		self._players = plrs
  
 	def update(self):
 		self.move_ball()
+		if self.AI:
+			self.AI.updateAI()
 		self.move_paddles()
 	def get_gameConst(self):
 		return asdict(self.game_const)
@@ -79,17 +89,20 @@ class Pong:
 			'score': self._score,
 			'paddle': self._paddle,
 			}
-
+  
 	def move_paddles(self):
 		paddleSpeed = self.game_const.paddle.speed
-
+ 
 		#need to check if for horizontal paddle is ArrowUp/Down or ArrowLeft/Right
 		for i in range(self.p_nbr):
-			if self.p_keys[i]['ArrowUp']:
+			if i == 1 and self.AI and self.AI.AIPos >= self._paddle["p2"][1] + 10 and self.AI.AIPos <= self._paddle["p2"][1] + self.game_const.paddle.height - 10 and self._vector[0] > 0:
+				continue
+				# self.p_keys[1] = {'ArrowUp': False, 'ArrowDown': False}
+			elif self.p_keys[i]['ArrowUp']:
 				self.check_paddle_movement(self._paddle["p" + str(i + 1)][i < 2], -1 * paddleSpeed, "p" + str(i + 1))
 			elif self.p_keys[i]['ArrowDown']:
 				self.check_paddle_movement(self._paddle["p" + str(i + 1)][i < 2], paddleSpeed, "p" + str(i + 1))		
- 
+
 	def check_paddle_movement(self, pos, move, player):
 		#check if paddle reach the border of the board
 		if player == "p1" or player == "p2":
@@ -98,7 +111,7 @@ class Pong:
 		else:
 			if (pos + move) >= 0 and pos + move + self.game_const.paddle.height <= self.game_const.board.x:
 				self._paddle[player][0] += move
-
+  
 	def move_ball(self):
 		self._ball[0] += (self._vector[0] * self._speed)
 		self._ball[1] += (self._vector[1] * self._speed)
@@ -107,7 +120,7 @@ class Pong:
 	def check_collision(self):
 		# check for wall colision up/down
 		Const = self.game_const
-		if self.p_nbr == 2 and (self._ball[1] + Const.ballRadius > Const.board.y \
+		if self.p_nbr < 4 and (self._ball[1] + Const.ballRadius > Const.board.y \
 			or self._ball[1] - Const.ballRadius < 0):
 			self.colideWall()
 		#check for paddle colision up/down
@@ -121,12 +134,13 @@ class Pong:
 			or self._ball[0] - Const.ballRadius < Const.paddle.width:
 			if not self.colidePaddle("p1" if self._vector[0] <= 0 else "p2"):
 				if self.OutOfBound():
+					print("AI PADLLE if score >> ",self.AI.AIPos, " vs ", self._ball[1], " = ", self._ball[1] - self.AI.AIPos)
 					self.scoreAndResetBall()
 		 			
 	def colideWall(self):
 		# change position of ball based on collision point and distance
 		self._vector[1] *= -1
-   
+    
 	def colidePaddle(self, pp):
 		paddleHeight = self.game_const.paddle.height
 		if pp == "p1" or pp == "p2":
@@ -137,16 +151,17 @@ class Pong:
 			hitPosition = self._ball[0] - paddleCenter
 		if abs(hitPosition) > paddleHeight / 2:
 			return False
+		if pp == "p2":
+			print("AI PADLLE if not score >> ",self.AI.AIPos, " vs ", self._ball[1], " = ", self._ball[1] - self.AI.AIPos)
 		maxBounceAngle = pi / 4 # 45 degrees
 		bounceAngle = (hitPosition / (paddleHeight / 2)) * maxBounceAngle
-	  
+	   
 		speed = sqrt(self._vector[0] ** 2 + self._vector[1] ** 2)
 		self._vector[(pp == "p3" or pp == "p4")] = speed * cos(bounceAngle)
 		self._vector[(pp == "p1" or pp == "p2")] = speed * sin(bounceAngle)
 		self.increaseSpeed(pp)
 		if pp == "p1":
 			self._vector[0] = abs(self._vector[0])
-			print("Launch modified")
 			self.launcher = 0
 		elif pp == "p2":
 			self._vector[0] = -abs(self._vector[0])
@@ -208,10 +223,83 @@ class Pong:
 				if not scoreDiff:
 					asyncio.create_task(self.endF(self._players[i]))
 			scoreDiff = 0
+import time
 
-		# if abs(self._score[0] - self._score[1]) > 0:
-		# 	if self._score[0] >= 2:
-		# 		asyncio.create_task(self.endF(self._players[1]))
-		# 	elif self._score[1] >= 2:
-		# 		asyncio.create_task(self.endF(self._players[0]))
+class PongAI:
+	def __init__(self, pong, AIKey):
+		self._pong = pong
+		self._key = AIKey
+		self.lastUpdate = int(time.time() * 1000)
+		self.gameConst = pong.game_const
+		self.AIPos = 0
+	
+	def updateAI(self):
+		now = int(time.time() * 1000)
+		if now - self.lastUpdate < 1000:
+			return
+		self.lastUpdate = now
+		self.calculateNextPos()
  
+	def calculateNextPos(self):
+		ball = self._pong._ball.copy()
+		vector = self._pong._vector.copy()
+		vector[0] *= self._pong._speed
+		vector[1] *= self._pong._speed
+		paddle = self._pong._paddle["p2"].copy()
+		if self.malusCondition(ball, vector):
+			ball = self.simplePath(ball)
+		else:
+			print("BEFORE >>> [ball AI POS]", ball, "vs real ball", self._pong._ball)
+			ball = self.calculatedPath(ball, vector)
+			print("AFTER >>> [ball AI POS]", ball, "vs real ball", self._pong._ball)
+			self.AIPos = ball[1]
+			if ball[1] < paddle[1] + 10:
+				self._key['ArrowUp'] = True
+				self._key['ArrowDown'] = False 
+			elif ball[1] > paddle[1] + self.gameConst.paddle.height - 10:
+				self._key['ArrowUp'] = False
+				self._key['ArrowDown'] = True
+			else:
+				self._key['ArrowUp'] = False
+				self._key['ArrowDown'] = False
+  
+	def simplePath(self, ball):
+		ball[1] = self._pong._ball[1]
+		return ball
+	def calculatedPath(self, ball, vector):
+		const = self.gameConst
+		while vector[0] > 0 and ball[0] > const.paddle.width and ball[0] < const.board.x - const.paddle.width:
+			if ball[0] + vector[0] > const.paddle.width:
+				ball[0] += vector[0]
+			else:
+				ball[0] = self.adjustPos(ball[0], vector[0], const.paddle.width)
+				vector[0] *= -1
+			if ball[1] + vector[1] < 0 and ball[1] + vector[1] < const.board.y:
+				# if ball[1] + vector[1] < 0:
+				# 	ball[1] = self.adjustPos(ball[1], vector[1], 0)
+				# else:
+				# 	ball[1] = self.adjustPos(ball[1], vector[1], const.board.y)
+				vector[1] *= -1
+			else:
+				ball[1] += vector[1]
+		return ball
+ 
+	def adjustPos(self, ball, speed, lim):
+		tmp = 0
+		dif = 0
+
+		tmp = ball + speed
+		dif = lim - tmp
+		ball = lim + dif
+		return ball
+	 
+	def malusCondition(self, ball, vector):
+		speedDiff = self._pong._speed // self.gameConst.initSpeed
+		if (speedDiff < 2 and vector[0] > 0 and ball[0] >= self.gameConst.board.x / 2):
+			return False
+		elif (speedDiff < 3 and vector[0] > 0 and ball[0] >= self.gameConst.board.x / 3):
+			return False
+		elif (speedDiff and vector[0] > 0):
+			return False
+		return True
+	
