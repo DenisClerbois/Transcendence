@@ -57,10 +57,10 @@ function drawScores(scores, playerNbr) {
 }
 
 // GAME FRONT DESIGN //
-function CreateCanvas() {
+function CreateCanvas(width, height) {
 	Game.canvas = document.querySelector("canvas#pong");
-	Game.canvas.width = 1000;
-	Game.canvas.height = 1000;
+	Game.canvas.width = width;
+	Game.canvas.height = height;
 
 	Game.ctx = Game.canvas.getContext("2d");
 }

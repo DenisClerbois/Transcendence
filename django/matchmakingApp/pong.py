@@ -43,11 +43,14 @@ class Pong:
 			ballRadius=10,
 			initSpeed=5,
 			players=players_nb,
-		) 
+		)
+		if players_nb < 4:
+			self.game_const.board.y = 500
 		self._vector = [1 / sqrt(2), 1 / sqrt(2)]
 		self._speed = 400 * FPS
 		self._score = [0, 0, 0, 0]
 		self._ball = [self.game_const.board.x / 2, self.game_const.board.y / 2]
+		self._prevBall = self._ball
 		self.p_keys = players_keys
 		if players_nb == 1:
 			self.p_nbr = 2
@@ -93,7 +96,6 @@ class Pong:
 	def move_paddles(self):
 		paddleSpeed = self.game_const.paddle.speed
  
-		#need to check if for horizontal paddle is ArrowUp/Down or ArrowLeft/Right
 		for i in range(self.p_nbr):
 			if i == 1 and self.AI and self.AI.AIPos >= self._paddle["p2"][1] + 10 and self.AI.AIPos <= self._paddle["p2"][1] + self.game_const.paddle.height - 10 and self._vector[0] > 0:
 				continue
@@ -108,15 +110,24 @@ class Pong:
 		if player == "p1" or player == "p2":
 			if (pos + move) >= 0 and pos + move + self.game_const.paddle.height <= self.game_const.board.y:
 				self._paddle[player][1] += move
+			elif (pos + move) < 0:
+				self._paddle[player][1] = 0
+			else:
+				self._paddle[player][1] = self.game_const.board.y - self.game_const.paddle.height
 		else:
 			if (pos + move) >= 0 and pos + move + self.game_const.paddle.height <= self.game_const.board.x:
 				self._paddle[player][0] += move
-  
+			elif (pos + move) < 0:
+				self._paddle[player][0] = 0
+			else:
+				self._paddle[player][0] = self.game_const.board.x - self.game_const.paddle.height
+   
 	def move_ball(self):
+		self._prevBall = self._ball
 		self._ball[0] += (self._vector[0] * self._speed)
 		self._ball[1] += (self._vector[1] * self._speed)
 		self.check_collision()
- 
+  
 	def check_collision(self):
 		# check for wall colision up/down
 		Const = self.game_const
@@ -136,6 +147,7 @@ class Pong:
 				if self.OutOfBound():
 					print("AI PADLLE if score >> ",self.AI.AIPos, " vs ", self._ball[1], " = ", self._ball[1] - self.AI.AIPos)
 					self.scoreAndResetBall()
+
 		 			
 	def colideWall(self):
 		# change position of ball based on collision point and distance
@@ -143,6 +155,7 @@ class Pong:
     
 	def colidePaddle(self, pp):
 		paddleHeight = self.game_const.paddle.height
+		gConst = self.game_const
 		if pp == "p1" or pp == "p2":
 			paddleCenter = self._paddle[pp][1] + paddleHeight / 2
 			hitPosition = self._ball[1] - paddleCenter
@@ -151,11 +164,20 @@ class Pong:
 			hitPosition = self._ball[0] - paddleCenter
 		if abs(hitPosition) > paddleHeight / 2:
 			return False
+		if (pp == "p1" or "p2") and (self._ball[0] < gConst.paddle.width - 1 and self._prevBall[0] < gConst.paddle.width 
+			or self._ball[0] < gConst.board.x + gConst.paddle.width - 1 and self._prevBall[0] > gConst.board.x + gConst.paddle.width):
+			print("DID NOT COLIDE", pp, self._paddle[pp])
+			return False
+		elif (pp == "p3" or "p4") and (self._ball[1] < gConst.paddle.width - 1 and self._prevBall[1] < gConst.paddle.width 
+			or self._ball[1] < gConst.board.y + gConst.paddle.width - 1 and self._prevBall[1] > gConst.board.x + gConst.paddle.width):
+			print("DID NOT COLIDE")
+			return False
 		if pp == "p2":
 			print("AI PADLLE if not score >> ",self.AI.AIPos, " vs ", self._ball[1], " = ", self._ball[1] - self.AI.AIPos)
+		print("COLIDE")
 		maxBounceAngle = pi / 4 # 45 degrees
 		bounceAngle = (hitPosition / (paddleHeight / 2)) * maxBounceAngle
-	   
+
 		speed = sqrt(self._vector[0] ** 2 + self._vector[1] ** 2)
 		self._vector[(pp == "p3" or pp == "p4")] = speed * cos(bounceAngle)
 		self._vector[(pp == "p1" or pp == "p2")] = speed * sin(bounceAngle)
@@ -176,10 +198,10 @@ class Pong:
  
 	def OutOfBound(self):
 		board = self.game_const.board
-		board = self.game_const.board
-		if self._ball[0] <= 0 or self._ball[0] >= board.x:
+		paddle = self.game_const.paddle
+		if self._ball[0] <= 0 or self._ball[0] >= board.x - 0:
 			return True
-		if self._ball[1] <= 0 or self._ball[1] >= board.y:
+		if self._ball[1] <= 0 or self._ball[1] >= board.y - 0:
 			return True
 		return False
 		
