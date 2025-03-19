@@ -46,7 +46,7 @@ class Pong:
 		)
 		if players_nb < 4:
 			self.game_const.board.y = 500
-		self._vector = [1 / sqrt(2), 1 / sqrt(2)]
+		self._vector = [1, 0.49]
 		self._speed = 400 * FPS
 		self._score = [0, 0, 0, 0]
 		self._ball = [self.game_const.board.x / 2, self.game_const.board.y / 2]
@@ -145,12 +145,17 @@ class Pong:
 			or self._ball[0] - Const.ballRadius < Const.paddle.width:
 			if not self.colidePaddle("p1" if self._vector[0] <= 0 else "p2"):
 				if self.OutOfBound():
-					print("AI PADLLE if score >> ",self.AI.AIPos, " vs ", self._ball[1], " = ", self._ball[1] - self.AI.AIPos)
 					self.scoreAndResetBall()
 
 		 			
 	def colideWall(self):
 		# change position of ball based on collision point and distance
+		if self._ball[1] < 0 or self._ball[1] > self.game_const.board.y:
+			lim = 0
+			if self._ball[1] > self.game_const.board.y:
+				lim = self.game_const.board.y
+			dif = lim - self._ball[1]
+			self._ball[1] = lim + dif
 		self._vector[1] *= -1
     
 	def colidePaddle(self, pp):
@@ -164,20 +169,28 @@ class Pong:
 			hitPosition = self._ball[0] - paddleCenter
 		if abs(hitPosition) > paddleHeight / 2:
 			return False
-		if (pp == "p1" or "p2") and (self._ball[0] < gConst.paddle.width - 1 and self._prevBall[0] < gConst.paddle.width 
-			or self._ball[0] < gConst.board.x + gConst.paddle.width - 1 and self._prevBall[0] > gConst.board.x + gConst.paddle.width):
-			print("DID NOT COLIDE", pp, self._paddle[pp])
-			return False
-		elif (pp == "p3" or "p4") and (self._ball[1] < gConst.paddle.width - 1 and self._prevBall[1] < gConst.paddle.width 
-			or self._ball[1] < gConst.board.y + gConst.paddle.width - 1 and self._prevBall[1] > gConst.board.x + gConst.paddle.width):
-			print("DID NOT COLIDE")
-			return False
-		if pp == "p2":
-			print("AI PADLLE if not score >> ",self.AI.AIPos, " vs ", self._ball[1], " = ", self._ball[1] - self.AI.AIPos)
-		print("COLIDE")
+		# if (pp == "p1" or "p2") and (self._ball[0] < gConst.paddle.width - 1 and self._prevBall[0] < gConst.paddle.width 
+		# 	or self._ball[0] < gConst.board.x - gConst.paddle.width - 1 and self._prevBall[0] > gConst.board.x + gConst.paddle.width):
+		# 	print("DID NOT COLIDE", pp, self._paddle[pp])
+		# 	return False
+		# elif (pp == "p3" or "p4") and (self._ball[1] < gConst.paddle.width - 1 and self._prevBall[1] < gConst.paddle.width 
+		# 	or self._ball[1] < gConst.board.y - gConst.paddle.width - 1 and self._prevBall[1] > gConst.board.x + gConst.paddle.width):
+		# 	print("DID NOT COLIDE")
+		# 	return False
+		# print("COLIDE")
+		if (pp == "p1" or "p2") and (self._ball[0] < gConst.paddle.width or self._ball[0] > gConst.board.x - gConst.paddle.width):
+			if self._ball[0] < gConst.paddle.width:
+				self._ball[0] = gConst.paddle.width
+			else:
+				self._ball[0] = gConst.board.x - gConst.paddle.width
+		elif (pp == "p3" or "p4") and (self._ball[1] < gConst.paddle.width or self._ball[1] > gConst.board.y - gConst.paddle.width):
+			if self._ball[1] < gConst.paddle.width:
+				self._ball[1] = gConst.paddle.width
+			else:
+				self._ball[1] = gConst.board.y - gConst.paddle.width
 		maxBounceAngle = pi / 4 # 45 degrees
 		bounceAngle = (hitPosition / (paddleHeight / 2)) * maxBounceAngle
-
+ 
 		speed = sqrt(self._vector[0] ** 2 + self._vector[1] ** 2)
 		self._vector[(pp == "p3" or pp == "p4")] = speed * cos(bounceAngle)
 		self._vector[(pp == "p1" or pp == "p2")] = speed * sin(bounceAngle)
@@ -210,7 +223,7 @@ class Pong:
 		# Only decreased back to init when scored but can be changed into decreased when paddle does not moves at same time
 		for i in range(self.p_nbr):
 			if pp == "p" + str(i+1):
-				if self.p_keys[i]['ArrowUp'] or self.p_keys[i]['ArrowDown']:
+				if self.p_keys[i]['ArrowUp'] or self.p_keys[i]['ArrowDown'] or 1:
 					if self._speed < self.game_const.initSpeed * 3: 
 						self._speed *= 1.1
   
@@ -271,9 +284,7 @@ class PongAI:
 		if self.malusCondition(ball, vector):
 			ball = self.simplePath(ball)
 		else:
-			print("BEFORE >>> [ball AI POS]", ball, "vs real ball", self._pong._ball)
 			ball = self.calculatedPath(ball, vector)
-			print("AFTER >>> [ball AI POS]", ball, "vs real ball", self._pong._ball)
 			self.AIPos = ball[1]
 			if ball[1] < paddle[1] + 10:
 				self._key['ArrowUp'] = True
