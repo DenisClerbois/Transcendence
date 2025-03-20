@@ -1,4 +1,5 @@
 import asyncio
+import time
 from dataclasses import dataclass, asdict
 from math import sqrt, cos, sin, pi
 
@@ -23,6 +24,7 @@ class GameData:
 
 # GLOBALE
 FPS = 1 / 60
+SPEED = 300 # px/s
 
 # __________________
 #|        P3        |
@@ -32,7 +34,7 @@ FPS = 1 / 60
 #|                  |
 #|                  |
 #|________P4________|
-  
+
 class Pong:
 	def __init__(self, players_keys, end_Function, players_nb, plrs):
 		self.AI = None
@@ -45,10 +47,10 @@ class Pong:
 			players=players_nb,
 		)
 		if players_nb < 4:
-			self.game_const.board.y = 500
-		self._vector = [1, 0.49]
-		self._speed = 400 * FPS
-		self._score = [0, 0, 0, 0]
+			self.game_const.board.y = 750
+		self._vector = [-1, 0.09]
+		self._speed = SPEED * FPS
+		self._score = [-100, 0, 0, 0]
 		self._ball = [self.game_const.board.x / 2, self.game_const.board.y / 2]
 		self._prevBall = self._ball
 		self.p_keys = players_keys
@@ -76,7 +78,7 @@ class Pong:
 		self.game_const.paddle.speed = sqrt(self._vector[0] ** 2 + self._vector[1] ** 2) * self._speed * 1.6
 		self.endF = end_Function 
 		self._players = plrs
- 
+  
 	def update(self):
 		self.move_ball()
 		if self.AI:
@@ -99,7 +101,6 @@ class Pong:
 		for i in range(self.p_nbr):
 			if i == 1 and self.AI and self.AI.AIPos >= self._paddle["p2"][1] + 10 and self.AI.AIPos <= self._paddle["p2"][1] + self.game_const.paddle.height - 10 and self._vector[0] > 0:
 				continue
-				# self.p_keys[1] = {'ArrowUp': False, 'ArrowDown': False}
 			elif self.p_keys[i]['ArrowUp']:
 				self.check_paddle_movement(self._paddle["p" + str(i + 1)][i < 2], -1 * paddleSpeed, "p" + str(i + 1))
 			elif self.p_keys[i]['ArrowDown']:
@@ -141,59 +142,47 @@ class Pong:
 				if self.OutOfBound():
 					self.scoreAndResetBall()
 		#check for paddle colision left/right, and also for score
-		if self._ball[0] + Const.ballRadius > Const.board.x - Const.paddle.width\
-			or self._ball[0] - Const.ballRadius < Const.paddle.width:
+		if self._ball[0] + Const.ballRadius >= Const.board.x - Const.paddle.width\
+			or self._ball[0] - Const.ballRadius <= Const.paddle.width:
 			if not self.colidePaddle("p1" if self._vector[0] <= 0 else "p2"):
 				if self.OutOfBound():
 					self.scoreAndResetBall()
-
 		 			
 	def colideWall(self):
 		# change position of ball based on collision point and distance
-		if self._ball[1] < 0 or self._ball[1] > self.game_const.board.y:
-			lim = 0
-			if self._ball[1] > self.game_const.board.y:
-				lim = self.game_const.board.y
+		if self._ball[1] < self.game_const.ballRadius or self._ball[1] > self.game_const.board.y - self.game_const.ballRadius:
+			lim = self.game_const.ballRadius
+			if self._ball[1] > self.game_const.board.y - self.game_const.ballRadius:
+				lim = self.game_const.board.y - self.game_const.ballRadius
 			dif = lim - self._ball[1]
 			self._ball[1] = lim + dif
 		self._vector[1] *= -1
-    
+     
 	def colidePaddle(self, pp):
 		paddleHeight = self.game_const.paddle.height
 		gConst = self.game_const
+		if self._ball[pp == "p1" or pp == "p2"] + gConst.ballRadius < self._paddle[pp][pp == "p1" or pp == "p2"] or \
+   			self._ball[pp == "p1" or pp == "p2"] - gConst.ballRadius > self._paddle[pp][pp == "p1" or pp == "p2"] + gConst.paddle.height:
+			return False
+		self.adjustBallCollision(pp)
 		if pp == "p1" or pp == "p2":
 			paddleCenter = self._paddle[pp][1] + paddleHeight / 2
 			hitPosition = self._ball[1] - paddleCenter
 		else:
 			paddleCenter = self._paddle[pp][0] + paddleHeight / 2
 			hitPosition = self._ball[0] - paddleCenter
-		if abs(hitPosition) > paddleHeight / 2:
-			return False
-		# if (pp == "p1" or "p2") and (self._ball[0] < gConst.paddle.width - 1 and self._prevBall[0] < gConst.paddle.width 
-		# 	or self._ball[0] < gConst.board.x - gConst.paddle.width - 1 and self._prevBall[0] > gConst.board.x + gConst.paddle.width):
-		# 	print("DID NOT COLIDE", pp, self._paddle[pp])
-		# 	return False
-		# elif (pp == "p3" or "p4") and (self._ball[1] < gConst.paddle.width - 1 and self._prevBall[1] < gConst.paddle.width 
-		# 	or self._ball[1] < gConst.board.y - gConst.paddle.width - 1 and self._prevBall[1] > gConst.board.x + gConst.paddle.width):
-		# 	print("DID NOT COLIDE")
-		# 	return False
-		# print("COLIDE")
-		if (pp == "p1" or "p2") and (self._ball[0] < gConst.paddle.width or self._ball[0] > gConst.board.x - gConst.paddle.width):
-			if self._ball[0] < gConst.paddle.width:
-				self._ball[0] = gConst.paddle.width
-			else:
-				self._ball[0] = gConst.board.x - gConst.paddle.width
-		elif (pp == "p3" or "p4") and (self._ball[1] < gConst.paddle.width or self._ball[1] > gConst.board.y - gConst.paddle.width):
-			if self._ball[1] < gConst.paddle.width:
-				self._ball[1] = gConst.paddle.width
-			else:
-				self._ball[1] = gConst.board.y - gConst.paddle.width
 		maxBounceAngle = pi / 4 # 45 degrees
 		bounceAngle = (hitPosition / (paddleHeight / 2)) * maxBounceAngle
- 
 		speed = sqrt(self._vector[0] ** 2 + self._vector[1] ** 2)
-		self._vector[(pp == "p3" or pp == "p4")] = speed * cos(bounceAngle)
-		self._vector[(pp == "p1" or pp == "p2")] = speed * sin(bounceAngle)
+		if pp == "p1" or pp == "p2":
+			self.colVerticalPaddle(pp, speed, bounceAngle)
+		else:
+			self.colHorizontalPaddle(pp, speed, bounceAngle)
+		return True
+	
+	def colVerticalPaddle(self, pp, speed, bounceAngle):
+		self._vector[0] = speed * cos(bounceAngle)
+		self._vector[1] = speed * sin(bounceAngle)
 		self.increaseSpeed(pp)
 		if pp == "p1":
 			self._vector[0] = abs(self._vector[0])
@@ -201,14 +190,27 @@ class Pong:
 		elif pp == "p2":
 			self._vector[0] = -abs(self._vector[0])
 			self.launcher = 1
-		elif pp == "p3":
+
+	def colHorizontalPaddle(self, pp, speed, bounceAngle):
+		self._vector[1] = speed * cos(bounceAngle)
+		self._vector[0] = speed * sin(bounceAngle)
+		if pp == "p3":
 			self._vector[1] = abs(self._vector[1])
 			self.launcher = 2
 		elif pp == "p4":
 			self._vector[1] = -abs(self._vector[1])
 			self.launcher = 3
-		return True 
- 
+
+	def adjustBallCollision(self, pp):
+		if pp == "p1":
+			self._ball[0] = self._paddle["p1"][0] + self.game_const.paddle.width + self.game_const.ballRadius
+		elif pp == "p2":
+			self._ball[0] = self._paddle["p2"][0] - self.game_const.ballRadius
+		elif pp == "p3":
+			self._ball[1] = self._paddle["p3"][1] + self.game_const.paddle.width + self.game_const.ballRadius
+		elif pp == "p4":
+			self._ball[1] = self._paddle["p4"][1] - self.game_const.ballRadius
+
 	def OutOfBound(self):
 		board = self.game_const.board
 		paddle = self.game_const.paddle
@@ -217,13 +219,13 @@ class Pong:
 		if self._ball[1] <= 0 or self._ball[1] >= board.y - 0:
 			return True
 		return False
-		
+		 
 	def increaseSpeed(self, pp):
 		#When player moves the paddle at the same time the ball touch it, speed is increased
 		# Only decreased back to init when scored but can be changed into decreased when paddle does not moves at same time
 		for i in range(self.p_nbr):
 			if pp == "p" + str(i+1):
-				if self.p_keys[i]['ArrowUp'] or self.p_keys[i]['ArrowDown'] or 1:
+				if self.p_keys[i]['ArrowUp'] or self.p_keys[i]['ArrowDown']:
 					if self._speed < self.game_const.initSpeed * 3: 
 						self._speed *= 1.1
   
@@ -247,7 +249,7 @@ class Pong:
 				self.launcher = 3
 		self._ball = [const.board.x / 2, const.board.y / 2]
 		self.checkEndGame()
- 
+  
 	def checkEndGame(self):
 		scoreDiff = 0
 		for i in range(self.p_nbr):
@@ -258,7 +260,7 @@ class Pong:
 				if not scoreDiff:
 					asyncio.create_task(self.endF(self._players[i]))
 			scoreDiff = 0
-import time
+
 
 class PongAI:
 	def __init__(self, pong, AIKey):
@@ -308,10 +310,10 @@ class PongAI:
 				ball[0] = self.adjustPos(ball[0], vector[0], const.paddle.width)
 				vector[0] *= -1
 			if ball[1] + vector[1] < 0 and ball[1] + vector[1] < const.board.y:
-				# if ball[1] + vector[1] < 0:
-				# 	ball[1] = self.adjustPos(ball[1], vector[1], 0)
-				# else:
-				# 	ball[1] = self.adjustPos(ball[1], vector[1], const.board.y)
+				if ball[1] + vector[1] < 0:
+					ball[1] = self.adjustPos(ball[1], vector[1], 0)
+				else:
+					ball[1] = self.adjustPos(ball[1], vector[1], const.board.y)
 				vector[1] *= -1
 			else:
 				ball[1] += vector[1]
