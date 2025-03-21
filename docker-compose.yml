@@ -6,6 +6,8 @@ services:
     container_name: django
     volumes:
       - ./django:/usr/src/app
+      - socket_volume:/app/django/sockets
+      - socket_sql:/var/run/postgresql
     depends_on:
       - postgres
     expose:
@@ -23,6 +25,9 @@ services:
       - "8443:443"
     volumes:
       - ./static:/static
+      - ./django:/app/django
+      - socket_volume:/app/django/sockets
+      
     networks:
       - transcendence
     depends_on:
@@ -38,9 +43,32 @@ services:
       - ./.env/dev.env
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - socket_sql:/var/run/postgresql
     networks:
       - transcendence
     restart: always
+
+  # daphne:
+  #   container_name: daphne
+  #   build: ./daphne 
+  #   env_file:
+  #     - ./.env/dev.env
+  #   command: daphne -u /app/django/sockets/daphne.sock mainApp.asgi:application
+  #   volumes:
+  #     - ./django:/app/django
+  #     - socket_volume:/app/django/sockets
+  #     - socket_sql:/var/run/postgresql
+  #   networks:
+  #     - transcendence
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - transcendence
+
 
 networks:
   transcendence:
@@ -50,5 +78,7 @@ volumes:
   data:
   static:
   pgdata:
+  socket_volume:
+  socket_sql:
   
 

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 	'userManagementApp',
     'matchmakingApp',
     'pongApp',
+    'chatApp',
 ]
 
 
@@ -84,6 +85,8 @@ WSGI_APPLICATION = 'mainApp.wsgi.application'
 ASGI_APPLICATION = 'mainApp.asgi.application'
 
 
+
+
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -99,6 +102,46 @@ DATABASES = {
             'options': '-c search_path=public,pg_catalog',
         },
     }
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {  # 🔥 Handler pour enregistrer les logs dans un fichier
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/debug.log'),  # 📂 Chemin du fichier log
+            'formatter': 'verbose',
+        },
+        'console': {  # 🔥 Afficher les logs dans la console
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'django': {  # Logger Django principal
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'chat': {  # Logger spécifique pour le chat
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
 }
 
 
@@ -145,10 +188,13 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CHANNEL_LAYERS = {
-	"default": {
-		"BACKEND": "channels.layers.InMemoryChannelLayer",},
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [("redis", 6379)]
+        }
     }
-
+}
 CORS_ALLOW_ALL_ORIGINS = True
 
 CHANNEL_CLOSE_TIMEOUT = 15

@@ -1,10 +1,10 @@
 const routes_auth_required = {
-	"/profile":"/static/html/profile.html",
-	"/home":"/static/html/home.html",
-	// "/pong":"/static/html/pong.html",
-	// "/tictactoe":"/static/html/tictactoe.html",
-	// "/leaderbord":"/static/html/leaderbord.html",
-}
+	"/profile": "/static/html/profile.html",
+	"/home": "/static/html/home.html",
+	"/chat": "/static/html/chat.html",
+	"/chatRoom": "/static/html/chatRoom.html",
+};
+
 const routes_free_access = {
 	"/":"/static/html/login.html",
 	"/login":"/static/html/login.html",
@@ -27,6 +27,26 @@ function route(event) {
 	fetchBody();
 }
 
+async function fetchChatRoom(chatName) {
+	sessionStorage.setItem("chatName", JSON.stringify(chatName));
+	console.log(sessionStorage.getItem("chatName")); // Check what is stored
+	const response = await fetch("/static/html/chatRoom.html");
+	const html = await response.text();
+	document.querySelector("div#app").innerHTML = html;
+	runScriptsInHTML(html);
+	injectChatName();
+	document.getElementById("chat-name").innerText = "Room: " + chatName;
+}
+
+function injectChatName() {
+    const chatName = sessionStorage.getItem("chatName"); // Retrieve stored chat name
+    if (chatName) {
+        const chatNameElement = document.getElementById("chat-name");
+        if (chatNameElement) {
+            chatNameElement.textContent = chatName;
+        }
+    }
+}
 
 /**
  * LOAD AND EXECUTE ANY SCRIPT FIND IN HTML

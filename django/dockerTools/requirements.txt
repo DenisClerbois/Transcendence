@@ -11,3 +11,4 @@ typing_extensions==4.12.2
 watchfiles==1.0.4
 channels-postgres==0.0.5
 websockets==12.0
+channels_redis

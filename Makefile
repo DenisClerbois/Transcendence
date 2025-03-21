@@ -7,7 +7,7 @@ build:
 	docker compose -f docker-compose.yml build
 
 down:
-	docker compose -f docker-compose.yml down
+	docker compose -f docker-compose.yml down -v
 
 clean: down
 	docker volume prune -f
