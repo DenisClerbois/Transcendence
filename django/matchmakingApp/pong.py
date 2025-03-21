@@ -50,7 +50,7 @@ class Pong:
 			self.game_const.board.y = 750
 		self._vector = [-1, 0.09]
 		self._speed = SPEED * FPS
-		self._score = [-100, 0, 0, 0]
+		self._score = [0, 0, 0, 0]
 		self._ball = [self.game_const.board.x / 2, self.game_const.board.y / 2]
 		self._prevBall = self._ball
 		self.p_keys = players_keys

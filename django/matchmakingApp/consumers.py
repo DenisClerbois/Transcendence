@@ -6,7 +6,7 @@ import json
 from matchmakingApp.pong import Pong, FPS
 
 # GLOBALE
-NB_PLAYER = 4
+NB_PLAYER = 1
   
 class Game:
 
