@@ -130,18 +130,6 @@ LOGGING = {
             'formatter': 'simple',
         },
     },
-    'loggers': {
-        'django': {  # Logger Django principal
-            'handlers': ['file', 'console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'chat': {  # Logger spécifique pour le chat
-            'handlers': ['file', 'console'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
-    },
 }
 
 

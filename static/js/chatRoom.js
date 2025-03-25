@@ -15,29 +15,6 @@ if (!chatLog.hasChildNodes())
     chatLog.appendChild(emptyText)
 }
 
-// const chatSocket = new WebSocket(
-//     'wss://'
-//     + window.location.host
-//     + '/ws/chat/'
-//     + chatName
-//     + '/'
-// );
-
-// chatSocket.onmessage = function(e) {
-//     const data = JSON.parse(e.data);
-//     const messageElement = document.createElement('div')
-//     messageElement.innerText = data.message
-//     messageElement.className = 'message'
-//     chatLog.appendChild(messageElement)
-
-//     if (document.querySelector('#emptyText'))
-//     {
-//         document.querySelector('#emptyText').remove()
-//     }
-
-// };
-
-
 const chatSocket = new WebSocket(
     'wss://'
     + window.location.host
@@ -53,7 +30,6 @@ chatSocket.onmessage = function(event) {
     messageElement.className = 'message';
     chatLog.appendChild(messageElement);
     console.log(`Message reçu de ${data.sender}: ${data.message}`);
-    // Affiche le message dans l'UI
 };
 
 function sendMessage(message) {
