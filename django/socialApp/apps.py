@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class PongappConfig(AppConfig):
+class SocialappConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'pongApp'
+    name = 'socialApp'

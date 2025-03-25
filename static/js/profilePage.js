@@ -1,78 +1,65 @@
-fetchProfile(); 
+//Avoid redeclaration by checking if already defined in global scope
+if (!window.user_modifiables) {
+    //django/userManagementApp/views.py
+    //static/html/profile.html
+    window.user_modifiables = ["username", "email", "nickname"];
+    window.user_constants = ["id"];
+    window.user_variables = [...window.user_modifiables, ...window.user_constants];
+}
 
-/**
- * FETCH USER PROFILE DATA FROM BACKEND
- */
+function updateHtml(data) {
+    let displayElems = document.getElementsByClassName('display');
+    for (const key of user_variables) {
+        let dispElem = displayElems.namedItem(key);
+        if (dispElem) {dispElem.textContent = data[key] ? data[key] : dispElem.textContent;}
+    }
+}
+
 async function fetchProfile() {
-    try {
-        console.log("E");
-        const response = await fetch('/api/profile');
-        console.log("F");
-        if (!response.ok) {
-            throw new Error('Failed to fetch profile data.');
-        }
-        console.log(response);
-        const data = await response.json();
-        console.log(data);
-
-        // Update profile display
-        document.getElementById('username').textContent = data.username;
-        document.getElementById('email').textContent = data.email;
-
-        // Populate edit fields (only editable ones)
-        document.getElementById('usernameInput').value = data.username;
-        document.getElementById('emailInput').value = data.email;
-
-    } catch (error) {
+    var url = Object.keys(window.routeParams).length ?
+        `/api/user/profile/${window.routeParams.userId.toString()}/`
+        : 'api/user/profile/';
+    console.log(url);
+    const response = await fetch(url);
+    if (!response.ok) {
         console.error('Error fetching profile:', error);
+        return;
     }
+    const data = await response.json();
+    updateHtml(data);
+    if (data && data.id)
+        setProfilePic(data.id);
 }
 
-/**
- * SWITCH TO EDIT MODE
- */
-function editProfile() {
-    document.getElementById('profile-display').style.display = 'none';
-    document.getElementById('profile-edit').style.display = 'block';
-}
-
-/**
- * SWITCH BACK TO DISPLAY MODE WITHOUT SAVING
- */
-function cancelEdit() {
-    document.getElementById('profile-edit').style.display = 'none';
-    document.getElementById('profile-display').style.display = 'block';
-}
-
-/**
- * SEND UPDATED PROFILE DATA TO BACKEND
- */
-async function saveProfile() {
-    const usernameInput = document.getElementById('usernameInput').value;
-    const emailInput = document.getElementById('emailInput').value;
-
-    try {
-        const response = await fetch('/api/profileUpdate/', {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            body: new URLSearchParams({
-                'username': usernameInput,
-                'email': emailInput
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.status === 'success') {
-            // Update displayed profile
-            document.getElementById('username').textContent = data.username;
-            document.getElementById('email').textContent = data.email;
-            // Return to display mode
-            cancelEdit();
-        } else {
-            alertNonModal(data.error || "An error occurred.");
+async function fetchProfilePicUrl(userId) {
+    console.log(`/api/user/getProfilePic/${userId}/`);
+    const response = await fetch(`/api/user/getProfilePic/${userId}/`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken(),
+            'Cache-Control': 'no-store'
         }
-    } catch (error) {
-        console.error('Error updating profile:', error);
+    });
+    return response;
+}
+
+async function setProfilePic(userId) {
+    console.log(userId);
+    const response = await fetchProfilePicUrl(userId);
+    if (response.ok) {
+        const data = await response.json();
+        console.log(await data);
+        img = document.getElementById('profilePic')
+        if (data.profile_picture_url != null)
+            img.src = data.profile_picture_url;
+        else
+            img.src = 'media/profile_pictures/default_cute.png'
+    }
+    else {
+        console.log(response);
     }
 }
+
+fetchProfile();
+insertFriendRequests();

@@ -14,6 +14,8 @@ services:
       - "8000"
     env_file:
       - ./.env/dev.env
+    environment:
+      - NEW_HOST=${HOST_IP}
     networks:
       - transcendence
 
@@ -31,6 +33,10 @@ services:
     networks:
       - transcendence
     depends_on:
+      - ./django/media:/app/media # shared repository between nginx and django, 
+    networks:                       # Why it's necessary:
+      - transcendence               # files uploaded to django are stored in django container
+    depends_on:                     # This gives nginx access to user files (profile pic) stored in django volume
       - django
 
   postgres:
@@ -47,19 +53,16 @@ services:
     networks:
       - transcendence
     restart: always
-
-  # daphne:
-  #   container_name: daphne
-  #   build: ./daphne 
-  #   env_file:
-  #     - ./.env/dev.env
-  #   command: daphne -u /app/django/sockets/daphne.sock mainApp.asgi:application
-  #   volumes:
-  #     - ./django:/app/django
-  #     - socket_volume:/app/django/sockets
-  #     - socket_sql:/var/run/postgresql
-  #   networks:
-  #     - transcendence
+  
+  redis:
+    container_name: redis
+    image: "redis:alpine"
+    expose:
+      - "6379"
+    depends_on:
+      - django
+    networks:
+      - transcendence
 
   redis:
     image: redis:latest

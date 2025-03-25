@@ -1,10 +1,14 @@
+HOST_IP := $(shell ip -4 addr show | grep -oP '10\.\d+\.\d+\.\d+' | head -n 1)
+
 all: build up
 
-up :
-	docker compose -f docker-compose.yml up
+up:
+	HOST_IP=$(HOST_IP) docker compose -f docker-compose.yml up
 
 build:
-	docker compose -f docker-compose.yml build
+	@echo "Detected IP: $(HOST_IP)"
+	@sed -i "s/^NEW_HOST=.*/NEW_HOST=$(HOST_IP)/" .env/dev.env || echo "NEW_HOST=$(HOST_IP)" >> .env/dev.env
+	HOST_IP=$(HOST_IP) docker compose -f docker-compose.yml build
 
 down:
 	docker compose -f docker-compose.yml down -v

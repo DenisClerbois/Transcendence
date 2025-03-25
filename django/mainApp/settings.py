@@ -16,23 +16,32 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Sets path for media content inside django app (!= static directory)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif']
+MAX_UPLOAD_SIZE = 1024 * 1024 * 5 # 5MB
+ 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
-
+ 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.getenv("DEBUG", default=0))
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
+ALLOWED_HOSTS += [os.getenv("NEW_HOST", "")]
+print("HOSTS >>>>> ", ALLOWED_HOSTS)
 
 # Application definition
-
+ 
 INSTALLED_APPS = [
-	'daphne',
+    'daphne',
 	'channels',
-	'channels_postgres',
+    # 'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,18 +50,19 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 	'userManagementApp',
     'matchmakingApp',
-    'pongApp',
     'chatApp',
+    'socialApp'
 ]
 
-
+ 
 CSRF_COOKIE_HTTPONLY = False # Ensure JavaScript can access the cookie
 
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost',
-    'https://localhost:8443', 
+    'https://localhost:8443',
+	'https://10.2.6.7:8443',
 ]
-
+ 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -61,6 +71,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'userManagementApp.middleware.UserActivityMiddleware'
 ]
 
 ROOT_URLCONF = 'mainApp.urls'
@@ -168,7 +179,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -179,10 +189,12 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [("redis", 6379)]
-        }
-    }
+            "hosts": [('redis', 6379)],  # "redis" est le nom du service dans Docker
+			"capacity":1000
+        },
+    },
 }
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 CHANNEL_CLOSE_TIMEOUT = 15
