@@ -35,9 +35,10 @@ def log(request):
 
 @login_required
 def log_out(request):
-	logout(request)
-	return JsonResponse({'message': 'User logged out.'}, status=200)
-
+	if request.user.is_authenticated:
+		logout(request)
+		return JsonResponse({'message': 'User logged out.'}, status=200)
+	return JsonResponse({'message': 'User not authenticated in the first place'}, status=400)
 
 def auth(request):
 	if request.user.is_authenticated:
@@ -64,10 +65,15 @@ def register(request):
 	login(request, user)
 	return JsonResponse({'message': 'User account created.'}, status=200)
 
-
 @login_required
-def getProfile(request):
-	user = request.user #the same user as "User" imported from django.contrib.auth.models in models.py
+def getProfile(request, userId=None):
+	if userId == None:
+		user = request.user
+	else:
+		user, created = User.objects.get_or_create(id=userId)
+		if created:
+			user.delete()
+			return JsonResponse({"error": "Profile not found"}, status=404)
 	try:
 		profile = user.profile  # Directly access OneToOneField (always lowercase)
 	except PlayerProfile.DoesNotExist:
@@ -95,26 +101,31 @@ def profileUpdate(request):
 
 		# Update user details
 		user = request.user
-		playerprofile = user.profile
+		profile = user.profile
 		# static/js/profilePage.js
 		for key, arg in data.items():
-			print(key)
 			match key:
 				case "username":
 					user.username = arg
 				case "email":
 					user.email = arg
 				case "nickname":
-					playerprofile.nickname = arg
+					profile.nickname = arg
 				case _:
 					print("profileUpdate() data anomaly: key={}, arg={}".format(key, arg))
 		user.save()
-		playerprofile.save()
+		profile.save()
 		return JsonResponse(data, status=200)
 	return JsonResponse({'error': 'Invalid request'}, status=400)
 
 @login_required
 def set_profile_pic(request):
+	profile = request.user.profile
+	if request.method == "DELETE":
+		profile.profile_picture.delete(save=False)
+		profile.profile_picture = None
+		profile.save()
+		return JsonResponse({'success': 'Deleted profile picture'}, status=200)
 	if 'image' not in request.FILES:
 		return JsonResponse({'error': 'No image file provided'}, status=400)
 	
@@ -131,7 +142,6 @@ def set_profile_pic(request):
 		return JsonResponse({'error': f'Invalid file type. Allowed types: {settings.ALLOWED_IMAGE_TYPES.join(", ")}'},
 							status=400)
 
-	profile = request.user.profile
 	if profile.profile_picture and os.path.isfile(profile.profile_picture.path): #if user already has profile pic
 		os.remove(profile.profile_picture.path)
 	profile.profile_picture.save(image_file.name, image_file) # will call model's set_profile_image_path and store image
@@ -141,9 +151,12 @@ def set_profile_pic(request):
 	return JsonResponse(serializer.data, status=200)
 
 @login_required
-def get_profile_pic(request):
-	profile = request.user.profile
-	serializer = ProfilePictureSerializer(profile)
+def get_profile_pic(request, userId):
+	user, created = User.objects.get_or_create(id=userId)
+	if created:
+		user.delete()
+		return JsonResponse({"error": "User not found"}, status=400)
+	serializer = ProfilePictureSerializer(user.profile)
 	return JsonResponse(serializer.data, status=200)
 
 #####GAMER MODE#####...#####...#####...#####ACTIVATED#####

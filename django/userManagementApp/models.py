@@ -2,7 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.contrib.auth.signals import user_logged_out
 from django.conf import settings
+from django.utils import timezone
 import os
 import uuid
 
@@ -12,6 +14,14 @@ import uuid
 def create_player_profile(sender, instance, created, **kwargs):
     if created:
         PlayerProfile.objects.create(user=instance, nickname=instance.username[:5].upper())
+
+@receiver(user_logged_out)
+def set_user_offline(sender, user, request, **kwargs):
+    if user:  # Just to be safe
+        profile = user.profile
+        profile.is_online = False
+        profile.save(update_fields=['is_online'])
+
 
 def set_profile_image_path(instance, filename):
         ext = filename.split('.')[-1] #find file type
@@ -34,10 +44,14 @@ class PlayerProfile(models.Model):
         null=True,                          # host ./django/static/media/profile_pictures/123e4567-e89b-12d3-a456-426614174000.jpg
     )                                       # accessible to nginx container at /static/app/media/profile_pictures/123e4567-e89b-12d3-a456-426614174000.jpg
     friends = models.ManyToManyField('self', symmetrical=True, blank=True)
-
-
+    is_online = models.BooleanField(default=False)
+    last_activity = models.DateTimeField(default=timezone.now)
     def __str__(self):  # ~ofstream overload equivalent
         return f"User {self.user.username} - Email: {self.user.email}"
+
+
+
+
 
 #####GAMER MODE#####...#####...#####...#####ACTIVATED#####
 

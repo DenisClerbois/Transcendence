@@ -7,35 +7,6 @@ if (!window.user_modifiables) {
     window.user_variables = [...window.user_modifiables, ...window.user_constants];
 }
 
-document.querySelector("button.switchDisplay").addEventListener("click", switchDisplay);
-document.querySelector("button.switchEdit").addEventListener("click", switchToEdit);
-document.querySelector("button.save").addEventListener("click", saveProfile)
-
-document.querySelector("button.uploadProfilePic").addEventListener("click", uploadProfilePic);
-
-function switchToEdit() {
-    setFormFields();
-    switchDisplay();
-}
-
-function switchDisplay() {
-    document.getElementById('profile-display').hidden = !document.getElementById('profile-display').hidden;
-    document.getElementById('profile-edit').hidden = !document.getElementById('profile-edit').hidden;
-}
-
-function setFormFields() {
-    let displayElems = document.getElementsByClassName('display');
-    let formFields =  document.getElementsByClassName('form-control');
-    for (const key of user_modifiables) {
-        let dispElem = displayElems.namedItem(key);
-        let formField = formFields.namedItem(key);
-        if (dispElem && formField) {
-            formField.value = dispElem.textContent
-            removeFormErrorStyle(formField);
-        }
-    }
-}
-
 function updateHtml(data) {
     let displayElems = document.getElementsByClassName('display');
     for (const key of user_variables) {
@@ -44,93 +15,51 @@ function updateHtml(data) {
     }
 }
 
-/**
- * FETCH USER PROFILE DATA FROM BACKEND
- */
 async function fetchProfile() {
-    const response = await fetch('/api/user/profile');
+    var url = Object.keys(window.routeParams).length ?
+        `/api/user/profile/${window.routeParams.userId.toString()}/`
+        : 'api/user/profile/';
+    console.log(url);
+    const response = await fetch(url);
     if (!response.ok) {
         console.error('Error fetching profile:', error);
         return;
     }
     const data = await response.json();
     updateHtml(data);
+    if (data && data.id)
+        setProfilePic(data.id);
 }
 
-async function saveProfile() {
-    //dynamic json of modified data
-    let updatedData = {};
-    let formFields = document.getElementsByClassName('form-control');
-    let displayElems = document.getElementsByClassName('display');
-    for (const key of user_modifiables) {
-        let formField = formFields.namedItem(key);
-        let dispElem = displayElems.namedItem(key);
-        if (formField && dispElem && formField.value != dispElem.textContent) {
-            updatedData[key] = formField.value;
-        }
-    }
-    const response = await fetch('/api/user/profileUpdate/', {
-        method: 'POST',
-        headers:  {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCsrfToken(),
-        },
-        body: JSON.stringify(updatedData),
-    });
-    const data = await response.json();
-
-    if (response.ok) {
-        updateHtml(data);
-        switchDisplay();
-    } else {
-        formErrorStyle(data);
-    }
-}
-
-async function uploadProfilePic() {
-    const fileInput = document.getElementById('profilePicInput');
-    if (!fileInput.isDefaultNamespace.length) return;
-    const file = fileInput.files[0];
-    const formData = new FormData();
-    formData.append('image', file);
-    
-    const response = await fetch('/api/user/setProfilePic/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCsrfToken(),
-        },
-        body: formData
-    });
-    if (!response.ok) {
-        console.error('Error uploading profile picture');
-        return;
-    }
-    const data = await response.json();
-    document.getElementById('profilePic').src = data.profile_picture_url;
-}
-
-async function fetchProfilePicUrl() {
-    const response = await fetch('/api/user/getProfilePic/', {
+async function fetchProfilePicUrl(userId) {
+    console.log(`/api/user/getProfilePic/${userId}/`);
+    const response = await fetch(`/api/user/getProfilePic/${userId}/`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCsrfToken(),
+            'Cache-Control': 'no-store'
         }
     });
     return response;
 }
 
-async function setProfilePic() {
-    const response = await fetchProfilePicUrl();
+async function setProfilePic(userId) {
+    console.log(userId);
+    const response = await fetchProfilePicUrl(userId);
     if (response.ok) {
         const data = await response.json();
+        console.log(await data);
+        img = document.getElementById('profilePic')
         if (data.profile_picture_url != null)
-            document.getElementById('profilePic').src = data.profile_picture_url;
+            img.src = data.profile_picture_url;
+        else
+            img.src = 'media/profile_pictures/default_cute.png'
+    }
+    else {
+        console.log(response);
     }
 }
 
-
-
-
 fetchProfile();
-setProfilePic();
+insertFriendRequests();
