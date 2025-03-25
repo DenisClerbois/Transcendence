@@ -22,16 +22,17 @@ async function setPong(gameConstant) {
 	const response = await fetch('/static/html/pong.html');
 	const html = await response.text();
 	document.querySelector("div.all").innerHTML = html;
-	console.log(html);
+	// console.log(html);
 	// runScriptsInHTML(html);
 	Game.paddleSize = { width: gameConstant.paddle.width, height: gameConstant.paddle.height };
 	Game.ballRadius = gameConstant.ballRadius;
+	Game.players = gameConstant.players;
 	// updateUI(); //specific a la page pong
-	CreateCanvas();
+	CreateCanvas(gameConstant.board.x, gameConstant.board.y);
 }
 
 async function socketConnexion(path) {
-	socket = new WebSocket(`wss://localhost:8443/ws/${path}/`);
+	socket = new WebSocket(`wss://` + window.location.host + `/ws/${path}/`);
 	socket.onopen = () => {
 		console.log('ws open')
 		window.addEventListener('beforeunload', handleUnload)
@@ -50,10 +51,7 @@ async function socketConnexion(path) {
 				currentGameState = data_json['pong'];
 				lastGameState = currentGameState;
 				lastUpdateTime = performance.now();
-				// if (!start){
-				// 	start = true;
-					requestAnimationFrame(renderPong);
-				// }
+				requestAnimationFrame(renderPong);
 				break;
 			case 'Countdown':
 				break;
@@ -76,7 +74,7 @@ async function socketConnexion(path) {
 		window.removeEventListener("beforeunload", handleUnload);
 	};
 }
-
+ 
 function updateUI() {
 	const ui1 = document.querySelector('div.UI1');
 	const ui2 = document.querySelector('div.UI2');
@@ -110,30 +108,13 @@ function renderPong() {
 		start = false;
 		return;}
 		
-		// fill gaps between gameState updates
-		// if (performance.now() - lastUpdateTime > 10 && performance.now() - lastUpdateTime < 29 && lastGameState.ball[0] > Game.paddleSize.width
-		// 	&& lastGameState.ball[0] < Game.canvas.width - Game.paddleSize.width){
-			// 	lastGameState.ball[0] += (lastGameState.vector[0] * lastGameState.speed * 1 / 4)
-			// 	lastGameState.ball[1] += (lastGameState.vector[1] * lastGameState.speed * 1 / 4)
-			// }
-	// if (performance.now() - lastUpdateTime >= 1000 / 60) {
-		Game.ctx.fillStyle = "black";
-		Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
-		drawPaddle(lastGameState.paddle1[0], lastGameState.paddle1[1]);;
-		drawPaddle(lastGameState.paddle2[0], lastGameState.paddle2[1]);
-		drawBall(lastGameState.ball[0], lastGameState.ball[1]);
-		drawScores(lastGameState.score[0], lastGameState.score[1]);
-		lastUpdateTime = performance.now();
-	// }
-	// requestAnimationFrame(renderPong);
+	Game.ctx.fillStyle = "black";
+	Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
+	for (let i = 0; i < Game.players; i++){
+			if (lastGameState.score[i] != -1)
+				drawPaddle(lastGameState.paddle["p" + (i + 1)][0], lastGameState.paddle["p" + (i + 1)][1], i < 2)
+	}
+	drawBall(lastGameState.ball[0], lastGameState.ball[1]);
+	drawScores(lastGameState.score, Game.players);
+	lastUpdateTime = performance.now();
 }
-
-// function showPauseMenu() {
-//     Game.pauseMenu.style.display = "flex"; // Show menu
-//     cancelAnimationFrame(renderPong); // Stop the game loop
-// }
-
-// // Hide the pause menu
-// function hidePauseMenu() {
-//     Game.pauseMenu.style.display = "none"; // Hide menu
-// }

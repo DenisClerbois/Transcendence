@@ -12,6 +12,8 @@ services:
       - "8000"
     env_file:
       - ./.env/dev.env
+    environment:
+      - NEW_HOST=${HOST_IP}
     networks:
       - transcendence
 

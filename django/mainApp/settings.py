@@ -22,20 +22,22 @@ MEDIA_URL = '/media/'
 
 ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif']
 MAX_UPLOAD_SIZE = 1024 * 1024 * 5 # 5MB
-
+ 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
-
+ 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.getenv("DEBUG", default=0))
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
+ALLOWED_HOSTS += [os.getenv("NEW_HOST", "")]
+print("HOSTS >>>>> ", ALLOWED_HOSTS)
 
 # Application definition
-
+ 
 INSTALLED_APPS = [
     'daphne',
 	'channels',
@@ -51,14 +53,15 @@ INSTALLED_APPS = [
     'socialApp'
 ]
 
-
+ 
 CSRF_COOKIE_HTTPONLY = False # Ensure JavaScript can access the cookie
 
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost',
-    'https://localhost:8443', 
+    'https://localhost:8443',
+	'https://10.2.6.7:8443',
 ]
-
+ 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

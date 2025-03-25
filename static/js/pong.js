@@ -3,6 +3,7 @@ const Game = {
 	ctx: null,
 	paddleSize: null,
 	ballRadius: null,
+	players: null,
 	// menuOverlay: null,
 	// pauseMenu: null,
 	// paused: false,
@@ -10,12 +11,22 @@ const Game = {
 
 // GAME LOGIC //
 
-function drawPaddle(x, y) {
+function drawPaddle(x, y, vert) {
+	let width;
+	let height;
+	if (vert){
+		width = Game.paddleSize.width
+		height = Game.paddleSize.height
+	}
+	else{
+		width = Game.paddleSize.height
+		height = Game.paddleSize.width
+	}
 	Game.ctx.fillStyle = "white";
-	Game.ctx.fillRect(x, y, Game.paddleSize.width, Game.paddleSize.height);
+	Game.ctx.fillRect(x, y, width, height);
 	Game.ctx.strokeStyle = "black";
 	Game.ctx.lineWidth = 1;
-	Game.ctx.strokeRect(x, y, Game.paddleSize.width, Game.paddleSize.height); // Draw the border
+	Game.ctx.strokeRect(x, y, width, height); // Draw the border
 }
 
 // Draw Ball
@@ -28,18 +39,28 @@ function drawBall(x, y) {
 }
 
 // Draw Scores
-function drawScores(player1, player2) {
+function drawScores(scores, playerNbr) {
 	Game.ctx.font = "24px Arial";
-	Game.ctx.fillStyle = "white";
-	Game.ctx.fillText(player1, Game.canvas.width / 4, 30);
-	Game.ctx.fillText(player2, (Game.canvas.width * 3) / 4, 30);
+	Game.ctx.fillStyle = "red";
+	// console.log("score = ", scores );
+	if (playerNbr == 2){
+		Game.ctx.fillText(scores[0], Game.canvas.width / 4, 30);
+		Game.ctx.fillText(scores[1], (Game.canvas.width * 3) / 4, 30);
+	}
+	else{
+		Game.ctx.fillText(scores[0], 30, (Game.canvas.height / 2) - 30);
+		Game.ctx.fillText(scores[1], Game.canvas.width - 30, (Game.canvas.height / 2) - 30);
+		Game.ctx.fillText(scores[2], (Game.canvas.width / 2) - 30, 30);
+		Game.ctx.fillText(scores[3], (Game.canvas.width / 2) - 30, Game.canvas.height - 30);
+
+	}
 }
 
 // GAME FRONT DESIGN //
-function CreateCanvas() {
+function CreateCanvas(width, height) {
 	Game.canvas = document.querySelector("canvas#pong");
-	Game.canvas.width = 1000;
-	Game.canvas.height = 500;
+	Game.canvas.width = width;
+	Game.canvas.height = height;
 
 	Game.ctx = Game.canvas.getContext("2d");
 }

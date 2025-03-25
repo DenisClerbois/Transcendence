@@ -192,7 +192,7 @@ async function fetchBody() {
 
 
 async function auth() {
-	const response = await fetch('/api/user/auth/');
+	const response = await fetch('https://' + window.location.host + '/api/user/auth/');
 	return response.ok ? true : false;
 }
 
