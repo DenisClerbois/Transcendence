@@ -111,7 +111,8 @@ function renderPong() {
 	Game.ctx.fillStyle = "black";
 	Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
 	for (let i = 0; i < Game.players; i++){
-			drawPaddle(lastGameState.paddle["p" + (i + 1)][0], lastGameState.paddle["p" + (i + 1)][1], i < 2)
+			if (lastGameState.score[i] != -1)
+				drawPaddle(lastGameState.paddle["p" + (i + 1)][0], lastGameState.paddle["p" + (i + 1)][1], i < 2)
 	}
 	drawBall(lastGameState.ball[0], lastGameState.ball[1]);
 	drawScores(lastGameState.score, Game.players);

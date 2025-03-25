@@ -50,7 +50,7 @@ class Pong:
 			self.game_const.board.y = 750
 		self._vector = [-1, 0.09]
 		self._speed = SPEED * FPS
-		self._score = [0, 0, 0, 0]
+		self._score = [0, -1, 0, 0]
 		self._ball = [self.game_const.board.x / 2, self.game_const.board.y / 2]
 		self._prevBall = self._ball
 		self.p_keys = players_keys
@@ -128,7 +128,7 @@ class Pong:
 		self._ball[0] += (self._vector[0] * self._speed)
 		self._ball[1] += (self._vector[1] * self._speed)
 		self.check_collision()
-  
+
 	def check_collision(self):
 		# check for wall colision up/down
 		Const = self.game_const
@@ -138,16 +138,25 @@ class Pong:
 		#check for paddle colision up/down
 		elif self.p_nbr == 4 and (self._ball[1] + Const.ballRadius > Const.board.y - Const.paddle.width\
 			or self._ball[1] - Const.ballRadius < Const.paddle.width):
-			if not self.colidePaddle("p3" if self._vector[1] <= 0 else "p4"):
-				if self.OutOfBound():
-					self.scoreAndResetBall()
+			if not self.PlayerOut("p3" if self._vector[1] <= 0 else "p4"):
+				if not self.colidePaddle("p3" if self._vector[1] <= 0 else "p4"):
+					if self.OutOfBound():
+						self.scoreAndResetBall()
 		#check for paddle colision left/right, and also for score
 		if self._ball[0] + Const.ballRadius >= Const.board.x - Const.paddle.width\
 			or self._ball[0] - Const.ballRadius <= Const.paddle.width:
-			if not self.colidePaddle("p1" if self._vector[0] <= 0 else "p2"):
-				if self.OutOfBound():
-					self.scoreAndResetBall()
-		 			
+			if not self.PlayerOut("p1" if self._vector[0] <= 0 else "p2"):
+				if not self.colidePaddle("p1" if self._vector[0] <= 0 else "p2"):
+					if self.OutOfBound():
+						self.scoreAndResetBall()
+	def PlayerOut(self, pp):
+		if self._score[int(pp[1]) - 1] == -1:
+			if int(pp[1]) > 2:
+				self.colideWall()
+			else:
+				self.colideVerticalWall()
+			return True
+		return False
 	def colideWall(self):
 		# change position of ball based on collision point and distance
 		if self._ball[1] < self.game_const.ballRadius or self._ball[1] > self.game_const.board.y - self.game_const.ballRadius:
@@ -157,7 +166,16 @@ class Pong:
 			dif = lim - self._ball[1]
 			self._ball[1] = lim + dif
 		self._vector[1] *= -1
-     
+
+	def colideVerticalWall(self):
+		if self._ball[0] < self.game_const.ballRadius or self._ball[0] > self.game_const.board.x - self.game_const.ballRadius:
+			lim = self.game_const.ballRadius
+			if self._ball[0] > self.game_const.board.x - self.game_const.ballRadius:
+				lim = self.game_const.board.x - self.game_const.ballRadius
+			dif = lim - self._ball[0]
+			self._ball[0] = lim + dif
+		self._vector[0] *= -1
+
 	def colidePaddle(self, pp):
 		paddleHeight = self.game_const.paddle.height
 		gConst = self.game_const
