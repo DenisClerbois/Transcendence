@@ -42,7 +42,7 @@ function drawBall(x, y) {
 function drawScores(scores, playerNbr) {
 	Game.ctx.font = "24px Arial";
 	Game.ctx.fillStyle = "red";
-	console.log("score = ", scores );
+	// console.log("score = ", scores );
 	if (playerNbr == 2){
 		Game.ctx.fillText(scores[0], Game.canvas.width / 4, 30);
 		Game.ctx.fillText(scores[1], (Game.canvas.width * 3) / 4, 30);

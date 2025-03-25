@@ -50,7 +50,7 @@ class Pong:
 			self.game_const.board.y = 750
 		self._vector = [-1, 0.09]
 		self._speed = SPEED * FPS
-		self._score = [0, -1, 0, 0]
+		self._score = [0, 0, 0, 0]
 		self._ball = [self.game_const.board.x / 2, self.game_const.board.y / 2]
 		self._prevBall = self._ball
 		self.p_keys = players_keys
@@ -149,6 +149,7 @@ class Pong:
 				if not self.colidePaddle("p1" if self._vector[0] <= 0 else "p2"):
 					if self.OutOfBound():
 						self.scoreAndResetBall()
+
 	def PlayerOut(self, pp):
 		if self._score[int(pp[1]) - 1] == -1:
 			if int(pp[1]) > 2:
@@ -157,6 +158,7 @@ class Pong:
 				self.colideVerticalWall()
 			return True
 		return False
+
 	def colideWall(self):
 		# change position of ball based on collision point and distance
 		if self._ball[1] < self.game_const.ballRadius or self._ball[1] > self.game_const.board.y - self.game_const.ballRadius:
@@ -276,7 +278,7 @@ class Pong:
 					if i != j and abs(self._score[i] - self._score[j]) < 2:
 						scoreDiff += 1
 				if not scoreDiff:
-					asyncio.create_task(self.endF(self._players[i]))
+					asyncio.create_task(self.endF(self._players[i])) #!!!need to be change based on Denis part!!!
 			scoreDiff = 0
 
 
