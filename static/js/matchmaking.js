@@ -113,7 +113,6 @@ function handleUnload(event) {
 }
 function handleKeyDown(event) {
 	if (!isKeyDown && keys.includes(event.key)){
-		console.log('input')
 		socket.send(JSON.stringify({type: 'input', bool: event.type, key: event.key}));
 		isKeyDown = true;
 	}

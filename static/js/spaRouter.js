@@ -226,6 +226,10 @@ async function updateContent() {
 				socketConnexion('matchmaking/classique');
 				return;
 			}
+			else if (Object.keys(routes_game_required).includes(pathInfo.route)) {
+				alertNonModal('search a game first');
+				window.history.pushState({}, "", '/home');
+			}
 			else if (Object.keys(routes_free_access).includes(pathInfo.route)){
 				alertNonModal('You are already logged in.');
 				window.history.pushState({}, "", '/home');
@@ -239,6 +243,43 @@ async function updateContent() {
 	fetchBody();
 }
 
+
+
+// async function updateContent(){
+// 	const connect = await auth();
+// 	const game = await isUserInGame();
+// 	const path = window.location.pathname;
+
+// 	if (!(path in routes)){
+// 		window.history.pushState({}, "", connect ? '/home' : '/');
+// 		alertNonModal('This page doesn\'t exist.');
+// 	}
+// 	else {
+// 		if (connect){
+// 			console.log(game);
+// 			if (game){
+// 				window.history.pushState({}, "", '/pong');
+// 				socketConnexion('matchmaking/classique');
+// 				return;
+// 			}
+// 			else {
+// 				window.history.pushState({}, "", '/home');
+// 				if (path in routes_game_required)
+// 					alertNonModal('Search a game first.');
+// 				else if (path in routes_free_access)
+// 					alertNonModal('You are already login.');
+// 			}
+// 		}
+// 		else {
+// 			if (path in routes_auth_required){
+// 				alertNonModal('You have to be logged in to access this ressource.');
+// 				window.history.pushState({}, "", '/');
+// 			}
+// 		}
+// 	}
+// 	fetchBody();
+// }
+
 /**
  * BACK && FORWARD BUTTON
  * HAS TO BE PROTECTED FOR COMING BACK AFTER CONNEXION !!!! ERROR
@@ -248,4 +289,61 @@ window.onpopstate = fetchBody;
  * EACH TIME THE SCRIPT IS LOADED (WHEN PRESSING TAB IN THE URL), EXECUTE UPDATECONTENT FUNCTION
  */
 updateContent()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// async function updateContent() {
+//     const connect = await auth();
+//     const pathInfo = getRouteMatch(window.location.pathname);
+	
+//     if (!pathInfo.route) {
+//         window.history.pushState({}, "", connect ? '/home' : '/');
+//         alertNonModal('This page doesn\'t exist.');
+//     } else {
+//         const isAuthRequired = Object.keys(routes_auth_required)
+//             .some(route => pathMatchesPattern(pathInfo.route, route));
+		
+		
+
+
+
+			
+//         if (isAuthRequired && !connect) {
+//             alertNonModal('You have to be logged in to access this resource.');
+//             window.history.pushState({}, "", '/');
+//         } else if (Object.keys(routes_free_access).includes(pathInfo.route) && connect) {
+//             alertNonModal('You are already logged in.');
+//             window.history.pushState({}, "", '/home');
+//         }
+//     }
+//     fetchBody();
+// }
 
