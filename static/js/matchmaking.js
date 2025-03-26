@@ -24,20 +24,6 @@ document.body.addEventListener('click', function(event) {
 	}
 });
 
-<<<<<<< HEAD
-async function setPong(gameConstant) {
-	window.history.pushState({}, '', '/pong');
-	const response = await fetch('/static/html/pong.html');
-	const html = await response.text();
-	document.querySelector("div.all").innerHTML = html;
-	// console.log(html);
-	// runScriptsInHTML(html);
-	Game.paddleSize = { width: gameConstant.paddle.width, height: gameConstant.paddle.height };
-	Game.ballRadius = gameConstant.ballRadius;
-	Game.players = gameConstant.players;
-	// updateUI(); //specific a la page pong
-	CreateCanvas(gameConstant.board.x, gameConstant.board.y);
-=======
 function game(data_json) {
 	document.querySelector("div.card-header").hidden = true
 	document.addEventListener("click", give_up);
@@ -83,11 +69,9 @@ const actions = {
 	'countdown':countdown,
 	'data':data,
 	'temporary_end': temporary_end,
->>>>>>> 3a412a9 (users.py instead of connection.py, many bugs left)
 }
 
 async function socketConnexion(path) {
-	console.log(window.location.host);
 	socket = new WebSocket(`wss://` + window.location.host + `/ws/${path}/`);
 	socket.onopen = () => {
 		window.addEventListener('beforeunload', handleUnload)
@@ -100,7 +84,6 @@ async function socketConnexion(path) {
 			actions[key](data_json)
 	};
 	socket.onclose = () => {
-		console.log('ws close')
 		document.removeEventListener("click", handleQuit);
 		window.removeEventListener("beforeunload", handleUnload);
 	};
@@ -142,23 +125,6 @@ function handleKeyUp(event) {
 	}
 }
 
-<<<<<<< HEAD
-function renderPong() {
-	if (!lastGameState || ! currentGameState){
-		start = false;
-		return;}
-		
-	Game.ctx.fillStyle = "black";
-	Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
-	for (let i = 0; i < Game.players; i++){
-			if (lastGameState.score[i] != -1)
-				drawPaddle(lastGameState.paddle["p" + (i + 1)][0], lastGameState.paddle["p" + (i + 1)][1], i < 2)
-	}
-	drawBall(lastGameState.ball[0], lastGameState.ball[1]);
-	drawScores(lastGameState.score, Game.players);
-	lastUpdateTime = performance.now();
-}
-=======
 
 
 // async function socketConnexion(path) {
@@ -214,4 +180,3 @@ function renderPong() {
 // 		window.removeEventListener("beforeunload", handleUnload);
 // 	};
 // }
->>>>>>> 3a412a9 (users.py instead of connection.py, many bugs left)

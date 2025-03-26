@@ -6,13 +6,9 @@ const routes_auth_required = {
 	"/profile":"/static/html/profileEdit.html",
 	"/profile/:userId": "static/html/profilePage.html",
 	"/home":"/static/html/home.html",
-<<<<<<< HEAD
-	// "/pong":"/static/html/pong.html",
-=======
 	"/pong":"/static/html/pong.html",
 	"/waiting_room":"/static/html/waiting_room.html",
 	// "/tictactoe":"/static/html/tictactoe.html",
->>>>>>> 3a412a9 (users.py instead of connection.py, many bugs left)
 	// "/leaderbord":"/static/html/leaderbord.html",
 }
 const routes_free_access = {
@@ -62,21 +58,21 @@ function runScriptsInHTML(html) {
  */
 function updateNav() {
 	const pathInfo = getRouteMatch(window.location.pathname);
-    
-    if (pathInfo.route) {
-        const isAuthRequired = Object.keys(routes_auth_required)
-            .some(route => pathMatchesPattern(window.location.pathname, route));
+	
+	if (pathInfo.route) {
+		const isAuthRequired = Object.keys(routes_auth_required)
+			.some(route => pathMatchesPattern(window.location.pathname, route));
 
-        const pubElem = document.querySelector('div.public');
-        const priElem = document.querySelector('div.private');
+		const pubElem = document.querySelector('div.public');
+		const priElem = document.querySelector('div.private');
 
-        if (pubElem && priElem) {
-            pubElem.hidden = isAuthRequired;
-            priElem.hidden = !isAuthRequired;
-        } else {
-            console.log('BUG: no public or private div.');
-        }
-    }
+		if (pubElem && priElem) {
+			pubElem.hidden = isAuthRequired;
+			priElem.hidden = !isAuthRequired;
+		} else {
+			console.log('BUG: no public or private div.');
+		}
+	}
 }
 
 
@@ -96,20 +92,20 @@ function alertNonModal(alert){
 }
 
 function getRouteMatch(path) {
-    // First check for exact matches
-    if (routes[path]) {
-        return { route: path, template: routes[path], params: {} };
-    }
-    
-    // Then check for parameterized routes
-    for (const route in routes) {
-        if (pathMatchesPattern(path, route)) {
-            const params = extractParams(path, route);
-            return { route, template: routes[route], params };
-        }
-    }
-    
-    return { route: null, template: null, params: {} };
+	// First check for exact matches
+	if (routes[path]) {
+		return { route: path, template: routes[path], params: {} };
+	}
+	
+	// Then check for parameterized routes
+	for (const route in routes) {
+		if (pathMatchesPattern(path, route)) {
+			const params = extractParams(path, route);
+			return { route, template: routes[route], params };
+		}
+	}
+	
+	return { route: null, template: null, params: {} };
 }
 
 
@@ -117,86 +113,86 @@ function getRouteMatch(path) {
  * Check if a path matches a route pattern
  */
 function pathMatchesPattern(path, pattern) {
-    // Handle routes with parameters (e.g., /profile_view/3)
-    if (pattern.includes(':')) {
-        const patternParts = pattern.split('/');
-        const pathParts = path.split('/');
-        
-        // Quick length check
-        if (patternParts.length !== pathParts.length) {
-            return false;
-        }
-        
-        // Check each part
-        for (let i = 0; i < patternParts.length; i++) {
-            // If it's a parameter (starts with :), it matches anything
-            if (patternParts[i].startsWith(':')) {
-                continue;
-            }
-            // Otherwise, it should match exactly
-            if (patternParts[i] !== pathParts[i]) {
-                return false;
-            }
-        }
-        
-        return true;
-    }
-    
-    // For regular routes, just check for exact match
-    return path === pattern;
+	// Handle routes with parameters (e.g., /profile_view/3)
+	if (pattern.includes(':')) {
+		const patternParts = pattern.split('/');
+		const pathParts = path.split('/');
+		
+		// Quick length check
+		if (patternParts.length !== pathParts.length) {
+			return false;
+		}
+		
+		// Check each part
+		for (let i = 0; i < patternParts.length; i++) {
+			// If it's a parameter (starts with :), it matches anything
+			if (patternParts[i].startsWith(':')) {
+				continue;
+			}
+			// Otherwise, it should match exactly
+			if (patternParts[i] !== pathParts[i]) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	// For regular routes, just check for exact match
+	return path === pattern;
 }
 
 /**
  * Extract parameters from a path based on a pattern
  */
 function extractParams(path, pattern) {
-    const params = {};
-    
-    const patternParts = pattern.split('/');
-    const pathParts = path.split('/');
-    
-    for (let i = 0; i < patternParts.length; i++) {
-        if (patternParts[i].startsWith(':')) {
-            // Extract the parameter name without the :
-            const paramName = patternParts[i].substring(1);
-            params[paramName] = pathParts[i];
-        }
-    }
-    
-    return params;
+	const params = {};
+	
+	const patternParts = pattern.split('/');
+	const pathParts = path.split('/');
+	
+	for (let i = 0; i < patternParts.length; i++) {
+		if (patternParts[i].startsWith(':')) {
+			// Extract the parameter name without the :
+			const paramName = patternParts[i].substring(1);
+			params[paramName] = pathParts[i];
+		}
+	}
+	
+	return params;
 }
 
 async function fetchBody() {
 	const pathInfo = getRouteMatch(window.location.pathname);
-    updateNav();
-    
-    if (pathInfo.route) {
-        // Make sure we use an absolute path for the template URL
-        let templateUrl = pathInfo.template;
-        if (!templateUrl.startsWith('/')) {
-            templateUrl = '/' + templateUrl;
-        }
-        
-        try {
-            const response = await fetch(templateUrl);
-            if (response.ok) {
-                let html = await response.text();
-                
-                // Store the route parameters in the window object for use in the loaded page
-                window.routeParams = pathInfo.params;
-                
-                document.querySelector("div#app").innerHTML = html;
-                runScriptsInHTML(html);
-            } else {
-                alertNonModal('Error loading page content.');
-            }
-        } catch (error) {
-            console.error('Error fetching template:', error);
-            alertNonModal('Failed to load page content.');
-        }
-    } else {
-        alertNonModal('Page not found.');
-    }
+	updateNav();
+	
+	if (pathInfo.route) {
+		// Make sure we use an absolute path for the template URL
+		let templateUrl = pathInfo.template;
+		if (!templateUrl.startsWith('/')) {
+			templateUrl = '/' + templateUrl;
+		}
+		
+		try {
+			const response = await fetch(templateUrl);
+			if (response.ok) {
+				let html = await response.text();
+				
+				// Store the route parameters in the window object for use in the loaded page
+				window.routeParams = pathInfo.params;
+				
+				document.querySelector("div#app").innerHTML = html;
+				runScriptsInHTML(html);
+			} else {
+				alertNonModal('Error loading page content.');
+			}
+		} catch (error) {
+			console.error('Error fetching template:', error);
+			alertNonModal('Failed to load page content.');
+		}
+	} else {
+		alertNonModal('Page not found.');
+	}
 }
 
 
@@ -213,62 +209,34 @@ async function isUserInGame() {
 
 
 
-<<<<<<< HEAD
 async function updateContent() {
-    const connect = await auth();
-    const pathInfo = getRouteMatch(window.location.pathname);
-    
-    if (!pathInfo.route) {
-        window.history.pushState({}, "", connect ? '/home' : '/');
-        alertNonModal('This page doesn\'t exist.');
-    } else {
-        const isAuthRequired = Object.keys(routes_auth_required)
-            .some(route => pathMatchesPattern(pathInfo.route, route));
-        
-        if (isAuthRequired && !connect) {
-            alertNonModal('You have to be logged in to access this resource.');
-            window.history.pushState({}, "", '/');
-        } else if (Object.keys(routes_free_access).includes(pathInfo.route) && connect) {
-            alertNonModal('You are already logged in.');
-            window.history.pushState({}, "", '/home');
-        }
-    }
-    fetchBody();
-=======
-async function updateContent(){
 	const connect = await auth();
-	const game = await isUserInGame();
-	const path = window.location.pathname;
-
-	if (!(path in routes)){
+	const pathInfo = getRouteMatch(window.location.pathname);
+	
+	if (!pathInfo.route) {
 		window.history.pushState({}, "", connect ? '/home' : '/');
 		alertNonModal('This page doesn\'t exist.');
-	}
-	else {
+	} else {
+		const isAuthRequired = Object.keys(routes_auth_required)
+			.some(route => pathMatchesPattern(pathInfo.route, route));
 		if (connect){
-			console.log(game);
-			if (game){
+			const game = await isUserInGame();
+			if (game) {
 				window.history.pushState({}, "", '/pong');
 				socketConnexion('matchmaking/classique');
 				return;
 			}
-			else {
+			else if (Object.keys(routes_free_access).includes(pathInfo.route)){
+				alertNonModal('You are already logged in.');
 				window.history.pushState({}, "", '/home');
-				if (path in routes_game_required)
-					alertNonModal('Search a game first.');
-				else if (path in routes_free_access)
-					alertNonModal('You are already login.');
 			}
 		}
-		else {
-			if (path in routes_auth_required){
-				alertNonModal('You have to be logged in to access this ressource.');
-				window.history.pushState({}, "", '/');
-			}
+		else if (isAuthRequired){
+			alertNonModal('You have to be logged in to access this resource.');
+			window.history.pushState({}, "", '/');
 		}
 	}
 	fetchBody();
->>>>>>> 3a412a9 (users.py instead of connection.py, many bugs left)
 }
 
 /**
