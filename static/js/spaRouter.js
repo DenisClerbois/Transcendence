@@ -1,8 +1,18 @@
+const routes_game_required = {
+	"/pong":"/static/html/pong.html",
+	"/waiting_room":"/static/html/waiting_room.html",
+}
 const routes_auth_required = {
 	"/profile":"/static/html/profileEdit.html",
 	"/profile/:userId": "static/html/profilePage.html",
 	"/home":"/static/html/home.html",
+<<<<<<< HEAD
 	// "/pong":"/static/html/pong.html",
+=======
+	"/pong":"/static/html/pong.html",
+	"/waiting_room":"/static/html/waiting_room.html",
+	// "/tictactoe":"/static/html/tictactoe.html",
+>>>>>>> 3a412a9 (users.py instead of connection.py, many bugs left)
 	// "/leaderbord":"/static/html/leaderbord.html",
 }
 const routes_free_access = {
@@ -195,10 +205,15 @@ async function auth() {
 	const response = await fetch('https://' + window.location.host + '/api/user/auth/');
 	return response.ok ? true : false;
 }
+async function isUserInGame() {
+	const response = await fetch("/api/matchmaking/inGame");
+	const data = await response.json();
+	return data.in_game;
+}
 
 
 
-
+<<<<<<< HEAD
 async function updateContent() {
     const connect = await auth();
     const pathInfo = getRouteMatch(window.location.pathname);
@@ -219,6 +234,41 @@ async function updateContent() {
         }
     }
     fetchBody();
+=======
+async function updateContent(){
+	const connect = await auth();
+	const game = await isUserInGame();
+	const path = window.location.pathname;
+
+	if (!(path in routes)){
+		window.history.pushState({}, "", connect ? '/home' : '/');
+		alertNonModal('This page doesn\'t exist.');
+	}
+	else {
+		if (connect){
+			console.log(game);
+			if (game){
+				window.history.pushState({}, "", '/pong');
+				socketConnexion('matchmaking/classique');
+				return;
+			}
+			else {
+				window.history.pushState({}, "", '/home');
+				if (path in routes_game_required)
+					alertNonModal('Search a game first.');
+				else if (path in routes_free_access)
+					alertNonModal('You are already login.');
+			}
+		}
+		else {
+			if (path in routes_auth_required){
+				alertNonModal('You have to be logged in to access this ressource.');
+				window.history.pushState({}, "", '/');
+			}
+		}
+	}
+	fetchBody();
+>>>>>>> 3a412a9 (users.py instead of connection.py, many bugs left)
 }
 
 /**

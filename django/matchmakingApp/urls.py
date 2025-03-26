@@ -1,4 +1,6 @@
 from django.urls import path
 from . import views
 
-urlpatterns = []
+urlpatterns = [
+	path("inGame/", views.check_game_status, name="inGame"),
+]

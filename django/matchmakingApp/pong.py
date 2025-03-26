@@ -84,9 +84,9 @@ class Pong:
 		if self.AI:
 			self.AI.updateAI()
 		self.move_paddles()
-	def get_gameConst(self):
+	def get_game_constant(self):
 		return asdict(self.game_const)
-	def get_gameData(self):
+	def get_game_data(self):
 		return {
 			'ball': self._ball,
 			'vector': self._vector,
@@ -101,9 +101,9 @@ class Pong:
 		for i in range(self.p_nbr):
 			if i == 1 and self.AI and self.AI.AIPos >= self._paddle["p2"][1] + 10 and self.AI.AIPos <= self._paddle["p2"][1] + self.game_const.paddle.height - 10 and self._vector[0] > 0:
 				continue
-			elif self.p_keys[i]['ArrowUp']:
+			elif self.p_keys[i][0]['ArrowUp']:
 				self.check_paddle_movement(self._paddle["p" + str(i + 1)][i < 2], -1 * paddleSpeed, "p" + str(i + 1))
-			elif self.p_keys[i]['ArrowDown']:
+			elif self.p_keys[i][0]['ArrowDown']:
 				self.check_paddle_movement(self._paddle["p" + str(i + 1)][i < 2], paddleSpeed, "p" + str(i + 1))		
 
 	def check_paddle_movement(self, pos, move, player):
@@ -245,7 +245,7 @@ class Pong:
 		# Only decreased back to init when scored but can be changed into decreased when paddle does not moves at same time
 		for i in range(self.p_nbr):
 			if pp == "p" + str(i+1):
-				if self.p_keys[i]['ArrowUp'] or self.p_keys[i]['ArrowDown']:
+				if self.p_keys[i][0]['ArrowUp'] or self.p_keys[i][0]['ArrowDown']:
 					if self._speed < self.game_const.initSpeed * 3: 
 						self._speed *= 1.1
   
@@ -278,7 +278,7 @@ class Pong:
 					if i != j and abs(self._score[i] - self._score[j]) < 2:
 						scoreDiff += 1
 				if not scoreDiff:
-					asyncio.create_task(self.endF(self._players[i])) #!!!need to be change based on Denis part!!!
+					self.endF()
 			scoreDiff = 0
 
 
@@ -358,3 +358,22 @@ class PongAI:
 			return False
 		return True
 	
+
+
+	def get_result(self):
+		result = {}
+		for i in range(self.p_nbr):
+			result[str(self._players[i])] = self._score[i]
+		return result
+
+	def get_winners(self):
+		index_max = self._score.index(max(self._score))
+		return [self._players[index_max]]
+
+	def get_loosers(self):
+		index_max = self._score.index(min(self._score))
+		return [self._players[index_max]]
+
+	def set_looser(self, looser_id):
+		if looser_id in self._players:
+			self._score[self._players.index(looser_id)] = -1

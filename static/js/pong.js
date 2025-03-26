@@ -10,7 +10,6 @@ const Game = {
 }
 
 // GAME LOGIC //
-
 function drawPaddle(x, y, vert) {
 	let width;
 	let height;
@@ -63,6 +62,34 @@ function CreateCanvas(width, height) {
 	Game.canvas.height = height;
 
 	Game.ctx = Game.canvas.getContext("2d");
+}
+
+function renderPong() {
+	
+	if (Game.ctx){
+		Game.ctx.fillStyle = "black";
+		Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
+		for (let i = 0; i < Game.players; i++){
+			drawPaddle(lastGameState.paddle["p" + (i + 1)][0], lastGameState.paddle["p" + (i + 1)][1], i < 2)
+		}
+		drawBall(lastGameState.ball[0], lastGameState.ball[1]);
+		drawScores(lastGameState.score, Game.players);
+		lastUpdateTime = performance.now();
+	}
+}
+
+async function setPong(gameConstant) {
+	window.history.pushState({}, '', '/pong');
+	const response = await fetch('/static/html/pong.html');
+	const html = await response.text();
+	document.querySelector("div#app").innerHTML = html;
+	// console.log(html);
+	// runScriptsInHTML(html);
+	Game.paddleSize = { width: gameConstant.paddle.width, height: gameConstant.paddle.height };
+	Game.ballRadius = gameConstant.ballRadius;
+	Game.players = gameConstant.players;
+	// updateUI(); //specific a la page pong
+	CreateCanvas();
 }
 
 // function CreateButton(innerText, padding, margin, fontSize, borderRadius, backgroundColor, color, border, cursor, boxShadow, transition) {
