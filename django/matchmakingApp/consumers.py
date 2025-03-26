@@ -1,7 +1,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer # type: ignore
 import json
 
-from .manager import Match, Tournament, Multiplayer
+from .manager import Match, Tournament, Multiplayer, MatchVsIA
 from .users import Users
 from channels.db import database_sync_to_async # type: ignore
 
@@ -42,6 +42,8 @@ class Consumer(AsyncWebsocketConsumer):
 					await Tournament.append(self.id)
 				case 'multiplayer':
 					await Multiplayer.append(self.id)
+				case 'ia':
+					await MatchVsIA.append(self.id)
 	
 	async def msg(self, event):
 		event_data = event.copy()

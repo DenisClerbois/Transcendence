@@ -30,7 +30,9 @@ class Game:
 			pong_inputs.append(user.inputs)
 			users_ids.append(user_id)
 			await Game.channel_layer.group_add(self.game_id, user.channel_name)
-		self.pong = Pong(pong_inputs, self.stop, 2, users_ids)
+		self.pong = Pong(pong_inputs, self.stop, self.nb_player, users_ids)
+		if self.nb_player == 1:
+			self.nb_player = 2
 
 	def set_users(self):
 		constant = self.pong.get_game_constant()

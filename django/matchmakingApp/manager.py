@@ -107,3 +107,8 @@ class Multiplayer(Match):
 
 	_queue = []
 	_nb_players = 4
+
+class MatchVsIA(Match):
+
+	_queue = []
+	_nb_players = 1

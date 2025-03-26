@@ -21,6 +21,10 @@ document.body.addEventListener('click', function(event) {
 			updateUI();
 			socketConnexion('matchmaking/multiplayer');
 		}
+		if (event.target.matches('button.ia')){
+			updateUI();
+			socketConnexion('matchmaking/ia');
+		}
 	}
 });
 

@@ -57,8 +57,8 @@ class Pong:
 		if players_nb == 1:
 			self.p_nbr = 2
 			self.game_const.players = 2
-			self.p_keys.append({'ArrowUp': False, 'ArrowDown': False})
-			self.AI = PongAI(self, self.p_keys[1])
+			self.p_keys.append([{'ArrowUp': False, 'ArrowDown': False}])
+			self.AI = PongAI(self, self.p_keys[1][0])
 		else:
 			self.p_nbr = players_nb
 		self._paddle = {
@@ -282,9 +282,15 @@ class Pong:
 			scoreDiff = 0
 
 	def get_result(self):
+		# result = {}
+		# for i in range(self.p_nbr):
+		# 	result[str(self._players[i])] = self._score[i]
+		# return result
 		result = {}
-		for i in range(self.p_nbr):
-			result[str(self._players[i])] = self._score[i]
+		i = 0
+		for user in self._players:
+			result[str(user)] = self._score[i]
+			i += 1
 		return result
 
 	def get_winners(self):
