@@ -281,6 +281,24 @@ class Pong:
 					self.endF()
 			scoreDiff = 0
 
+	def get_result(self):
+		result = {}
+		for i in range(self.p_nbr):
+			result[str(self._players[i])] = self._score[i]
+		return result
+
+	def get_winners(self):
+		index_max = self._score.index(max(self._score))
+		return [self._players[index_max]]
+
+	def get_loosers(self):
+		index_max = self._score.index(min(self._score))
+		return [self._players[index_max]]
+
+	def set_looser(self, looser_id):
+		if looser_id in self._players:
+			self._score[self._players.index(looser_id)] = -1
+
 
 class PongAI:
 	def __init__(self, pong, AIKey):
@@ -357,23 +375,3 @@ class PongAI:
 		elif (speedDiff and vector[0] > 0):
 			return False
 		return True
-	
-
-
-	def get_result(self):
-		result = {}
-		for i in range(self.p_nbr):
-			result[str(self._players[i])] = self._score[i]
-		return result
-
-	def get_winners(self):
-		index_max = self._score.index(max(self._score))
-		return [self._players[index_max]]
-
-	def get_loosers(self):
-		index_max = self._score.index(min(self._score))
-		return [self._players[index_max]]
-
-	def set_looser(self, looser_id):
-		if looser_id in self._players:
-			self._score[self._players.index(looser_id)] = -1
