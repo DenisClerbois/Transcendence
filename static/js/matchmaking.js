@@ -29,7 +29,7 @@ function game(data_json) {
 	document.addEventListener("click", give_up);
 	document.removeEventListener("click", handleQuit);
 	setPong(data_json['constant']);
-	requestAnimationFrame(renderPong);
+	// requestAnimationFrame(renderPong); //to show game behind the countdown
 }
 function start(data_json) {
 	document.addEventListener("keydown", handleKeyDown);
