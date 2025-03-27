@@ -6,7 +6,6 @@ services:
     container_name: django
     volumes:
       - ./django:/usr/src/app
-      - socket_volume:/app/django/sockets
       - socket_sql:/var/run/postgresql
     depends_on:
       - postgres
@@ -28,7 +27,6 @@ services:
     volumes:
       - ./static:/static
       - ./django:/app/django
-      - socket_volume:/app/django/sockets     
     networks:
       - transcendence
     depends_on:
@@ -67,7 +65,6 @@ volumes:
   data:
   static:
   pgdata:
-  socket_volume:
   socket_sql:
   
 
