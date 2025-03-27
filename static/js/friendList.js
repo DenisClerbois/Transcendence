@@ -67,8 +67,7 @@ async function insertPlayerRows() {
     for (const userId of Object.keys(data)) {
         let row = `<div class="row player">
             <div class="col-8">Player ${userId}#${data[userId]}</div>
-            <input type="button" class="col-2 game-btn" value="Play" data-player-id="${userId}">
-            <input type="button" class="col-2 invite-btn" value="Send friend invite" data-player-id="${userId}">
+            <input type="button" class="col-4 invite-btn" value="Send friend invite" data-player-id="${userId}">
         </div>`
         html += row;
     }
@@ -115,8 +114,10 @@ async function insertFriendRows() {
 
     chatInviteButton.forEach(button => {
         button.addEventListener('click', (event) => {
+            //LORENZO
+            //lance ton chat depuis ici
             const userId = event.target.getAttribute('data-player-id');
-            sendFriendRequest(userId);
+            //fetchProfile() pour choper user id
         });
     });
 

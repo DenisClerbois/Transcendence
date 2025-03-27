@@ -36,6 +36,7 @@ function route(event) {
 }
 
 async function fetchChatRoom(chatName) {
+	console.log(`chatName = ${chatName}`);
 	sessionStorage.setItem("chatName", JSON.stringify(chatName));
 	console.log(sessionStorage.getItem("chatName")); // Check what is stored
 	const response = await fetch("/static/html/chatRoom.html");
