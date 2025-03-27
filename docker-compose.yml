@@ -6,6 +6,7 @@ services:
     container_name: django
     volumes:
       - ./django:/usr/src/app
+      - socket_sql:/var/run/postgresql
     depends_on:
       - postgres
     expose:
@@ -25,10 +26,10 @@ services:
       - "8443:443"
     volumes:
       - ./static:/static
-      - ./django/media:/app/media # shared repository between nginx and django, 
-    networks:                       # Why it's necessary:
-      - transcendence               # files uploaded to django are stored in django container
-    depends_on:                     # This gives nginx access to user files (profile pic) stored in django volume
+      - ./django:/app/django
+    networks:
+      - transcendence
+    depends_on:
       - django
 
   postgres:
@@ -41,6 +42,7 @@ services:
       - ./.env/dev.env
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - socket_sql:/var/run/postgresql
     networks:
       - transcendence
     restart: always
@@ -63,5 +65,6 @@ volumes:
   data:
   static:
   pgdata:
+  socket_sql:
   
 

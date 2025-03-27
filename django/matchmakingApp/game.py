@@ -1,12 +1,13 @@
 import asyncio, uuid
 from matchmakingApp.pong import Pong, FPS
+from .users import Users
 from channels.layers import get_channel_layer # type: ignore
 
 class Game:
 	
 	channel_layer = get_channel_layer()
 
-	def __init__(self, game_users: dict):
+	def __init__(self, game_users: list):
 		self.users = game_users
 		self.nb_player = len(game_users)
 		self.game_id = uuid.uuid4().hex
@@ -25,20 +26,26 @@ class Game:
 		nicknames = []
 		pong_inputs = []
 		users_ids = []
-		for user_id, user in self.users.items():
-			nicknames.append(user.nickname)
-			pong_inputs.append(user.inputs)
-			users_ids.append(user_id)
+		for user_id in self.users:
+			user = Users.get(user_id)
+			if user:
+				nicknames.append(user.nickname)
+				pong_inputs.append(user.inputs)
+				users_ids.append(user_id)
 			await Game.channel_layer.group_add(self.game_id, user.channel_name)
-		self.pong = Pong(pong_inputs, self.stop, 2, users_ids)
+		self.pong = Pong(pong_inputs, self.stop, self.nb_player, users_ids)
+		if self.nb_player == 1:
+			self.nb_player = 2
 
 	def set_users(self):
 		constant = self.pong.get_game_constant()
-		for user in self.users.values():
-			user.game_constant = constant
-			user.in_game = True
-			user.channel_group_name.append(self.game_id)
-			user.game_stop_function = self.give_up
+		for user_id in self.users:
+			user = Users.get(user_id)
+			if user:
+				user.game_constant = constant
+				user.in_game = True
+				user.channel_group_name.append(self.game_id)
+				user.game_stop_function = self.give_up
 
 	async def start(self):
 		await self.set_pong()
@@ -63,6 +70,16 @@ class Game:
 		if self.pong:
 			self.pong.set_looser(looser_id)
 		self.nb_player -= 1
+		user = Users.get(looser_id)
+		await self.channel_layer.send(user.channel_name, {
+			"type": "end_message",
+			"event": "end",
+			"result": "You gave up.",
+		})
+		await self.channel_layer.group_discard(user.channel_group_name[0], user.channel_name)
+		Users.remove(looser_id)
+		self.users.remove(looser_id)
+		
 
 	def stop(self):
 		self.is_running = False

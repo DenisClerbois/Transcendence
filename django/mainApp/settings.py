@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 	'userManagementApp',
     'matchmakingApp',
+    'chatApp',
     'socialApp'
 ]
 
@@ -95,6 +96,8 @@ WSGI_APPLICATION = 'mainApp.wsgi.application'
 ASGI_APPLICATION = 'mainApp.asgi.application'
 
 
+
+
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -110,6 +113,34 @@ DATABASES = {
             'options': '-c search_path=public,pg_catalog',
         },
     }
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {  # 🔥 Handler pour enregistrer les logs dans un fichier
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/debug.log'),  # 📂 Chemin du fichier log
+            'formatter': 'verbose',
+        },
+        'console': {  # 🔥 Afficher les logs dans la console
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
 }
 
 

@@ -21,6 +21,10 @@ document.body.addEventListener('click', function(event) {
 			updateUI();
 			socketConnexion('matchmaking/multiplayer');
 		}
+		if (event.target.matches('button.ia')){
+			updateUI();
+			socketConnexion('matchmaking/ia');
+		}
 	}
 });
 
@@ -29,7 +33,7 @@ function game(data_json) {
 	document.addEventListener("click", give_up);
 	document.removeEventListener("click", handleQuit);
 	setPong(data_json['constant']);
-	requestAnimationFrame(renderPong);
+	// requestAnimationFrame(renderPong); //to show game behind the countdown
 }
 function start(data_json) {
 	document.addEventListener("keydown", handleKeyDown);
@@ -113,7 +117,6 @@ function handleUnload(event) {
 }
 function handleKeyDown(event) {
 	if (!isKeyDown && keys.includes(event.key)){
-		console.log('input')
 		socket.send(JSON.stringify({type: 'input', bool: event.type, key: event.key}));
 		isKeyDown = true;
 	}

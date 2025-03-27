@@ -13,6 +13,9 @@ channels_redis==4.2.1
 # production server for django (watch changement)
 daphne==4.0.0
 watchfiles==1.0.4
+channels-postgres==0.0.5
+websockets==12.0
+channels_redis
 
 # psycopg2 library to connect to PostgreSQL
 psycopg2==2.9.10

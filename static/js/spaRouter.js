@@ -8,6 +8,8 @@ const routes_auth_required = {
 	"/home":"/static/html/home.html",
 	"/pong":"/static/html/pong.html",
 	"/waiting_room":"/static/html/waiting_room.html",
+	"/chat": "/static/html/chat.html",
+	"/chatRoom": "/static/html/chatRoom.html",
 	// "/tictactoe":"/static/html/tictactoe.html",
 	// "/leaderbord":"/static/html/leaderbord.html",
 }
@@ -33,6 +35,26 @@ function route(event) {
 	fetchBody();
 }
 
+async function fetchChatRoom(chatName) {
+	sessionStorage.setItem("chatName", JSON.stringify(chatName));
+	console.log(sessionStorage.getItem("chatName")); // Check what is stored
+	const response = await fetch("/static/html/chatRoom.html");
+	const html = await response.text();
+	document.querySelector("div#app").innerHTML = html;
+	runScriptsInHTML(html);
+	injectChatName();
+	document.getElementById("chat-name").innerText = "Room: " + chatName;
+}
+
+function injectChatName() {
+    const chatName = sessionStorage.getItem("chatName"); // Retrieve stored chat name
+    if (chatName) {
+        const chatNameElement = document.getElementById("chat-name");
+        if (chatNameElement) {
+            chatNameElement.textContent = chatName;
+        }
+    }
+}
 
 /**
  * LOAD AND EXECUTE ANY SCRIPT FIND IN HTML
@@ -226,6 +248,10 @@ async function updateContent() {
 				socketConnexion('matchmaking/classique');
 				return;
 			}
+			else if (Object.keys(routes_game_required).includes(pathInfo.route)) {
+				alertNonModal('search a game first');
+				window.history.pushState({}, "", '/home');
+			}
 			else if (Object.keys(routes_free_access).includes(pathInfo.route)){
 				alertNonModal('You are already logged in.');
 				window.history.pushState({}, "", '/home');
@@ -239,6 +265,43 @@ async function updateContent() {
 	fetchBody();
 }
 
+
+
+// async function updateContent(){
+// 	const connect = await auth();
+// 	const game = await isUserInGame();
+// 	const path = window.location.pathname;
+
+// 	if (!(path in routes)){
+// 		window.history.pushState({}, "", connect ? '/home' : '/');
+// 		alertNonModal('This page doesn\'t exist.');
+// 	}
+// 	else {
+// 		if (connect){
+// 			console.log(game);
+// 			if (game){
+// 				window.history.pushState({}, "", '/pong');
+// 				socketConnexion('matchmaking/classique');
+// 				return;
+// 			}
+// 			else {
+// 				window.history.pushState({}, "", '/home');
+// 				if (path in routes_game_required)
+// 					alertNonModal('Search a game first.');
+// 				else if (path in routes_free_access)
+// 					alertNonModal('You are already login.');
+// 			}
+// 		}
+// 		else {
+// 			if (path in routes_auth_required){
+// 				alertNonModal('You have to be logged in to access this ressource.');
+// 				window.history.pushState({}, "", '/');
+// 			}
+// 		}
+// 	}
+// 	fetchBody();
+// }
+
 /**
  * BACK && FORWARD BUTTON
  * HAS TO BE PROTECTED FOR COMING BACK AFTER CONNEXION !!!! ERROR
@@ -248,4 +311,61 @@ window.onpopstate = fetchBody;
  * EACH TIME THE SCRIPT IS LOADED (WHEN PRESSING TAB IN THE URL), EXECUTE UPDATECONTENT FUNCTION
  */
 updateContent()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// async function updateContent() {
+//     const connect = await auth();
+//     const pathInfo = getRouteMatch(window.location.pathname);
+	
+//     if (!pathInfo.route) {
+//         window.history.pushState({}, "", connect ? '/home' : '/');
+//         alertNonModal('This page doesn\'t exist.');
+//     } else {
+//         const isAuthRequired = Object.keys(routes_auth_required)
+//             .some(route => pathMatchesPattern(pathInfo.route, route));
+		
+		
+
+
+
+			
+//         if (isAuthRequired && !connect) {
+//             alertNonModal('You have to be logged in to access this resource.');
+//             window.history.pushState({}, "", '/');
+//         } else if (Object.keys(routes_free_access).includes(pathInfo.route) && connect) {
+//             alertNonModal('You are already logged in.');
+//             window.history.pushState({}, "", '/home');
+//         }
+//     }
+//     fetchBody();
+// }
 

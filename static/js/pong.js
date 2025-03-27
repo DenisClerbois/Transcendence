@@ -60,7 +60,6 @@ function CreateCanvas(width, height) {
 	Game.canvas = document.querySelector("canvas#pong");
 	Game.canvas.width = width;
 	Game.canvas.height = height;
-
 	Game.ctx = Game.canvas.getContext("2d");
 }
 
@@ -89,7 +88,7 @@ async function setPong(gameConstant) {
 	Game.ballRadius = gameConstant.ballRadius;
 	Game.players = gameConstant.players;
 	// updateUI(); //specific a la page pong
-	CreateCanvas();
+	CreateCanvas(gameConstant.board.x, gameConstant.board.y);
 }
 
 // function CreateButton(innerText, padding, margin, fontSize, borderRadius, backgroundColor, color, border, cursor, boxShadow, transition) {

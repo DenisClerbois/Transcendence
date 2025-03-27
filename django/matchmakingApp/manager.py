@@ -28,18 +28,23 @@ class Match():
 			cls._queue = cls._queue[cls._nb_players:]
 			asyncio.create_task(cls._start(players))
 
-	@staticmethod
-	def set_users(users_id):
-		match_users = {}
-		for id in users_id:
-			user = Users.get(id)
-			if user:
-				match_users[id] = user
-		return match_users
+	# @staticmethod
+	# def set_users(users_id):
+	# 	match_users = {}
+	# 	for id in users_id:
+	# 		user = Users.get(id)
+	# 		if user:
+	# 			match_users[id] = user
+	# 	return match_users
+
+	# @staticmethod
+	# def give_up(looser_id):
+
+
 
 	@classmethod
 	async def _start(cls, users_id: list):
-		game = Game(cls.set_users(users_id))
+		game = Game(users_id)
 		await game.start()
 		await cls._channel_layer.group_send(game.game_id, {"type": "end_message", "event": "end", "result": game.pong.get_result()})
 		for user_id in users_id:
@@ -64,7 +69,7 @@ class Tournament(Match):
 
 	@classmethod
 	async def _play_match(cls, players: list, results: list):
-		game = Game(cls.set_users(players))
+		game = Game(players)
 		await game.start()
 		winners = game.pong.get_winners()
 		results.extend(winners)
@@ -107,3 +112,8 @@ class Multiplayer(Match):
 
 	_queue = []
 	_nb_players = 4
+
+class MatchVsIA(Match):
+
+	_queue = []
+	_nb_players = 1
