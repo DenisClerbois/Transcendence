@@ -28,15 +28,10 @@ services:
     volumes:
       - ./static:/static
       - ./django:/app/django
-      - socket_volume:/app/django/sockets
-      
+      - socket_volume:/app/django/sockets     
     networks:
       - transcendence
     depends_on:
-      - ./django/media:/app/media # shared repository between nginx and django, 
-    networks:                       # Why it's necessary:
-      - transcendence               # files uploaded to django are stored in django container
-    depends_on:                     # This gives nginx access to user files (profile pic) stored in django volume
       - django
 
   postgres:
@@ -63,15 +58,6 @@ services:
       - django
     networks:
       - transcendence
-
-  redis:
-    image: redis:latest
-    restart: always
-    ports:
-      - "6379:6379"
-    networks:
-      - transcendence
-
 
 networks:
   transcendence:
