@@ -30,7 +30,7 @@ async function insertFriendRequests() {
         button.addEventListener('click', async (event) => {
             const requestId = event.target.getAttribute('data-request-id');
             let status = await acceptFriendRequest(requestId);
-            console.log(`acceptation status=${status}`)
+            // console.log(`acceptation status=${status}`)
             if (status == 200) {
                 event.target.closest('.row.request').remove();
             }
@@ -41,7 +41,7 @@ async function insertFriendRequests() {
         button.addEventListener('click', async (event) => {
             const requestId = event.target.getAttribute('data-request-id');
             let status = await rejectFriendRequest(requestId);
-            console.log(`rejection status=${status}`)
+            // console.log(`rejection status=${status}`)
             if (status == 200) {
                 event.target.closest('.row.request').remove();
             }

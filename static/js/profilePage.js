@@ -18,8 +18,7 @@ function updateHtml(data) {
 async function fetchProfile() {
     var url = Object.keys(window.routeParams).length ?
         `/api/user/profile/${window.routeParams.userId.toString()}/`
-        : 'api/user/profile/';
-    console.log(url);
+        : '/api/user/profile/';
     const response = await fetch(url);
     if (!response.ok) {
         console.error('Error fetching profile:', error);
@@ -32,7 +31,6 @@ async function fetchProfile() {
 }
 
 async function fetchProfilePicUrl(userId) {
-    console.log(`/api/user/getProfilePic/${userId}/`);
     const response = await fetch(`/api/user/getProfilePic/${userId}/`, {
         method: 'GET',
         headers: {
@@ -45,16 +43,18 @@ async function fetchProfilePicUrl(userId) {
 }
 
 async function setProfilePic(userId) {
-    console.log(userId);
     const response = await fetchProfilePicUrl(userId);
+    console.log(response);
     if (response.ok) {
         const data = await response.json();
-        console.log(await data);
         img = document.getElementById('profilePic')
-        if (data.profile_picture_url != null)
+        if (data.profile_picture_url != null) {
+            console.log('data.profile_picture != null');
             img.src = data.profile_picture_url;
-        else
-            img.src = 'media/profile_pictures/default_cute.png'
+        }
+        else {
+            img.src = '/media/profile_pictures/default_cute.png'
+        }
     }
     else {
         console.log(response);
@@ -62,4 +62,3 @@ async function setProfilePic(userId) {
 }
 
 fetchProfile();
-insertFriendRequests();

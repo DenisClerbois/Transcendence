@@ -144,7 +144,7 @@ function preUpload() {
 }
 
 function setDefaultPic() {
-    document.getElementById('profilePic').src = "media/profile_pictures/default_cute.png";
+    document.getElementById('profilePic').src = "/media/profile_pictures/default_cute.png";
 }
 
 function preDelete() {
@@ -152,3 +152,38 @@ function preDelete() {
     img_upload_request = false;
     setDefaultPic();
 }
+
+async function insertFriendRows() {
+    const data = await fetchFriends();
+    let html = "<div class='row header'><p>Friends</p></div>"
+    for (const userId of Object.keys(data)) {
+        let row = `<div class="row player friend">
+            <div class="col-8">Player ${userId}#${data[userId]}</div>
+            <input type="button" class="col-2 game-btn" value="Play" data-player-id="${userId}">
+            <input type="button" class="col-2 chat-btn" value="Chat" data-player-id="${userId}">
+        </div>`
+        html += row;
+    }
+    document.querySelector(`div#profileFriendsList`).innerHTML = html;
+
+    // Add event listeners after the HTML is inserted
+    const chatInviteButton = document.querySelectorAll('.chat-btn');
+    const gameInviteButton = document.querySelectorAll('.game-btn');
+
+    chatInviteButton.forEach(button => {
+        button.addEventListener('click', (event) => {
+            const userId = event.target.getAttribute('data-player-id');
+            sendFriendRequest(userId);
+        });
+    });
+
+    gameInviteButton.forEach(button => {
+        button.addEventListener('click', (event) => {
+            const userId = event.target.getAttribute('data-player-id');
+            console.log(`trying to start game with player ${userId}`);
+        });
+    });
+}
+
+insertFriendRequests();
+insertFriendRows()

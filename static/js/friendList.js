@@ -1,6 +1,6 @@
 
 async function fetchOnlinePlayers() {
-    const response = await fetch('api/social/getOnlinePlayers', {
+    const response = await fetch('api/social/getOnlinePlayers/', {
         method: 'GET',
         headers: {
             'X-CSRFToken': getCsrfToken(),
@@ -15,7 +15,7 @@ async function fetchOnlinePlayers() {
 }
 
 async function fetchOnlineStrangers() {
-    const response = await fetch('api/social/getOnlineStrangers', {
+    const response = await fetch('api/social/getOnlineStrangers/', {
         method: 'GET',
         headers: {
             'X-CSRFToken': getCsrfToken(),
@@ -30,7 +30,7 @@ async function fetchOnlineStrangers() {
 }
 
 async function fetchOnlineFriends() {
-    const response = await fetch('api/social/getOnlineFriends', {
+    const response = await fetch('api/social/getOnlineFriends/', {
         method: 'GET',
         headers: {
             'X-CSRFToken': getCsrfToken(),
@@ -46,7 +46,7 @@ async function fetchOnlineFriends() {
 
 
 async function fetchFriends() {
-    const response = await fetch('api/social/getFriends', {
+    const response = await fetch('api/social/getFriends/', {
         method: 'GET',
         headers: {
             'X-CSRFToken': getCsrfToken(),
@@ -79,9 +79,12 @@ async function insertPlayerRows() {
     const gameInviteButton = document.querySelectorAll('.game-btn');
 
     friendInviteButton.forEach(button => {
-        button.addEventListener('click', (event) => {
+        button.addEventListener('click', async (event) => {
             const userId = event.target.getAttribute('data-player-id');
-            sendFriendRequest(userId);
+            let status = await sendFriendRequest(userId);
+            if (status == 200) {
+                event.target.closest('.invite-btn').hidden = true;
+            }
         });
     });
 
@@ -104,7 +107,7 @@ async function insertFriendRows() {
         </div>`
         html += row;
     }
-    document.querySelector("div#friendsList").innerHTML = html;
+    document.querySelector(`div#friendsList`).innerHTML = html;
 
     // Add event listeners after the HTML is inserted
     const chatInviteButton = document.querySelectorAll('.chat-btn');

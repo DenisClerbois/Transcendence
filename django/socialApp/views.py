@@ -64,7 +64,7 @@ def reject(request, requestId):
 		with transaction.atomic():
 			friend_request = FriendRequest.objects.select_for_update().get(id=requestId)
 
-			if friend_request.to_user != requet.user:
+			if friend_request.to_user != request.user:
 				return JsonResponse({"error": 'Unauthorized friend request'}, status=403)
 			friend_request.delete()
 			return JsonResponse({"success": 'Friend request rejected'}, status=200)

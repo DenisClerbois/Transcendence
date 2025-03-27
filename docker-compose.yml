@@ -27,6 +27,7 @@ services:
     volumes:
       - ./static:/static
       - ./django:/app/django
+      - ./django/media:/app/media
     networks:
       - transcendence
     depends_on:
