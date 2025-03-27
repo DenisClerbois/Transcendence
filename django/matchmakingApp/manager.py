@@ -1,89 +1,119 @@
-from matchmakingApp.game import Game
+from .game import Game
+from .users import Users
 import asyncio
 
+from channels.layers import get_channel_layer # type: ignore
 
-class Round:
-	def __init__(self, players):
-		self._players = players
-		self.winners = []
+class Match():
 
-	async def _manageGame(self, players):
-		if players[0].left or players[1].left:
-			self.winners.append(players[0] if players[1].left else players[1])
-		else:
-			game = Game(players)
-			await game.beg()
-			self.winners.append(game.winner)
-	
-	async def runGames(self):
+	_queue = []
+	_nb_players = 2
+	_channel_layer = get_channel_layer()
+
+	@classmethod
+	async def append(cls, user_id: str):
+		if user_id not in cls._queue:
+			cls._queue.append(user_id)
+			await cls._check_start()
+
+	@classmethod
+	def rmv_from_queue(cls, user_id: str):
+		if user_id in cls._queue:
+			cls._queue.remove(user_id)
+
+	@classmethod
+	async def _check_start(cls):
+		if len(cls._queue) >= cls._nb_players:
+			players = cls._queue[:cls._nb_players]
+			cls._queue = cls._queue[cls._nb_players:]
+			asyncio.create_task(cls._start(players))
+
+	# @staticmethod
+	# def set_users(users_id):
+	# 	match_users = {}
+	# 	for id in users_id:
+	# 		user = Users.get(id)
+	# 		if user:
+	# 			match_users[id] = user
+	# 	return match_users
+
+	# @staticmethod
+	# def give_up(looser_id):
+
+
+
+	@classmethod
+	async def _start(cls, users_id: list):
+		game = Game(users_id)
+		await game.start()
+		await cls._channel_layer.group_send(game.game_id, {"type": "end_message", "event": "end", "result": game.pong.get_result()})
+		for user_id in users_id:
+			user = Users.get(user_id)
+			if user:
+				await cls._channel_layer.group_discard(user.channel_group_name[0], user.channel_name)
+				Users.remove(user_id)
+
+
+class Tournament(Match):
+
+	_queue = []
+	_nb_players = 4
+	@classmethod
+	async def _round_manager(cls, round_ids: list):
+		results = []
 		async with asyncio.TaskGroup() as asyncGameGroup:
-			while self._players:
-				asyncGameGroup.create_task(self._manageGame(self._players[:2]))
-				self._players = self._players[2:]
-
-	
-class BaseManager:
-	userWaiting = []
-
-	def __init__(self):
-		self.queue = []
-
-	async def add(self, user):
-		if user.username not in self.userWaiting:
-			self.queue.append(user)
-			self.userWaiting.append(user.username)
-			user.inqueue = True
-			await self.check_start()
-		else:
-			await user.msg({'event': 'Error', 'log': 'Already in queue with this account.'})
-			await user.close()
-
-	def rmv(self, user):
-		if user.inqueue and user.username in self.userWaiting:
-			self.queue.remove(user)
-			self.userWaiting.remove(user.username)
-			user.inqueue = False
+			for i in range(0, len(round_ids), 2):
+				asyncGameGroup.create_task(cls._play_match(round_ids[i:i+2], results))
+		return results
 
 
-class Manager(BaseManager):
-	async def check_start(self):
-		if len(self.queue) >= 2:
-			players = [self.queue.pop(), self.queue.pop()]
-			asyncio.create_task(self.match(players))
-
-	async def match(self, players):
+	@classmethod
+	async def _play_match(cls, players: list, results: list):
 		game = Game(players)
-		await game.beg()
-		await game.winner.msg({'event': 'End', 'result':'You won the game'})
-		await game.winner.close()
+		await game.start()
+		winners = game.pong.get_winners()
+		results.extend(winners)
+		user = Users.get(winners[0])
+		if user:
+			await cls._channel_layer.send(user.channel_name, {
+				"type": "msg",
+				"event": "temporary_end",
+				"result": "You passed the round.",
+			})
+		loosers = game.pong.get_loosers()[0]
+		user = Users.get(loosers)
+		if user:
+			await cls._channel_layer.send(user.channel_name, {
+				"type": "end_message",
+				"event": "end",
+				"result": game.pong.get_result(),
+			})
+			await cls._channel_layer.group_discard(user.channel_group_name[0], user.channel_name)
+			Users.remove(loosers)
+
+	@classmethod
+	async def _start(cls, tournament_ids: list):
+		while len(tournament_ids) > 1:
+			tournament_ids = await cls._round_manager(tournament_ids)
+		print('TOURNAMENT END')
+		winner = tournament_ids.pop()
+		user = Users.get(winner)
+		if user:
+			await cls._channel_layer.send(user.channel_name, {
+				"type": "end_message",
+				"event": "end",
+				"result": "YOU WON THE TOURNAMENT !",
+			})
+			Users.remove(winner)
 
 
-class TournamentManager(BaseManager):
-	async def check_start(self):
-		if len(self.queue) >= 4:
-			players = self.queue[:4]
-			self.queue = self.queue[4:]
-			asyncio.create_task(self.begRound(players))
 
-	async def begRound(self, players):
-		while len(players) > 1:
-			round = Round(players)
-			await round.runGames()
-			players = round.winners
-		winner = players.pop()
-		await winner.msg({'event': 'End', 'result':'You won the game'})
-		await winner.close()
+class Multiplayer(Match):
 
+	_queue = []
+	_nb_players = 4
 
-# class MultiplayerManager(BaseManager):
-# 	async def check_start(self):
-# 		if len(self.queue) >= 4:
-# 			players = self.queue[:4]
-# 			self.queue = self.queue[4:]
-# 			asyncio.create_task(self.match(players))
+class MatchVsIA(Match):
 
-# 	async def match(self, players):
-# 		game = Game(players)
-# 		await game.beg()
-# 		await game.winner.msg({'event': 'End', 'result':'You won the game'})
-# 		await game.winner.close()
+	_queue = []
+	_nb_players = 1
