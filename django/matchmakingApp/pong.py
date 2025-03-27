@@ -48,7 +48,7 @@ class Pong:
 		)
 		if players_nb < 4:
 			self.game_const.board.y = 750
-		self._vector = [-1, 0.09]
+		self._vector = [1, 1]
 		self._speed = SPEED * FPS
 		self._score = [0, 0, 0, 0]
 		self._ball = [self.game_const.board.x / 2, self.game_const.board.y / 2]
