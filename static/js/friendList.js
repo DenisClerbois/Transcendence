@@ -10,7 +10,59 @@ async function fetchOnlinePlayers() {
         console.error('Error fetching online players');
         return ;
     }
-    const data = await response.json(); 
+    const data = await response.json();
+    return data;
+}
+
+async function fetchOnlineStrangers() {
+    const response = await fetch('api/social/getOnlineStrangers', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+        }
+    })
+    if (!response.ok) {
+        console.error('Error fetching online players');
+        return ;
+    }
+    const data = await response.json();
+    return data;
+}
+
+async function fetchOnlineFriends() {
+    const response = await fetch('api/social/getOnlineFriends', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+        }
+    })
+    if (!response.ok) {
+        console.error('Error fetching online friends');
+        return ;
+    }
+    const data = await response.json();
+    return data;
+} 
+
+
+async function fetchFriends() {
+    const response = await fetch('api/social/getFriends', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+        }
+    })
+    if (!response.ok) {
+        console.error('Error fetching friends');
+        return ;
+    }
+    const data = await response.json();
+    return data;
+} 
+
+
+async function insertPlayerRows() {
+    const data = await fetchOnlineStrangers();
     let html = "<div class='row header'><p>Online Players</p></div>"
     for (const userId of Object.keys(data)) {
         let row = `<div class="row player">
@@ -41,19 +93,9 @@ async function fetchOnlinePlayers() {
     });
 }
 
-async function fetchFriends() {
-    const response = await fetch('api/social/getFriends', {
-        method: 'GET',
-        headers: {
-            'X-CSRFToken': getCsrfToken(),
-        }
-    })
-    if (!response.ok) {
-        console.error('Error fetching friends');
-        return ;
-    }
-    const data = await response.json(); 
-    let html = "<div class='row header'><p>Friends</p></div>"
+async function insertFriendRows() {
+    const data = await fetchOnlineFriends();
+    let html = "<div class='row header'><p>Online Friends</p></div>"
     for (const userId of Object.keys(data)) {
         let row = `<div class="row player friend">
             <div class="col-8">Player ${userId}#${data[userId]}</div>
@@ -83,5 +125,5 @@ async function fetchFriends() {
     });
 }
 
-fetchFriends()
-fetchOnlinePlayers();
+insertFriendRows();
+insertPlayerRows();

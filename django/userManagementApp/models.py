@@ -55,7 +55,7 @@ class PlayerProfile(models.Model):
 
 #####GAMER MODE#####...#####...#####...#####ACTIVATED#####
 
-#data instance for each played game, whatever the game, whatever the number of players
+#data instance for each played game, whatever the number of players
 class Game(models.Model):
     creation = models.DateTimeField(
         auto_now_add=True #auto timestamp upon model instance creation

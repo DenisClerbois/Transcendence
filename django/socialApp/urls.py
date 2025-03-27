@@ -7,6 +7,8 @@ urlpatterns = [
     path("reject/<int:requestId>/", views.reject, name='reject'),
     path("remove/<int:targetUserId>/", views.remove, name='remove'),
     path("getOnlinePlayers/", views.getOnlinePlayers, name='getOnlinePlayers'),
+    path("getOnlineFriends/", views.getOnlineFriends, name='getOnlineFriends'),
+    path("getOnlineStrangers/", views.getOnlineStrangers, name='getOnlineStrangers'),
     path("getFriends/", views.getFriends, name='getFriends'),
     path("inFriendRequests/", views.inFriendRequests, name='inFriendRequests'),
 ]

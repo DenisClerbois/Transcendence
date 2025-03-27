@@ -2,6 +2,7 @@ from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db import transaction
 from .models import FriendRequest
 from userManagementApp.models import PlayerProfile
 from django.utils import timezone
@@ -9,72 +10,123 @@ from datetime import timedelta
 
 @login_required
 def invite(request, targetUserId):
-    to_user, created = User.objects.get_or_create(id=targetUserId)
-    if created:
-        to_user.delete()
-        return JsonResponse({"error": 'Target user doesn\'t exist'}, status=401)
-    friend_request, created = FriendRequest.objects.get_or_create(
-        from_user=request.user, to_user=to_user)
-    if created:
-        return JsonResponse({"success": 'Created and sent friend request'}, status=200)
-    return JsonResponse({"error": 'Friend request has already been created and sent'}, status=401)
+	try:
+		to_user = User.objects.get(id=targetUserId)
+		friend_request_dupplicate = FriendRequest.objects.filter(
+			from_user=request.user, to_user=to_user
+		).exists()
+		if friend_request_dupplicate:
+			return JsonResponse({"error": 'Friend request has already been created and sent'}, status=401)
+		with transaction.atomic():
+			friend_request = FriendRequest.objects.create(
+				from_user=request.user, to_user=to_user
+			)
+		return JsonResponse({
+			"success": 'Created and sent friend request',
+			"request_id": friend_request.id
+		}, status=200)
+	except User.DoesNotExist:
+		return JsonResponse({"error": 'Target user doesn\'t exist'}, status=404)
 
 @login_required
 def remove(request, targetUserId):
-    to_user, created = User.objects.get_or_create(id=targetUserId)
-    if created:
-        to_user.delete()
-        return JsonResponse({"error": 'Target user doesn\'t exist'}, status=400)
-    request.user.profile.friends.remove(to_user)
-    return JsonResponse({"success":f'Removed user {targetId} from {request.user.id}\'s friends list'}, status=200)
+	try:
+		to_user = User.objects.get(id=targetUserId)
+		with transaction.atomic():
+			request.user.profile.friends.remove(to_user.profile)
+		return JsonResponse({
+			"success":f'Removed user {targetUserId} from {request.user.id}\'s friends list'
+		}, status=200)
+	except User.DoesNotExist:
+		return JsonResponse({"error": 'Target user doesn\'t exist'}, status=400)
 
 @login_required
 def accept(request, requestId): #id of FriendRequest instance
-    friend_request, created = FriendRequest.objects.get_or_create(id=requestId)
-    if created:
-        friend_request.delete()
-        return JsonResponse({"error": "FriendRequest doesn't exist"}, status=400)
-    if friend_request.to_user == request.user:
-        friend_request.to_user.profile.friends.add(friend_request.from_user.profile) #symmetrical
-        friend_request.delete()
-        return JsonResponse({"success": 'Friend request accepted'}, status=200)
-    return JsonResponse({"error": 'Bad friend request recipient. Rejected'}, status=400)
+	try:
+		with transaction.atomic():
+			friend_request = FriendRequest.objects.select_for_update().get(id=requestId)
+			
+			if friend_request.to_user != request.user:
+				return JsonResponse({"error": 'Unauthorized friend request'}, status=403)
+			
+			friend_request.to_user.profile.friends.add(friend_request.from_user.profile)
+			friend_request.from_user.profile.friends.add(friend_request.to_user.profile)
+			friend_request.delete()
+		return JsonResponse({"success": 'Friend request accepted'}, status=200)
+
+	except FriendRequest.DoesNotExist:
+		return JsonResponse({"error": "FriendRequest not found"}, status=404)
+
 
 @login_required
 def reject(request, requestId):
-    friend_request, created = FriendRequest.objects.get_or_create(id=requestId)
-    if created:
-        friend_request.delete()
-        return JsonResponse({"error": "FriendRequest doesn't exist"}, status=400)
-    if friend_request.to_user == request.user:
-        friend_request.delete()
-        return JsonResponse({"success": 'Friend request deleted'}, status=200)
-    return JsonResponse({"error": 'Bad friend request recipient. Deletion cancelled'}, status=400)
+	try:
+		with transaction.atomic():
+			friend_request = FriendRequest.objects.select_for_update().get(id=requestId)
+
+			if friend_request.to_user != requet.user:
+				return JsonResponse({"error": 'Unauthorized friend request'}, status=403)
+			friend_request.delete()
+			return JsonResponse({"success": 'Friend request rejected'}, status=200)
+	except FriendRequest.DoesNotExist:
+		return JsonResponse({"error": "FriendRequest not found"}, status=404)
 
 @login_required
 def getOnlinePlayers(request):
-    threshold = timezone.now() - timedelta(minutes=1)
-        
-    # Update all profiles that are marked online but haven't been active recently
-    count = PlayerProfile.objects.filter(
-        is_online=True, 
-        last_activity__lt=threshold
-    ).update(is_online=False)
-    connected_users = User.objects.filter(
-        profile__is_online=True,
-    )
-    users_dict = {str(user.id): user.username for user in connected_users if user.id != request.user.id}
-    return JsonResponse(users_dict)
+	updateOnlineStatus()
+	connected_users = User.objects.filter(
+		profile__is_online=True,
+	).exclude(id=request.user.id)
+	return JsonResponse({
+		str(user.id): user.username
+		for user in connected_users
+	})
+
+@login_required
+def getOnlineFriends(request):
+	updateOnlineStatus()
+	connected_profiles = request.user.profile.friends.filter(
+		user__profile__is_online=True
+	).exclude(user=request.user)
+	return JsonResponse({
+		str(profile.user.id): profile.user.username
+		for profile in connected_profiles
+	})
 
 @login_required
 def getFriends(request):
-    profile = request.user.profile
-    friends = profile.friends.all()
-    friends_dict = {str(friend.user.id): friend.user.username for friend in friends}
-    return JsonResponse(friends_dict)
+	friends = request.user.profile.friends.all()
+	return JsonResponse({
+		str(friend.user.id): friend.user.username
+		for friend in friends
+	})
+
+@login_required
+def getOnlineStrangers(request):
+	updateOnlineStatus()
+	friend_ids = request.user.profile.friends.values_list('user_id', flat=True)
+	connected_strangers = User.objects.filter(
+		profile__is_online=True,
+	).exclude(id__in = [request.user.id] + list(friend_ids))
+	
+	return JsonResponse({
+		str(user.id): user.username
+		for user in connected_strangers
+	})
+
 
 @login_required
 def inFriendRequests(request):
-    Requests = FriendRequest.objects.filter(to_user=request.user)
-    inRequests_dict = {str(req.id): req.from_user.username for req in Requests}
-    return JsonResponse(inRequests_dict)
+	Requests = FriendRequest.objects.filter(to_user=request.user)
+	return JsonResponse({
+		str(req.id): req.from_user.username
+		for req in Requests
+	})
+
+def updateOnlineStatus():
+	threshold = timezone.now() - timedelta(minutes=1)
+	# Update all profiles that are marked online but haven't been active recently
+	count = PlayerProfile.objects.filter(
+		is_online=True, 
+		last_activity__lt=threshold
+	).update(is_online=False)
