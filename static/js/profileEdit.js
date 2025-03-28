@@ -154,34 +154,65 @@ function preDelete() {
 }
 
 async function insertFriendRows() {
-    const data = await fetchFriends();
+    const friends = await fetchFriends();
+    const onlineFriends = await fetchOnlineFriends();
     let html = "<div class='row header'><p>Friends</p></div>"
-    for (const userId of Object.keys(data)) {
-        let row = `<div class="row player friend">
-            <div class="col-8">Player ${userId}#${data[userId]}</div>
-            <input type="button" class="col-2 game-btn" value="Play" data-player-id="${userId}">
-            <input type="button" class="col-2 chat-btn" value="Chat" data-player-id="${userId}">
+    for (const userId of Object.keys(friends)) {
+        let statusBadge = await onlineFriends[userId]
+            ? '<span class="badge bg-success ms-2">Online</span>'
+            : '<span class="badge bg-secondary ms-2">Offline</span>';
+        let row = `
+        <div class="row friend-row g-1" data-user-id="${userId}" data-user-name="${friends[userId]}">
+            <div class="col-4 d-flex align-items-center">
+                <a href="/profile/${userId}">
+                    Player ${userId}#${friends[userId]}
+                </a>
+                ${statusBadge}
+            </div>
+            <div class="col-4 d-flex align-items-center">
+                <button class="btn btn-outline-primary me-2 game-btn">Play</button>
+                <button class="btn btn-outline-secondary chat-btn">Chat</button>
+            </div>
+             <div class="col d-flex align-items-center">
+                <button class="btn btn-outline-primary btn-outline-danger remove-friend">Remove friend</button>
+                <button class="btn btn-outline-secondary btn-outline-danger block-friend">💀</button>
+            </div>
         </div>`
         html += row;
     }
     document.querySelector(`div#profileFriendsList`).innerHTML = html;
 
-    // Add event listeners after the HTML is inserted
-    const chatInviteButton = document.querySelectorAll('.chat-btn');
-    const gameInviteButton = document.querySelectorAll('.game-btn');
+    document.querySelector('div#profileFriendsList').addEventListener('click', async (event) => {
+        const row = event.target.closest('.friend-row');
+        const userId = row.dataset.userId;
+        const userName = row.dataset.userName;
 
-    chatInviteButton.forEach(button => {
-        button.addEventListener('click', (event) => {
-            const userId = event.target.getAttribute('data-player-id');
-            sendFriendRequest(userId);
-        });
-    });
-
-    gameInviteButton.forEach(button => {
-        button.addEventListener('click', (event) => {
-            const userId = event.target.getAttribute('data-player-id');
-            console.log(`trying to start game with player ${userId}`);
-        });
+        if (event.target.matches('.game-btn')) {
+            console.log(`Start game with ${userId}`);
+        }
+        
+        if (event.target.matches('.chat-btn')) {
+            console.log(`Chat with ${userId}`);
+        }
+        
+        if (event.target.matches('.remove-friend')) {
+            const confirmRemove = confirm(`Remove friend ${userId}?`);
+            if (confirmRemove) {
+                row.remove();
+                // Add actual friend removal logic here
+                let response = await removeFriend(userId);
+                if (await response.ok)
+                    console.log(`Removed friend ${userId}`);
+            }
+        }
+        if (event.target.matches('.block-friend')) {
+            const confirmRemove = confirm(`Block friend ${userId}?`);
+            if (confirmRemove) {
+                row.remove();
+                // Add actual friend removal logic here
+                console.log(`Removed friend ${userId}`);
+            }
+        }
     });
 }
 

@@ -13,40 +13,40 @@ async function insertFriendRequests() {
     const data = await response.json();
     let html = "<div class='row header'><p>Friend requests</p></div>"
     for (const requestId of Object.keys(data)) {
-        let row = `<div class="row request">
-            <div class="col-8">${data[requestId]} sent you a friend request</div>
-            <input type="button" class="col-2 accept-btn" value="Accept" data-request-id="${requestId}">
-            <input type="button" class="col-2 reject-btn" value="Reject" data-request-id="${requestId}">
+        let row = `<div class="row request-row g-1" data-request-id="${requestId}" data-request-sender="${data[requestId]}">
+            <div class="col-8">
+                ${data[requestId]} sent you a friend request
+            </div>
+            <div class="col-4 d-flex align-items-center">
+                <button class="btn btn-outline-primary accept-btn">Accept</button>
+                <button class="btn btn-outline-secondary reject-btn">Reject</button>
+            </div>
         </div>`
         html += row;
     }
     document.querySelector("div#friendRequests").innerHTML = html;
 
-    // Add event listeners after the HTML is inserted
-    const acceptButtons = document.querySelectorAll('.accept-btn');
-    const rejectButtons = document.querySelectorAll('.reject-btn');
-
-    acceptButtons.forEach(button => {
-        button.addEventListener('click', async (event) => {
-            const requestId = event.target.getAttribute('data-request-id');
+    document.querySelector('div#friendRequests').addEventListener('click', async (event) => {
+        const row = event.target.closest('.request-row');
+        const requestId = row.dataset.requestId;
+        // const senderUsername = row.dataset.requestSender;
+        
+        if (event.target.matches('.accept-btn')) {
             let status = await acceptFriendRequest(requestId);
             // console.log(`acceptation status=${status}`)
             if (status == 200) {
-                event.target.closest('.row.request').remove();
+                event.target.closest('.request-row').remove();
             }
-        });
-    });
+        }
 
-    rejectButtons.forEach(button => {
-        button.addEventListener('click', async (event) => {
-            const requestId = event.target.getAttribute('data-request-id');
+        if (event.target.matches('.reject-btn')) {
             let status = await rejectFriendRequest(requestId);
             // console.log(`rejection status=${status}`)
             if (status == 200) {
-                event.target.closest('.row.request').remove();
+                event.target.closest('.request-row').remove();
             }
-        });
-    });
+        }
+    })
 }
 
 async function sendFriendRequest(to_user) {

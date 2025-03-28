@@ -44,12 +44,10 @@ async function fetchProfilePicUrl(userId) {
 
 async function setProfilePic(userId) {
     const response = await fetchProfilePicUrl(userId);
-    console.log(response);
     if (response.ok) {
         const data = await response.json();
         img = document.getElementById('profilePic')
         if (data.profile_picture_url != null) {
-            console.log('data.profile_picture != null');
             img.src = data.profile_picture_url;
         }
         else {

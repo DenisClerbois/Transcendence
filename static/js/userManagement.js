@@ -23,7 +23,7 @@ const connexionStatusHandlers = {
 
 async function connexion(path) {
 	let formFields = getFormFields();
-	console.log(`https://` + window.location.host + `${path}`);
+	// console.log(`https://` + window.location.host + `${path}`);
 	const response = await fetch(`https://` + window.location.host + `${path}`, {
 		method: 'POST',
 		headers: {
