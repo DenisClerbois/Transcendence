@@ -4,9 +4,6 @@ const Game = {
 	paddleSize: null,
 	ballRadius: null,
 	players: null,
-	// menuOverlay: null,
-	// pauseMenu: null,
-	// paused: false,
 }
 
 // GAME LOGIC //
@@ -28,6 +25,34 @@ function drawPaddle(x, y, vert) {
 	Game.ctx.strokeRect(x, y, width, height); // Draw the border
 }
 
+function drawWall(player) {
+	let start;
+	let size;
+	switch (player){
+		case 0:
+			start = [0,0];
+			size = [5, Game.canvas.height];
+			break;
+		case 1:
+			start = [Game.canvas.width - 10, 0];
+			size = [5, Game.canvas.height]
+			break;
+		case 2:
+			start = [0,0];
+			size = [Game.canvas.width, 5];
+			break;
+		case 3:
+			start = [0, Game.canvas.height - 10];
+			size = [Game.canvas.width, 5];
+			break;
+		}
+	Game.ctx.fillStyle = "white";
+	Game.ctx.fillRect(start[0], start[1], size[0], size[1]);
+	Game.ctx.strokeStyle = "black";
+	Game.ctx.lineWidth = 1;
+	Game.ctx.strokeRect(start[0], start[1], size[0], size[1]); // Draw the border
+}
+
 // Draw Ball
 function drawBall(x, y) {
 	Game.ctx.beginPath();
@@ -39,19 +64,9 @@ function drawBall(x, y) {
 
 // Draw Scores
 function drawScores(scores, playerNbr) {
-	Game.ctx.font = "24px Arial";
-	Game.ctx.fillStyle = "red";
-	// console.log("score = ", scores );
-	if (playerNbr == 2){
-		Game.ctx.fillText(scores[0], Game.canvas.width / 4, 30);
-		Game.ctx.fillText(scores[1], (Game.canvas.width * 3) / 4, 30);
-	}
-	else{
-		Game.ctx.fillText(scores[0], 30, (Game.canvas.height / 2) - 30);
-		Game.ctx.fillText(scores[1], Game.canvas.width - 30, (Game.canvas.height / 2) - 30);
-		Game.ctx.fillText(scores[2], (Game.canvas.width / 2) - 30, 30);
-		Game.ctx.fillText(scores[3], (Game.canvas.width / 2) - 30, Game.canvas.height - 30);
-
+	for (let i = 0; i < playerNbr; i++){
+		if (document.getElementById("score-" + (i + 1)))
+			document.getElementById("score-" + (i + 1)).innerText = scores[i];
 	}
 }
 
@@ -69,7 +84,10 @@ function renderPong() {
 		Game.ctx.fillStyle = "black";
 		Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
 		for (let i = 0; i < Game.players; i++){
-			drawPaddle(lastGameState.paddle["p" + (i + 1)][0], lastGameState.paddle["p" + (i + 1)][1], i < 2)
+			if (lastGameState.score[i] == -1)
+				drawWall(i)
+			else
+				drawPaddle(lastGameState.paddle["p" + (i + 1)][0], lastGameState.paddle["p" + (i + 1)][1], i < 2)
 		}
 		drawBall(lastGameState.ball[0], lastGameState.ball[1]);
 		drawScores(lastGameState.score, Game.players);
@@ -89,101 +107,53 @@ async function setPong(gameConstant) {
 	Game.players = gameConstant.players;
 	// updateUI(); //specific a la page pong
 	CreateCanvas(gameConstant.board.x, gameConstant.board.y);
+	setNames(gameConstant.names);
+	adjustPlayerPositions();
 }
 
-// function CreateButton(innerText, padding, margin, fontSize, borderRadius, backgroundColor, color, border, cursor, boxShadow, transition) {
-// 	const button = document.createElement("button");
-// 	button.innerText = innerText;
-// 	button.style.padding = padding;
-// 	button.style.margin = margin;
-// 	button.style.fontSize = fontSize;
-// 	button.style.borderRadius = borderRadius;
-// 	button.style.backgroundColor = backgroundColor;
-// 	button.style.color = color;
-// 	button.style.border = border;
-// 	button.style.cursor = cursor;
-// 	button.style.boxShadow = boxShadow;
-// 	button.style.transition = transition;
-	
-// 	return button;
-// }
+function setNames(names){
+	for (let i = 0; i < Game.players; i++){
+		switch (i){
+			case 0:
+				if (names[i])
+					document.querySelector("#player-left .player-name").innerText = names[i];
+				break;
+			case 1:
+				if (names[i])
+					document.querySelector("#player-right .player-name").innerText = names[i];
+				break;
+			case 2:
+				if (names[i])
+					document.querySelector("#player-top .player-name").innerText = names[i];
+				break;
+			case 3:
+				if (names[i])
+					document.querySelector("#player-bottom .player-name").innerText = names[i];
+				break;
+		}
+	}
+}
 
-// .button {}
+function adjustPlayerPositions() {
+    let canvas = document.getElementById("pong");
 
-// function CreateStartMenu() {
-// 	// Menu
-// 	Game.menuOverlay = document.createElement("div");
-// 	Game.menuOverlay.id = "menuOverlay";
-// 	Game.menuOverlay.style.position = "absolute";
-// 	Game.menuOverlay.style.background = "linear-gradient(169deg, rgba(59,189,29,1) 15%, rgba(58,48,150,1) 85%)";
-// 	Game.menuOverlay.style.display = "flex";
-// 	Game.menuOverlay.style.flexDirection = "column";
-// 	Game.menuOverlay.style.justifyContent = "center";
-// 	Game.menuOverlay.style.alignItems = "center";
-// 	Game.menuOverlay.style.zIndex = "1000";
-// 	Game.menuOverlay.style.borderRadius = "20px";
-// 	Game.menuOverlay.style.boxShadow = "0px 10px 30px rgba(0, 0, 0, 0.2)";
-// 	Game.menuOverlay.style.padding = "30px";
-// 	Game.menuOverlay.style.transition = "all 0.5s ease-in-out";
+    if (!canvas)
+        return;
 
-// 	// Add title
-// 	const menuTitle = document.createElement("h1");
-// 	menuTitle.innerText = "Select Game Mode";
-// 	menuTitle.style.color = "white";
-// 	menuTitle.style.fontFamily = "'Arial', sans-serif";
-// 	menuTitle.style.fontSize = "48px";
-// 	menuTitle.style.textShadow = "2px 2px 5px rgba(0, 0, 0, 0.7)";
-// 	Game.menuOverlay.appendChild(menuTitle);
+    let canvasRect = canvas.getBoundingClientRect();
 
-// 	// Add buttons
-// 	const startButton = CreateButton("Start Game", "15px 30px", "10px", "22px", "10px", "#30967f", "white", "none", "pointer",
-// 		"0px 4px 10px rgba(0, 0, 0, 0.2)", "transform 0.3s ease, background-color 0.3s ease");
-// 	Game.menuOverlay.appendChild(startButton);
+	if (Game.players == 4){
+    	document.getElementById("player-top").style.top = `${canvasRect.top - 40}px`;
+    	document.getElementById("player-bottom").style.top = `${canvasRect.bottom + 10}px`;
+	}
+	else{
+		document.getElementById("player-top").hidden = true;
+    	document.getElementById("player-bottom").hidden = true;
+	}
+    document.getElementById("player-left").style.top = `${canvasRect.top + canvasRect.height / 2}px`;
+    document.getElementById("player-right").style.top = `${canvasRect.top + canvasRect.height / 2}px`;
+}
 
-// 	appDiv.appendChild(Game.menuOverlay);
-
-// 	const canvasRect = Game.canvas.getBoundingClientRect();
-// 	Game.menuOverlay.style.top = `${canvasRect.top}px`;
-// 	Game.menuOverlay.style.left = `${canvasRect.left}px`;
-// 	Game.menuOverlay.style.width = `${canvasRect.width}px`;
-// 	Game.menuOverlay.style.height = `${canvasRect.height}px`;
-// }
-
-// function CreatePauseMenu() {
-// 	Game.pauseMenu = document.createElement("div");
-// 	Game.pauseMenu.id = "pauseMenu";
-// 	Game.pauseMenu.style.position = "absolute";
-// 	Game.pauseMenu.style.top = "0";
-// 	Game.pauseMenu.style.left = "0";
-// 	Game.pauseMenu.style.height = `${canvas.height}px`;
-// 	Game.pauseMenu.style.width = `${canvas.width}px`;
-// 	Game.pauseMenu.style.top = `${canvasRect.top}px`;
-// 	Game.pauseMenu.style.left = `${canvasRect.left}px`;
-// 	Game.pauseMenu.style.background = "rgba(0, 0, 0, 0.5)";
-// 	Game.pauseMenu.style.display = "none"; // Initially hidden
-// 	Game.pauseMenu.style.justifyContent = "center";
-// 	Game.pauseMenu.style.alignItems = "center";
-// 	Game.pauseMenu.style.flexDirection = "column";
-// 	Game.pauseMenu.style.zIndex = "2000";
-
-// 	// Resume button
-// 	const resumeButton = CreateButton("Resume Game", "15px 30px", "10px", "22px", "10px", "#4CAF50", "white", "none", "pointer", "0px 4px 10px rgba(0, 0, 0, 0.2)", "");
-// 	resumeButton.addEventListener("click", () => {
-// 		Game.paused = false;
-// 		hidePauseMenu();
-// 		//send data resume game
-// 	});
-// 	Game.pauseMenu.appendChild(resumeButton);
-
-// 	const exitGameButton = CreateButton("Quit Game", "15px 30px", "10px", "22px", "10px", "#4CAF50", "white", "none", "pointer", "0px 4px 10px rgba(0, 0, 0, 0.2)", "");
-// 	exitGameButton.addEventListener("click", () => {
-// 		Game.paused = false;
-// 		hidePauseMenu();
-// 		//send data quit game 
-// 	});
-// 	Game.pauseMenu.appendChild(exitGameButton);
-// }
-
-
-
-// export { Game, CreateCanvas, drawBall, drawPaddle, drawScores }
+// Adjust positions when the page loads and resizes
+window.addEventListener("load", adjustPlayerPositions);
+window.addEventListener("resize", adjustPlayerPositions);
