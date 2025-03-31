@@ -8,7 +8,6 @@ const routes_auth_required = {
 	"/home":"/static/html/home.html",
 	"/pong":"/static/html/pong.html",
 	"/waiting_room":"/static/html/waiting_room.html",
-	"/chat": "/static/html/chat.html",
 	"/chatRoom": "/static/html/chatRoom.html",
 	// "/tictactoe":"/static/html/tictactoe.html",
 	// "/leaderbord":"/static/html/leaderbord.html",
@@ -35,24 +34,28 @@ function route(event) {
 	fetchBody();
 }
 
-async function fetchChatRoom(chatName) {
-	console.log(`chatName = ${chatName}`);
-	sessionStorage.setItem("chatName", JSON.stringify(chatName));
-	console.log(sessionStorage.getItem("chatName")); // Check what is stored
+async function fetchChatRoom(userId) {
+	const userResponse = await fetch(`/api/user/profile/${userId}/`);
+	if (!userResponse.ok) throw new Error("Erreur lors de la récupération du profil");
+	
+	const userData = await userResponse.json();
+	const userName = userData.username;
+	sessionStorage.setItem("userId", JSON.stringify(userId));
+	console.log(sessionStorage.getItem("userId"));
 	const response = await fetch("/static/html/chatRoom.html");
 	const html = await response.text();
 	document.querySelector("div#app").innerHTML = html;
 	runScriptsInHTML(html);
-	injectChatName();
-	document.getElementById("chat-name").innerText = "Room: " + chatName;
+	injectUserId();
+	document.getElementById("chat-name").innerText = userName;
 }
 
-function injectChatName() {
-    const chatName = sessionStorage.getItem("chatName"); // Retrieve stored chat name
-    if (chatName) {
-        const chatNameElement = document.getElementById("chat-name");
-        if (chatNameElement) {
-            chatNameElement.textContent = chatName;
+function injectUserId() {
+    const UserId = sessionStorage.getItem("UserId"); // Retrieve stored chat name
+    if (UserId) {
+        const UserIdElement = document.getElementById("chat-name");
+        if (UserIdElement) {
+            UserIdElement.textContent = UserId;
         }
     }
 }
