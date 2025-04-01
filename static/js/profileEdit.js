@@ -3,7 +3,7 @@ if (!window.user_modifiables) {
     //django/userManagementApp/views.py
     //static/html/profile.html
     window.user_modifiables = ["username", "email", "nickname"];
-    window.user_constants = ["id"];
+    window.user_constants = ["id", "wins", "losses", "ratio"];
     window.user_variables = [...window.user_modifiables, ...window.user_constants];
 }
 
@@ -24,7 +24,7 @@ function switchToEdit() {
 }
 
 function switchDisplay() {
-    document.getElementById('profile-display').hidden = !document.getElementById('profile-display').hidden;
+    document.getElementById('profile-display').hidden = !document.getElementById('profile-display').closest(".row.g-2").hidden;
     document.getElementById('profile-edit').hidden = !document.getElementById('profile-edit').hidden;
     document.getElementById('profilePicInput').value='';
     selectedImageFile = null;
@@ -157,7 +157,7 @@ async function insertFriendRows() {
     const friends = await fetchFriends();
     const onlineFriends = await fetchOnlineFriends();
     let html = "<div class='row header'><p>Friends</p></div>"
-    for (const userId of Object.keys(friends)) {
+    for (const userId of Object.keys(await friends)) {
         let statusBadge = await onlineFriends[userId]
             ? '<span class="badge bg-success ms-2">Online</span>'
             : '<span class="badge bg-secondary ms-2">Offline</span>';
@@ -184,8 +184,8 @@ async function insertFriendRows() {
 
     document.querySelector('div#profileFriendsList').addEventListener('click', async (event) => {
         const row = event.target.closest('.friend-row');
-        const userId = row.dataset.userId;
-        const userName = row.dataset.userName;
+        const userId = row.getAttribute('data-user-id');
+        const userName = row.getAttribute('data-user-name');
 
         if (event.target.matches('.game-btn')) {
             console.log(`Start game with ${userId}`);
@@ -198,23 +198,67 @@ async function insertFriendRows() {
         if (event.target.matches('.remove-friend')) {
             const confirmRemove = confirm(`Remove friend ${userId}?`);
             if (confirmRemove) {
-                row.remove();
-                // Add actual friend removal logic here
                 let response = await removeFriend(userId);
-                if (await response.ok)
+                if (await response.ok) {
                     console.log(`Removed friend ${userId}`);
+                    row.remove();
+                }
             }
         }
         if (event.target.matches('.block-friend')) {
             const confirmRemove = confirm(`Block friend ${userId}?`);
             if (confirmRemove) {
-                row.remove();
-                // Add actual friend removal logic here
-                console.log(`Removed friend ${userId}`);
+                let response = await blockUser(userId);
+                if (await response.ok) {
+                    row.remove();
+                    console.log(`Removed friend ${userId}`);
+                }
             }
         }
     });
 }
 
+//TEMPORARY?
+async function insertBlockedUserRows() {
+    const foes = await fetchBlockedUsers();
+    let html = "<div class='row header'><p>Blocked Users</p></div>"
+    for (const userId of Object.keys(await foes)) {
+        let row = `
+        <div class="row blocked-user-row g-1" data-user-id="${userId}" data-user-name="${foes[userId]}">
+            <div class="col-6 d-flex align-items-center">
+                <a href="/profile/${userId}">
+                    Player ${userId}#${foes[userId]}
+                </a>
+            </div>
+             <div class="col d-flex align-items-center">
+                <button class="btn btn-outline-secondary btn-outline-danger unblock-user">Unblock 🐦‍🔥</button>
+            </div>
+        </div>`
+        html += row;
+    }
+    document.querySelector(`div#blockedUsersList`).innerHTML = html;
+
+    document.querySelector('div#blockedUsersList').addEventListener('click', async (event) => {
+        const row = event.target.closest('.blocked-user-row');
+        const userId = row.dataset.userId;
+        const userName = row.dataset.userName;
+
+        if (event.target.matches('.unblock-user')) {
+            const confirmRemove = confirm(`Unblock user ${userId}?`);
+            if (confirmRemove) {
+                let response = await unblockUser(userId);
+                if (response.ok) {
+                    console.log(`Unblock user ${userId}`);
+                    row.remove();
+                }
+                else
+                    console.log(`Failed to unblock user ${userId}`);
+            }
+        }
+    });
+}
+
+
 insertFriendRequests();
-insertFriendRows()
+insertFriendRows();
+insertBlockedUserRows();

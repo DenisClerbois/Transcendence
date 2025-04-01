@@ -15,6 +15,8 @@ from .utils import userDataErrorFinder
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import ProfilePictureSerializer
+from django.db import transaction
+from django.core.exceptions import ObjectDoesNotExist
 
 
 # Create your views here.
@@ -85,13 +87,17 @@ def getProfile(request, userId=None):
 		"username": user.username,
 		"email": user.email,
 		"nickname": profile.nickname,
-		"id": user.id,
+		"id": str(user.id),
+		"wins": str(profile.wins),
+		"losses": str(profile.losses),
+		"ratio": str(profile.wins / (profile.wins + profile.losses) * 100) if profile.losses != 0 else str(profile.wins)
 		# other user data fields
 	}
 
 	return JsonResponse(profile_data, status=200)
 
 @login_required
+@transaction.atomic
 def profileUpdate(request):
 	if request.method == "POST":# and request.user.is_authenticated:
 		data = json.loads(request.body)
@@ -113,18 +119,19 @@ def profileUpdate(request):
 					profile.nickname = arg
 				case _:
 					print("profileUpdate() data anomaly: key={}, arg={}".format(key, arg))
-		user.save()
-		profile.save()
+		user.save(update_fields=['username', 'email'])
+		profile.save(update_fields=['nickname'])
 		return JsonResponse(data, status=200)
 	return JsonResponse({'error': 'Invalid request'}, status=400)
 
 @login_required
+@transaction.atomic
 def set_profile_pic(request):
 	profile = request.user.profile
 	if request.method == "DELETE":
 		profile.profile_picture.delete(save=False)
 		profile.profile_picture = None
-		profile.save()
+		profile.save(update_fields=['profile_picture'])
 		return JsonResponse({'success': 'Deleted profile picture'}, status=200)
 	if 'image' not in request.FILES:
 		return JsonResponse({'error': 'No image file provided'}, status=400)
@@ -145,34 +152,16 @@ def set_profile_pic(request):
 	if profile.profile_picture and os.path.isfile(profile.profile_picture.path): #if user already has profile pic
 		os.remove(profile.profile_picture.path)
 	profile.profile_picture.save(image_file.name, image_file) # will call model's set_profile_image_path and store image
-	profile.save()
+	profile.save(update_fields=['profile_picture'])
 
 	serializer = ProfilePictureSerializer(profile)
 	return JsonResponse(serializer.data, status=200)
 
 @login_required
 def get_profile_pic(request, userId):
-	user, created = User.objects.get_or_create(id=userId)
-	if created:
-		user.delete()
-		return JsonResponse({"error": "User not found"}, status=400)
-	serializer = ProfilePictureSerializer(user.profile)
-	return JsonResponse(serializer.data, status=200)
-
-#####GAMER MODE#####...#####...#####...#####ACTIVATED#####
-from .models import Game
-from .models import PlayerProfile
-from .utils import gameDataErrorFinder
-
-@login_required
-def save_game(data, desertor=None): #{uid_player1: score, uid_player2: score}
-	dataErrors = gameDataErrorFinder(data) #utile pour le developpement
-	if bool(dataErrors):
-		return JsonResponse(dataErrors, status=401)
-	game = Game.objects.create(scores=data)
-	for key, value in data.items():
-		game.players.add(PlayerProfile.objects.get(id=key))
-	
-	if desertor:
-		game.desertor = desertor
-		game.save()
+	try:
+		user = User.objects.get(id=userId)
+		serializer = ProfilePictureSerializer(user.profile)
+		return JsonResponse(serializer.data, status=200)
+	except User.DoesNotExist:
+		return JsonResponse({"error": "User not found"}, status=404)

@@ -6,9 +6,12 @@ urlpatterns = [
     path("accept/<int:requestId>/", views.accept, name='accept'),
     path("reject/<int:requestId>/", views.reject, name='reject'),
     path("remove/<int:targetUserId>/", views.remove, name='remove'),
+    path("block/<int:targetUserId>/", views.block, name='block'),
+    path("unblock/<int:targetUserId>/", views.unblock, name='unblock'),
     path("getOnlinePlayers/", views.getOnlinePlayers, name='getOnlinePlayers'),
     path("getOnlineFriends/", views.getOnlineFriends, name='getOnlineFriends'),
     path("getOnlineStrangers/", views.getOnlineStrangers, name='getOnlineStrangers'),
     path("getFriends/", views.getFriends, name='getFriends'),
+    path("getBlockedUsers/", views.getBlockedUsers, name='getBlockedUsers'),
     path("inFriendRequests/", views.inFriendRequests, name='inFriendRequests'),
 ]

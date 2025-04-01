@@ -59,3 +59,19 @@ async function fetchFriends() {
     const data = await response.json();
     return data;
 } 
+
+
+async function fetchBlockedUsers() {
+    const response = await fetch('api/social/getBlockedUsers/', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+        }
+    })
+    if (!response.ok) {
+        console.error('Error fetching blocked users');
+        return ;
+    }
+    const data = await response.json();
+    return data;
+} 

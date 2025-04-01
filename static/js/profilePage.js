@@ -3,7 +3,7 @@ if (!window.user_modifiables) {
     //django/userManagementApp/views.py
     //static/html/profile.html
     window.user_modifiables = ["username", "email", "nickname"];
-    window.user_constants = ["id"];
+    window.user_constants = ["id", "wins", "losses", "ratio"];
     window.user_variables = [...window.user_modifiables, ...window.user_constants];
 }
 
@@ -59,4 +59,62 @@ async function setProfilePic(userId) {
     }
 }
 
+async function fetchGames() {
+    const response = await fetch('api/gameStats/getGames/', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+        }
+    })
+    if (!response.ok) {
+        console.error(response);
+        console.error('Error fetching game stats');
+        return;
+    }
+    const data = await response.json();
+    return data;
+}
+
+async function saveFakeGame() {
+    const response = await fetch('api/gameStats/saveFakeGame/', {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+        }
+    })
+    if (!response.ok) {
+        console.error('Error faking it');
+        return;
+    }
+    const data = await response.json();
+    console.log(await data);
+    return data;
+}
+
+// async function insertGameHistoryRows() {
+//     const data = await fetchGames();
+//     let html = ""
+//     for (const gameId of Object.keys(data)) {
+//         let row = `
+//         <div class="col">
+//             <div class="card stats-card win">
+//                 <div class="card-body">
+//                     <div class="d-flex justify-content-between align-items-center">
+//                         <h5 class="card-title">vs. PlayerXYZ</h5>
+//                         <span class="badge bg-success">WIN</span>
+//                     </div>
+//                     <p class="card-text">March 30, 2025 • Ranked Match</p>
+//                     <div class="d-flex justify-content-between">
+//                         <small class="text-muted">Score: 5-3</small>
+//                         <small class="text-muted">Duration: 24 min</small>
+//                     </div>
+//                 </div>
+//             </div>
+//         </div>`
+//         html += row;
+//     }
+//     document.querySelector("div#gameHistoryList").innerHTML = html;
+// }
+
 fetchProfile();
+// insertGameHistoryRows();

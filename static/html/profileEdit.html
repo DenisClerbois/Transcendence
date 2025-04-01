@@ -1,77 +1,85 @@
 <!--    django/userManagementApp/views.py
         static/js/profilePage.js
 -->
-
-<!--User profile values display view. Insert ALL PlayerProfile variables-->
-<div id="profile-display">
-    <div class="mb-3">
-        <label class="display-label">
-            <strong>Id</strong>
-            <p class="display-control-plaintext display" name="id">Loading...</p>
+<div class="d-flex align-items-center p-3 border rounded">
+    <img id="profilePic" src="/media/profile_pictures/default_cute.png" class="rounded-circle me-3" style="width: 60px">
+    <div class="row g-2" id="profile-display">
+      <div class="col-md-6">
+        <strong>Id:</strong> <span class="display" name="id">Loading...</span>
+      </div>
+      <div class="col-md-6">
+        <strong>Username:</strong> <span class="display" name="username">Loading...</span>
+      </div>
+      <div class="col-md-6">
+        <strong>Email:</strong> <span class="display" name="email">Loading...</span>
+      </div>
+      <div class="col-md-6">
+        <strong>Nickname:</strong> <span class="display" name="nickname">Loading...</span>
+      </div>
+      <div class="col-md-4">
+        <strong>Wins:</strong> <span class="display" name="wins">Loading...</span>
+      </div>
+      <div class="col-md-4">
+        <strong>Losses:</strong> <span class="display" name="losses">Loading...</span>
+      </div>
+      <div class="col-md-4">
+        <strong>Ratio:</strong> <span class="display" name="ratio">Loading...</span>
+      </div>
+    </div>
+    
+    
+    <!--User profile edit view. Insert ONLY PlayerProfile modifyable variabes-->
+    <div id="profile-edit" hidden>
+        <div class="mb-3">
+            <label class="form-label">
+                Username
+                <input type="text" class="form-control" name="username">
+                <p class="form-error-msg"></p>
+            </label>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">
+                Email
+            <input type="text" class="form-control" name="email" required>
+            <p class="form-error-msg"></p>
         </label>
-        <label class="display-label">
-            <strong>Username</strong>
-            <p class="display-control-plaintext display" name="username">Loading...</p>
-        </label>
     </div>
-    <div class="mb-3">
-    </div>
-    <div class="mb-3">
-        <label class="display-label">
-            <strong>Email</strong>
-            <p class="display-control-plaintext display" name="email">Loading...</p>
-        </label>
-    </div>
-    <div class="mb-3">
-        <label class="display-label">
-            <strong>Nickname</strong>
-            <p class="display-control-plaintext display" name="nickname">Loading...</p>
-        </label>
-    </div>
-    <button class="btn btn-primary switchEdit">Edit Profile</button>
-
-
-    <div class="container social" id="friendRequests">
-<!--Contains all incoming friend requests-->
-    </div>
-</div>
-
-<!--User profile edit view. Insert ONLY PlayerProfile modifyable variabes-->
-<div id="profile-edit" hidden>
-    <div class="mb-3">
-		<label class="form-label">
-			Username
-			<input type="text" class="form-control" name="username">
-			<p class="form-error-msg"></p>
-		</label>
-	</div>
     <div class="mb-3">
         <label class="form-label">
-          Email
-          <input type="text" class="form-control" name="email" required>
-          <p class="form-error-msg"></p>
-        </label>
-      </div>
-      <div class="mb-3">
-		<label class="form-label">
-			Nickname
-			<input type="text" class="form-control" name="nickname">
-			<p class="form-error-msg"></p>
-		</label>
-	</div>
+                Nickname
+                <input type="text" class="form-control" name="nickname">
+                <p class="form-error-msg"></p>
+            </label>
+        </div>
 
-    <button class="btn btn-primary uploadProfilePic" onclick="document.getElementById('profilePicInput').click()">Upload Profile Picture</button>
-    <input class="btn btn-primary uploadProfilePic" type="file" id="profilePicInput" style="display:none">
-    <button class="btn btn-primary deleteProfilePic">Delete Profile Picture</button>
-    <p></p>
-    <button class="btn btn-primary save">Save Profile</button>
-    <button class="btn btn-primary switchDisplay">Cancel</button>
+        <button class="btn btn-primary uploadProfilePic" onclick="document.getElementById('profilePicInput').click()">Upload Profile Picture</button>
+        <input class="btn btn-primary uploadProfilePic" type="file" id="profilePicInput" style="display:none">
+        <button class="btn btn-primary deleteProfilePic">Delete Profile Picture</button>
+        
+        <button class="btn btn-primary save">Save Profile</button>
+        <button class="btn btn-primary switchDisplay">Cancel</button>
+    </div>
+    
+    
+    
 </div>
+<button class="btn btn-primary switchEdit">Edit Profile</button>
 
-<!--Le style est temporaire, la class est eternelle. A mediter.-->
-<img id="profilePic" src="/media/profile_pictures/default_cute.png" class="media-object" style="width: 50px">
+    
 
-<div class="container" id="profileFriendsList"></div>
+
+
+
+    
+<div class="container social" id="friendRequests">
+    <!--Contains all incoming friend requests-->
+</div>
+<div class="container" id="profileFriendsList">
+  <!--Contains friends list-->
+</div>
+<div class="container" id="blockedUsersList">
+  <!--Contains blocked users list-->
+</div>
 
 
 <script src="/static/js/profilePage.js" type="text/javascript"></script>

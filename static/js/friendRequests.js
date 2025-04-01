@@ -100,3 +100,29 @@ async function removeFriend(to_user) {
     }
     return response.status;
 }
+
+async function blockUser(to_user) {
+    const response = await fetch(`/api/social/block/${to_user}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+        }
+    })
+    if (!response.ok) {
+        console.error('Error blocking user');
+    }
+    return response.status;
+}
+
+async function unblockUser(to_user) {
+    const response = await fetch(`/api/social/unblock/${to_user}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+        }
+    })
+    if (!response.ok) {
+        console.error('Error unblocking user');
+    }
+    return response.status;
+}

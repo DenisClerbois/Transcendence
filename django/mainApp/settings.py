@@ -51,7 +51,8 @@ INSTALLED_APPS = [
 	'userManagementApp',
     'matchmakingApp',
     'chatApp',
-    'socialApp'
+    'socialApp',
+    'gameStatsApp'
 ]
 
  
