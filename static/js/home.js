@@ -77,7 +77,13 @@ async function insertFriendRows() {
             //LORENZO
             //lance ton chat depuis ici
             const userId = event.target.getAttribute('data-player-id');
-            //fetchProfile() pour choper user id
+            if (userId) {
+                window.history.pushState({}, "", '/chat/' + userId + '/');
+                fetchChatRoom(userId);
+                } else {
+                    console.error("User ID not found");
+                }
+                // fetchProfile();
         });
     });
 

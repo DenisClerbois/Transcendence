@@ -28,13 +28,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name = f"chat_{self.room_name}"
             await self.channel_layer.group_add(self.room_group_name, self.channel_name)
             await self.accept()
-            messages = await self.get_previous_messages(self.sender, self.receiver)            
+            messages = await self.get_previous_messages(self.sender, self.receiver)
             for message in messages:
                 sender = await self.get_user(message.sender_id)
                 sender_username = sender.username if sender else None
+                sender_id = sender.id if sender else None
                 await self.send(text_data=json.dumps({
                     "message": message.content,
                     "sender": sender_username,
+                    "sender_id": sender_id,
                 }))
         else:
             await self.close()
@@ -61,9 +63,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         sender = await self.get_user(event["sender"])
         sender_username = sender.username if sender else None
+        sender_id = sender.id if sender else None
         await self.send(text_data=json.dumps({
             "message": event["message"],
             "sender": sender_username,
+            "sender_id": sender_id,
         }))
     
     
