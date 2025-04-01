@@ -165,3 +165,12 @@ def get_profile_pic(request, userId):
 		return JsonResponse(serializer.data, status=200)
 	except User.DoesNotExist:
 		return JsonResponse({"error": "User not found"}, status=404)
+
+
+@login_required
+def getNames(requset, userId):
+	try:
+		user = User.objects.get(id=userId)
+		return JsonResponse({'id': userId, 'username': user.username, 'nickname': user.profile.nickname}, status=200)
+	except User.DoesNotExist:
+		return JsonResponse({'error': 'user not found'}, status=404)

@@ -211,7 +211,7 @@ async function insertFriendRows() {
                 let response = await blockUser(userId);
                 if (await response.ok) {
                     row.remove();
-                    console.log(`Removed friend ${userId}`);
+                    console.log(`Blocked friend ${userId}`);
                 }
             }
         }

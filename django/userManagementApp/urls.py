@@ -11,4 +11,5 @@ urlpatterns = [
 	path("setProfilePic/", views.set_profile_pic, name='set_profile_pic'),
 	path("profileUpdate/", views.profileUpdate, name="profileUpdate"),
 	path("auth/", views.auth, name="auth"),
+	path("getNames/<int:userId>/", views.getNames, name="getNames"),
 ]

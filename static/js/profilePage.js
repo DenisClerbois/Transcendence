@@ -54,9 +54,9 @@ async function setProfilePic(userId) {
             img.src = '/media/profile_pictures/default_cute.png'
         }
     }
-    else {
-        console.log(response);
-    }
+    // else {
+    //     console.log(response);
+    // }
 }
 
 async function fetchGames() {

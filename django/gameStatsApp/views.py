@@ -34,7 +34,7 @@ def save_game(data): #{uid_player1: score, uid_player2: score}
 		else:
 			profile.losses += 1
 		profile.save(update_fields=['wins', 'losses'])
-	return JsonResponse({'success': 'faked it perfecty'}, status=200)
+	return JsonResponse({'success': 'saved it perfecty'}, status=200)
 
 
 
