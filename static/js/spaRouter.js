@@ -40,8 +40,8 @@ async function fetchChatRoom(userId) {
 	
 	const userData = await userResponse.json();
 	const userName = userData.username;
+	window.history.pushState({}, "", '/chat/' + userName + '/');
 	sessionStorage.setItem("userId", JSON.stringify(userId));
-	console.log(sessionStorage.getItem("userId"));
 	const response = await fetch("/static/html/chatRoom.html");
 	const html = await response.text();
 	document.querySelector("div#app").innerHTML = html;

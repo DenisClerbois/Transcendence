@@ -74,16 +74,12 @@ async function insertFriendRows() {
 
     chatInviteButton.forEach(button => {
         button.addEventListener('click', (event) => {
-            //LORENZO
-            //lance ton chat depuis ici
             const userId = event.target.getAttribute('data-player-id');
             if (userId) {
-                window.history.pushState({}, "", '/chat/' + userId + '/');
                 fetchChatRoom(userId);
                 } else {
                     console.error("User ID not found");
                 }
-                // fetchProfile();
         });
     });
 
