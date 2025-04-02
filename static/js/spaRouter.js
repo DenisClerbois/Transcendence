@@ -190,6 +190,7 @@ function extractParams(path, pattern) {
 }
 
 async function fetchBody() {
+	
 	const pathInfo = getRouteMatch(window.location.pathname);
 	updateNav();
 	
@@ -233,6 +234,11 @@ async function isUserInGame() {
 	const data = await response.json();
 	return data.in_game;
 }
+async function isUserInTournament() {
+	const response = await fetch("/api/matchmaking/inTournament");
+	const data = await response.json();
+	return data.in_tournament;
+}
 
 
 
@@ -248,8 +254,14 @@ async function updateContent() {
 			.some(route => pathMatchesPattern(pathInfo.route, route));
 		if (connect){
 			const game = await isUserInGame();
+			const tournament = await isUserInTournament();		
 			if (game) {
 				window.history.pushState({}, "", '/pong');
+				socketConnexion('matchmaking/classique');
+				return;
+			}
+			else if (tournament) {
+				window.history.pushState({}, "", '/waiting_room');
 				socketConnexion('matchmaking/classique');
 				return;
 			}

@@ -33,6 +33,13 @@ class Users:
 		return False
 
 	@classmethod
+	def is_in_tournament(cls, user_id: str):
+		user = cls._users.get(user_id)
+		if user:
+			return user.in_tournament
+		return False
+
+	@classmethod
 	def append(cls, user_id: str, consumer_user):
 		if not cls.get(user_id):
 			cls._users[user_id] = User(
@@ -45,19 +52,21 @@ class Users:
 	def remove(cls, user_id: str):
 		cls._users.pop(user_id, None)
 
-	async def _time_out(self, user_id: str, user):
-		time = 3
+	async def _time_out(self, user_id: str, user: User):
+		time = 5
 		while time != 0:
 			time -= 1
 			await asyncio.sleep(1)
 			if not user.missing:
 				return
-		await user.game_stop_function(user_id)
+		if user.in_game and user.game_stop_function:
+			await user.game_stop_function(user_id)
+		Users.remove(user_id)
 
 	@classmethod
 	async def disconnect(cls, user_id: str):
 		user = cls.get(user_id)
-		if user and user.in_game:
+		if user and (user.in_game or user.in_tournament):
 			user.missing = True
 			user.timeout_task = asyncio.create_task(cls._time_out(cls, user_id, user))
 			for name in user.channel_group_name:
@@ -66,22 +75,31 @@ class Users:
 	@classmethod
 	async def reconnect(cls, user_id: str, consumer_user):
 		user = cls.get(user_id)
-		if user and user.in_game and user.missing:
+		if user and user.missing:
 			user.missing = False
 			user.channel_name = consumer_user.channel_name
 			user.inputs.clear()
 			user.inputs.append(consumer_user.inputs)
-			await cls._channel_layer.send(
-				user.channel_name,
-				{
-					"type": "msg",
-					"event": "game",
-					"constant": user.game_constant
-				}
-			)
-			await cls._channel_layer.send(user.channel_name, {"type": "msg", "event": "start",})
-			for name in user.channel_group_name:
-				await cls._channel_layer.group_add(name, user.channel_name)
+			if user.in_game:
+				await cls._channel_layer.send(
+					user.channel_name,
+					{
+						"type": "msg",
+						"event": "game",
+						"constant": user.game_constant
+					}
+				)
+				await cls._channel_layer.send(user.channel_name, {"type": "msg", "event": "start",})
+				for name in user.channel_group_name:
+					await cls._channel_layer.group_add(name, user.channel_name)
+			elif user.in_tournament:
+				await cls._channel_layer.send(
+					user.channel_name,
+					{
+						"type": "msg",
+						"event": "waiting_room",
+					}
+				)
 
 
 
