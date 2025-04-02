@@ -22,19 +22,16 @@ class Game(models.Model):
         editable=False, #Unique as fuck
         default = uuid.uuid4
     )
+    game_type = models.CharField(max_length=15)
     def __str__(self):  # ~ofstream overload equivalent
         player_names = ", ".join([player.username for player in self.players.all()])
         return f"Game on {self.creation.strftime('%Y-%m-%d %H:%M')} - Players: {player_names}"
 
     def getWinner(self):
-        legal_max_score = max( #it's illegal to give up mid-game. You're excluded from winning
-            (score for uid, score in self.scores.items()),
-            default=None
-        )
-        winners = [ #safe with ex aequos
-            player for player in self.players.all() 
-            if self.scores.get(str(player.id)) == legal_max_score
-        ]
-        return winners[0] if len(winners) == 1 else None #can be edited if ex aequo accepted (not applicable with Pong rules)
+        max_score = max(self.scores.values())
+        for player in self.scores.keys():
+            if self.scores[player] == max_score:
+                return player
+        return max_score
     def getScore(self, userId):
         return self.scores[userId] if self.scores[userId] else 0

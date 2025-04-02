@@ -90,7 +90,7 @@ def getProfile(request, userId=None):
 		"id": str(user.id),
 		"wins": str(profile.wins),
 		"losses": str(profile.losses),
-		"ratio": str(profile.wins / (profile.wins + profile.losses) * 100) if profile.losses != 0 else str(profile.wins)
+		"ratio": str(profile.wins / (profile.wins + profile.losses)) if profile.losses != 0 else str(profile.wins)
 		# other user data fields
 	}
 

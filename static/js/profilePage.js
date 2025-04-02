@@ -91,30 +91,41 @@ async function saveFakeGame() {
     return data;
 }
 
-// async function insertGameHistoryRows() {
-//     const data = await fetchGames();
-//     let html = ""
-//     for (const gameId of Object.keys(data)) {
-//         let row = `
-//         <div class="col">
-//             <div class="card stats-card win">
-//                 <div class="card-body">
-//                     <div class="d-flex justify-content-between align-items-center">
-//                         <h5 class="card-title">vs. PlayerXYZ</h5>
-//                         <span class="badge bg-success">WIN</span>
-//                     </div>
-//                     <p class="card-text">March 30, 2025 • Ranked Match</p>
-//                     <div class="d-flex justify-content-between">
-//                         <small class="text-muted">Score: 5-3</small>
-//                         <small class="text-muted">Duration: 24 min</small>
-//                     </div>
-//                 </div>
-//             </div>
-//         </div>`
-//         html += row;
-//     }
-//     document.querySelector("div#gameHistoryList").innerHTML = html;
-// }
+async function insertGameHistoryRows() {
+    const data = await fetchGames();
+    const id = document.getElementsByClassName('display').namedItem('id').innerHTML; //degueu
+    let html = "<div class='row header'><p>Games History</p></div>";
+    for (const gameId of Object.keys(data)) {
+        let gameObj = data[gameId];
+        let vs_list = "";
+        for (let p of gameObj.players) {
+            vs_list += `vs. <a href="/profile/${p.id}">
+                                ${p.username}
+                                </a>`
+        }
+        let win_loss_badge = gameObj.winner == id
+            ? '<span class="badge bg-success">WIN</span>'
+            : '<span class="badge bg-secondary">LOSS</span>'
+        let row = `
+        <div class="col">
+            <div class="card stats-card loss">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">${vs_list}</h5>
+                        ${win_loss_badge}
+                    </div>
+                    <p class="card-text">${gameObj.datetime} • ${gameObj.game_type}</p>
+                    <div class="d-flex justify-content-between">
+                        <small class="text-muted">Score: 5-3</small>
+                        <small class="text-muted">Duration: 24 min</small>
+                    </div>
+                </div>
+            </div>
+        </div>`
+        html += row;
+    }
+    document.querySelector("div#gameHistoryList").innerHTML = html;
+}
 
 fetchProfile();
-// insertGameHistoryRows();
+insertGameHistoryRows();

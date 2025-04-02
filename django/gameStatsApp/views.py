@@ -1,10 +1,11 @@
 from django.shortcuts import render, HttpResponse
 from .models import Game
-from .models import PlayerProfile
+from userManagementApp.models import PlayerProfile
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.http import JsonResponse
+from datetime import datetime
 
 def gamePlayerErrFind(userId):
 	if not User.objects.filter(id=userId).exists():
@@ -20,16 +21,16 @@ def gameDataErrorFinder(data):
 	return responseObj
 
 @transaction.atomic
-def save_game(data): #{uid_player1: score, uid_player2: score}
+def save_game(data, game_type='classic'): #{uid_player1: score, uid_player2: score}
 	dataErrors = gameDataErrorFinder(data) #utile pour le developpement
 	if bool(dataErrors):
 		return JsonResponse(dataErrors, status=401)
-	game = Game.objects.create(scores=data)
+	game = Game.objects.create(scores=data, game_type=game_type)
 	winner = game.getWinner()
 	for key, value in data.items():
-		game.players.add(PlayerProfile.objects.get(id=key))
-		profile = PlayerProfile.objects.get(id=key)
-		if key == winner:
+		game.players.add(PlayerProfile.objects.get(user__id=key))
+		profile = PlayerProfile.objects.get(user__id=key)
+		if str(key) == str(winner):
 			profile.wins += 1
 		else:
 			profile.losses += 1
@@ -46,7 +47,8 @@ def get_games(request):
 		gamesJSON = {}
 		for game in games:
 			game_data = {
-				'datetime': game.creation.isoformat(),
+				'datetime': game.creation.strftime('%d %B %Y - %H:%M'),
+				'game_type': game.game_type,
 				'players': [
 					{
 						'id': str(player.id),
@@ -56,17 +58,17 @@ def get_games(request):
 					}
 					for player in game.players.all()
 				],
-				'winner': str(game.getWinner().id) if game.getWinner() else None
+				'winner': str(game.getWinner())
 			}
 			gamesJSON[str(game.id)] = game_data
 		return JsonResponse(gamesJSON)
 	except Exception as e:
-		return JsonResponse({'error': tag}, status=500)
+		return JsonResponse({'error': str(e)}, status=500)
 
 
 def save_fake_game(request):
 	data = {
 		'3': 12,
-		'5': 7
+		'4': 7
 	}
 	return save_game(data)
