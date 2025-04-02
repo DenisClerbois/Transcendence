@@ -105,6 +105,11 @@ function temporary_end(data_json) {
 	window.history.pushState({}, "", '/waiting_room');
 	fetchBody();
 }
+function waiting_room(data_json) {
+	document.querySelector("div.card-header").hidden = true
+	window.history.pushState({}, "", '/waiting_room');
+	fetchBody();
+}
 
 const actions = {
 	'game':game,
@@ -113,6 +118,7 @@ const actions = {
 	'countdown':countdown,
 	'data':data,
 	'temporary_end': temporary_end,
+	'waiting_room': waiting_room,
 }
 
 async function socketConnexion(path) {

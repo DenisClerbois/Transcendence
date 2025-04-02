@@ -1,35 +1,32 @@
-// const chatName = JSON.parse(sessionStorage.getItem("chatName"));
-const chatLog = document.querySelector('#chat-log')
-const receiver_idRaw = sessionStorage.getItem("chatName");
-console.log("Raw chatName:", receiver_idRaw);
+var chatLog = document.querySelector('#chat-log');
 
-const receiver_id = JSON.parse(receiver_idRaw);
-console.log("Parsed chatName:", receiver_id);
 
-if (!chatLog.hasChildNodes())
-{
-    const emptyText = document.createElement('h3')
-    emptyText.id = 'emptyText'
-    emptyText.innerText = 'No messages'
-    emptyText.className = 'emptyText'
-    chatLog.appendChild(emptyText)
+var userId_raw = sessionStorage.getItem("userId");
+
+var userId = JSON.parse(userId_raw);
+
+if (window.chatSocket) {
+    window.chatSocket.close();
 }
-
-const chatSocket = new WebSocket(
+var chatSocket = new WebSocket(
     'wss://'
     + window.location.host
     + '/ws/chat/'
-    + receiver_id
+    + userId
     + '/'
 );
 
 chatSocket.onmessage = function(event) {
-    const data = JSON.parse(event.data);
-    const messageElement = document.createElement('div');
+    var data = JSON.parse(event.data);
+    var messageElement = document.createElement('div');
     messageElement.innerText = data.message;
-    messageElement.className = 'message';
+    messageElement.classList.add('message');
+    if (data.sender_id != userId) {
+        messageElement.classList.add('user');
+    } else {
+        messageElement.classList.add('receiver');
+    }
     chatLog.appendChild(messageElement);
-    console.log(`Message reçu de ${data.sender}: ${data.message}`);
 };
 
 function sendMessage(message) {
@@ -52,8 +49,8 @@ document.querySelector('#chat-message-input').onkeyup = function(e) {
 };
 
 document.querySelector('#chat-message-submit').onclick = function(e) {
-    const messageInputDom = document.querySelector('#chat-message-input');
-    const message = messageInputDom.value;
+    var messageInputDom = document.querySelector('#chat-message-input');
+    var message = messageInputDom.value;
     chatSocket.send(JSON.stringify({
         'message': message
     }));

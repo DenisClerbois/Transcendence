@@ -7,6 +7,7 @@ from .models import FriendRequest
 from userManagementApp.models import PlayerProfile
 from django.utils import timezone
 from datetime import timedelta
+from django.core.exceptions import ObjectDoesNotExist
 
 @login_required
 def invite(request, targetUserId):
@@ -17,6 +18,8 @@ def invite(request, targetUserId):
 		).exists()
 		if friend_request_dupplicate:
 			return JsonResponse({"error": 'Friend request has already been created and sent'}, status=401)
+		if to_user.profile.blocked.filter(id=request.user.id).exists():
+			return JsonResponse({"error": 'The target user has blocked you'}, status=301)
 		with transaction.atomic():
 			friend_request = FriendRequest.objects.create(
 				from_user=request.user, to_user=to_user
@@ -38,7 +41,32 @@ def remove(request, targetUserId):
 			"success":f'Removed user {targetUserId} from {request.user.id}\'s friends list'
 		}, status=200)
 	except User.DoesNotExist:
-		return JsonResponse({"error": 'Target user doesn\'t exist'}, status=400)
+		return JsonResponse({"error": 'Target user doesn\'t exist'}, status=404)
+
+@login_required
+def block(request, targetUserId):
+	try:
+		targetUser = User.objects.get(id=targetUserId)
+		with transaction.atomic():
+			request.user.profile.friends.remove(targetUser.profile)
+			request.user.profile.blocked.add(targetUser.profile)
+		return JsonResponse({
+			"success":f'Blocked user {targetUserId} from {request.user.id}\'s profile'
+		}, status=200)
+	except User.DoesNotExist:
+		return JsonResponse({"error": 'Target user doesn\'t exist'}, status=404) 
+
+@login_required
+def unblock(request, targetUserId):
+	try:
+		targetUser = User.objects.get(id=targetUserId)
+		with transaction.atomic():
+			request.user.profile.blocked.remove(targetUser.profile)
+		return JsonResponse({
+			"success":f'Removed user {targetUserId} from {request.user.id}\'s blocked list'
+		}, status=200)
+	except User.DoesNotExist:
+		return JsonResponse({"error": 'Target user doesn\'t exist'}, status=404)
 
 @login_required
 def accept(request, requestId): #id of FriendRequest instance
@@ -99,6 +127,14 @@ def getFriends(request):
 	return JsonResponse({
 		str(friend.user.id): friend.user.username
 		for friend in friends
+	})
+
+@login_required
+def getBlockedUsers(request):
+	blockedUsers = request.user.profile.blocked.all()
+	return JsonResponse({
+		str(blockedUser.user.id): blockedUser.user.username
+		for blockedUser in blockedUsers
 	})
 
 @login_required

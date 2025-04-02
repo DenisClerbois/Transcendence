@@ -3,7 +3,7 @@ if (!window.user_modifiables) {
     //django/userManagementApp/views.py
     //static/html/profile.html
     window.user_modifiables = ["username", "email", "nickname"];
-    window.user_constants = ["id"];
+    window.user_constants = ["id", "wins", "losses", "ratio"];
     window.user_variables = [...window.user_modifiables, ...window.user_constants];
 }
 
@@ -24,7 +24,7 @@ function switchToEdit() {
 }
 
 function switchDisplay() {
-    document.getElementById('profile-display').hidden = !document.getElementById('profile-display').hidden;
+    document.getElementById('profile-display').hidden = !document.getElementById('profile-display').closest(".row.g-2").hidden;
     document.getElementById('profile-edit').hidden = !document.getElementById('profile-edit').hidden;
     document.getElementById('profilePicInput').value='';
     selectedImageFile = null;
@@ -154,36 +154,111 @@ function preDelete() {
 }
 
 async function insertFriendRows() {
-    const data = await fetchFriends();
+    const friends = await fetchFriends();
+    const onlineFriends = await fetchOnlineFriends();
     let html = "<div class='row header'><p>Friends</p></div>"
-    for (const userId of Object.keys(data)) {
-        let row = `<div class="row player friend">
-            <div class="col-8">Player ${userId}#${data[userId]}</div>
-            <input type="button" class="col-2 game-btn" value="Play" data-player-id="${userId}">
-            <input type="button" class="col-2 chat-btn" value="Chat" data-player-id="${userId}">
+    for (const userId of Object.keys(await friends)) {
+        let statusBadge = await onlineFriends[userId]
+            ? '<span class="badge bg-success ms-2">Online</span>'
+            : '<span class="badge bg-secondary ms-2">Offline</span>';
+        let row = `
+        <div class="row friend-row g-1" data-user-id="${userId}" data-user-name="${friends[userId]}">
+            <div class="col-4 d-flex align-items-center">
+                <a href="/profile/${userId}">
+                    Player ${userId}#${friends[userId]}
+                </a>
+                ${statusBadge}
+            </div>
+            <div class="col-4 d-flex align-items-center">
+                <button class="btn btn-outline-primary me-2 game-btn">Play</button>
+                <button class="btn btn-outline-secondary chat-btn">Chat</button>
+            </div>
+             <div class="col d-flex align-items-center">
+                <button class="btn btn-outline-primary btn-outline-danger remove-friend">Remove friend</button>
+                <button class="btn btn-outline-secondary btn-outline-danger block-friend">💀</button>
+            </div>
         </div>`
         html += row;
     }
     document.querySelector(`div#profileFriendsList`).innerHTML = html;
 
-    // Add event listeners after the HTML is inserted
-    const chatInviteButton = document.querySelectorAll('.chat-btn');
-    const gameInviteButton = document.querySelectorAll('.game-btn');
+    document.querySelector('div#profileFriendsList').addEventListener('click', async (event) => {
+        const row = event.target.closest('.friend-row');
+        const userId = row.getAttribute('data-user-id');
+        const userName = row.getAttribute('data-user-name');
 
-    chatInviteButton.forEach(button => {
-        button.addEventListener('click', (event) => {
-            const userId = event.target.getAttribute('data-player-id');
-            sendFriendRequest(userId);
-        });
-    });
-
-    gameInviteButton.forEach(button => {
-        button.addEventListener('click', (event) => {
-            const userId = event.target.getAttribute('data-player-id');
-            console.log(`trying to start game with player ${userId}`);
-        });
+        if (event.target.matches('.game-btn')) {
+            console.log(`Start game with ${userId}`);
+        }
+        
+        if (event.target.matches('.chat-btn')) {
+            console.log(`Chat with ${userId}`);
+        }
+        
+        if (event.target.matches('.remove-friend')) {
+            const confirmRemove = confirm(`Remove friend ${userId}?`);
+            if (confirmRemove) {
+                let response = await removeFriend(userId);
+                if (await response.ok) {
+                    console.log(`Removed friend ${userId}`);
+                    row.remove();
+                }
+            }
+        }
+        if (event.target.matches('.block-friend')) {
+            const confirmRemove = confirm(`Block friend ${userId}?`);
+            if (confirmRemove) {
+                let response = await blockUser(userId);
+                if (await response.ok) {
+                    row.remove();
+                    console.log(`Blocked friend ${userId}`);
+                }
+            }
+        }
     });
 }
 
+//TEMPORARY?
+async function insertBlockedUserRows() {
+    const foes = await fetchBlockedUsers();
+    let html = "<div class='row header'><p>Blocked Users</p></div>"
+    for (const userId of Object.keys(await foes)) {
+        let row = `
+        <div class="row blocked-user-row g-1" data-user-id="${userId}" data-user-name="${foes[userId]}">
+            <div class="col-6 d-flex align-items-center">
+                <a href="/profile/${userId}">
+                    Player ${userId}#${foes[userId]}
+                </a>
+            </div>
+             <div class="col d-flex align-items-center">
+                <button class="btn btn-outline-secondary btn-outline-danger unblock-user">Unblock 🐦‍🔥</button>
+            </div>
+        </div>`
+        html += row;
+    }
+    document.querySelector(`div#blockedUsersList`).innerHTML = html;
+
+    document.querySelector('div#blockedUsersList').addEventListener('click', async (event) => {
+        const row = event.target.closest('.blocked-user-row');
+        const userId = row.dataset.userId;
+        const userName = row.dataset.userName;
+
+        if (event.target.matches('.unblock-user')) {
+            const confirmRemove = confirm(`Unblock user ${userId}?`);
+            if (confirmRemove) {
+                let response = await unblockUser(userId);
+                if (response.ok) {
+                    console.log(`Unblock user ${userId}`);
+                    row.remove();
+                }
+                else
+                    console.log(`Failed to unblock user ${userId}`);
+            }
+        }
+    });
+}
+
+
 insertFriendRequests();
-insertFriendRows()
+insertFriendRows();
+insertBlockedUserRows();

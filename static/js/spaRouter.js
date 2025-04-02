@@ -8,7 +8,6 @@ const routes_auth_required = {
 	"/home":"/static/html/home.html",
 	"/pong":"/static/html/pong.html",
 	"/waiting_room":"/static/html/waiting_room.html",
-	"/chat": "/static/html/chat.html",
 	"/chatRoom": "/static/html/chatRoom.html",
 	// "/tictactoe":"/static/html/tictactoe.html",
 	// "/leaderbord":"/static/html/leaderbord.html",
@@ -35,23 +34,29 @@ function route(event) {
 	fetchBody();
 }
 
-async function fetchChatRoom(chatName) {
-	sessionStorage.setItem("chatName", JSON.stringify(chatName));
-	console.log(sessionStorage.getItem("chatName")); // Check what is stored
+async function fetchChatRoom(userId) {
+	const userResponse = await fetch(`/api/user/profile/${userId}/`);
+	if (!userResponse.ok) throw new Error("Erreur lors de la récupération du profil");
+	
+	const userData = await userResponse.json();
+	const userName = userData.username;
+	window.history.pushState({}, "", '/chat/' + userName + '/');
+	sessionStorage.setItem("userId", JSON.stringify(userId));
 	const response = await fetch("/static/html/chatRoom.html");
 	const html = await response.text();
 	document.querySelector("div#app").innerHTML = html;
 	runScriptsInHTML(html);
-	injectChatName();
-	document.getElementById("chat-name").innerText = "Room: " + chatName;
+	injectUserId();
+	document.getElementById("chat-name").innerText = userName;
 }
 
-function injectChatName() {
-    const chatName = sessionStorage.getItem("chatName"); // Retrieve stored chat name
-    if (chatName) {
-        const chatNameElement = document.getElementById("chat-name");
-        if (chatNameElement) {
-            chatNameElement.textContent = chatName;
+function injectUserId() {
+    const userId = sessionStorage.getItem("userId");
+	console.log(userId);
+    if (userId) {
+        const userIdElement = document.getElementById("chat-name");
+        if (userIdElement) {
+            userIdElement.textContent = userId;
         }
     }
 }
@@ -185,6 +190,7 @@ function extractParams(path, pattern) {
 }
 
 async function fetchBody() {
+	
 	const pathInfo = getRouteMatch(window.location.pathname);
 	updateNav();
 	
@@ -228,6 +234,11 @@ async function isUserInGame() {
 	const data = await response.json();
 	return data.in_game;
 }
+async function isUserInTournament() {
+	const response = await fetch("/api/matchmaking/inTournament");
+	const data = await response.json();
+	return data.in_tournament;
+}
 
 
 
@@ -243,8 +254,14 @@ async function updateContent() {
 			.some(route => pathMatchesPattern(pathInfo.route, route));
 		if (connect){
 			const game = await isUserInGame();
+			const tournament = await isUserInTournament();		
 			if (game) {
 				window.history.pushState({}, "", '/pong');
+				socketConnexion('matchmaking/classique');
+				return;
+			}
+			else if (tournament) {
+				window.history.pushState({}, "", '/waiting_room');
 				socketConnexion('matchmaking/classique');
 				return;
 			}
