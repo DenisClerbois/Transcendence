@@ -72,14 +72,12 @@ function countdown(data_json) {
 	}
 	drawBall(Game.canvas.width / 2 - 10, Game.canvas.height / 2 - 10);
 	drawCount(data_json.time, Game.canvas.width / 2, Game.canvas.height / 2, 64);
-	console.log(data_json, "\n\n", data_json.time)
 	if (data_json.time && data_json.time > 0)
 		requestAnimationFrame(countdown);
 	else
 		return;
 }
 function drawCount(time, x, y, size){
-	console.log(time, x, y, size);
 	Game.ctx.font = `${size}px 'Press Start 2P', monospace`;
 	Game.ctx.fillStyle = "#404040";
 	Game.ctx.textAlign = "center";
