@@ -1,6 +1,8 @@
+from gameStatsApp.views import save_game
 from .game import Game
 from .users import Users
 import asyncio
+from asgiref.sync import sync_to_async
 
 from channels.layers import get_channel_layer # type: ignore
 
@@ -46,6 +48,7 @@ class Match():
 	async def _start(cls, users_id: list):
 		game = Game(users_id)
 		await game.start()
+		await sync_to_async(save_game, thread_sensitive=True)(game.pong.get_result())
 		await cls._channel_layer.group_send(game.game_id, {"type": "end_message", "event": "end", "result": game.pong.get_result()})
 		for user_id in users_id:
 			user = Users.get(user_id)
