@@ -33,7 +33,7 @@ class Game:
 				pong_inputs.append(user.inputs)
 				users_ids.append(user_id)
 			await Game.channel_layer.group_add(self.game_id, user.channel_name)
-		self.pong = Pong(pong_inputs, self.stop, self.nb_player, users_ids)
+		self.pong = Pong(pong_inputs, self.stop, self.nb_player, users_ids, nicknames)
 		if self.nb_player == 1:
 			self.nb_player = 2
 
@@ -58,7 +58,16 @@ class Game:
 			})
 		await self.countdown()
 		await self._run()
+		self._end()
 		# await self.channel_layer.group_send(self.game_id, {"type": "end_message", "event": "end", "result": self.pong.get_result()})
+
+	def _end(self):
+		for user_id in self.users:
+			user = Users.get(user_id)
+			if user:
+				user.game_constant = None
+				user.in_game = False
+				user.game_stop_function = None
 
 	async def _run(self):
 		while self.is_running and self.nb_player > 1:
@@ -77,8 +86,7 @@ class Game:
 			"result": "You gave up.",
 		})
 		await self.channel_layer.group_discard(user.channel_group_name[0], user.channel_name)
-		Users.remove(looser_id)
-		self.users.remove(looser_id)
+		# self.users.remove(looser_id)
 		
 
 	def stop(self):

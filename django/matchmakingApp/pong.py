@@ -21,6 +21,7 @@ class GameData:
 	ballRadius: float
 	initSpeed: int
 	players: int
+	names: list
 
 # GLOBALE
 FPS = 1 / 60
@@ -36,7 +37,7 @@ SPEED = 300 # px/s
 #|________P4________|
 
 class Pong:
-	def __init__(self, players_keys, end_Function, players_nb, plrs):
+	def __init__(self, players_keys, end_Function, players_nb, plrs, nicknames):
 		self.AI = None
 		self.p_nbr = 0
 		self.game_const = GameData(
@@ -45,6 +46,7 @@ class Pong:
 			ballRadius=10,
 			initSpeed=5,
 			players=players_nb,
+			names = nicknames,
 		)
 		if players_nb < 4:
 			self.game_const.board.y = 750
@@ -57,6 +59,7 @@ class Pong:
 		if players_nb == 1:
 			self.p_nbr = 2
 			self.game_const.players = 2
+			self.game_const.names.append("AI")
 			self.p_keys.append([{'ArrowUp': False, 'ArrowDown': False}])
 			self.AI = PongAI(self, self.p_keys[1][0])
 		else:
@@ -69,10 +72,10 @@ class Pong:
 			}
 		self.launcher = 0
 		self._paddle["p1"] = [1, self.game_const.board.y / 2 - self.game_const.paddle.height / 2]
-		self._paddle["p2"] = [self.game_const.board.x - self.game_const.paddle.width, self.game_const.board.y / 2 - self.game_const.paddle.height / 2]
+		self._paddle["p2"] = [self.game_const.board.x - (self.game_const.paddle.width + 1), self.game_const.board.y / 2 - self.game_const.paddle.height / 2]
 		if players_nb > 2:
 			self._paddle["p3"] = [self.game_const.board.x / 2 - self.game_const.paddle.height / 2, 1]
-			self._paddle["p4"] = [self.game_const.board.x / 2 - self.game_const.paddle.height / 2, self.game_const.board.y - self.game_const.paddle.width]
+			self._paddle["p4"] = [self.game_const.board.x / 2 - self.game_const.paddle.height / 2, self.game_const.board.y - (self.game_const.paddle.width + 1)]
 
 		self.game_const.initSpeed = self._speed
 		self.game_const.paddle.speed = sqrt(self._vector[0] ** 2 + self._vector[1] ** 2) * self._speed * 1.6

@@ -1,6 +1,8 @@
+from gameStatsApp.views import save_game
 from .game import Game
 from .users import Users
 import asyncio
+from asgiref.sync import sync_to_async
 
 from channels.layers import get_channel_layer # type: ignore
 
@@ -46,6 +48,7 @@ class Match():
 	async def _start(cls, users_id: list):
 		game = Game(users_id)
 		await game.start()
+		await sync_to_async(save_game, thread_sensitive=True)(game.pong.get_result())
 		await cls._channel_layer.group_send(game.game_id, {"type": "end_message", "event": "end", "result": game.pong.get_result()})
 		for user_id in users_id:
 			user = Users.get(user_id)
@@ -69,9 +72,15 @@ class Tournament(Match):
 
 	@classmethod
 	async def _play_match(cls, players: list, results: list):
-		game = Game(players)
-		await game.start()
-		winners = game.pong.get_winners()
+		p1, p2 = Users.get(players[0]), Users.get(players[1])
+		if p1 and p2:
+			game = Game(players)
+			await game.start()
+			winners = game.pong.get_winners()
+			loosers = game.pong.get_loosers()
+		else:
+			winners = [players[0] if p1 else players[1]]
+			loosers = [players[0] if p2 else players[1]]
 		results.extend(winners)
 		user = Users.get(winners[0])
 		if user:
@@ -80,8 +89,7 @@ class Tournament(Match):
 				"event": "temporary_end",
 				"result": "You passed the round.",
 			})
-		loosers = game.pong.get_loosers()[0]
-		user = Users.get(loosers)
+		user = Users.get(loosers[0])
 		if user:
 			await cls._channel_layer.send(user.channel_name, {
 				"type": "end_message",
@@ -89,13 +97,16 @@ class Tournament(Match):
 				"result": game.pong.get_result(),
 			})
 			await cls._channel_layer.group_discard(user.channel_group_name[0], user.channel_name)
-			Users.remove(loosers)
+			Users.remove(loosers[0])
 
 	@classmethod
 	async def _start(cls, tournament_ids: list):
+		for user_id in tournament_ids:
+			user = Users.get(user_id)
+			if user:
+				user.in_tournament = True
 		while len(tournament_ids) > 1:
 			tournament_ids = await cls._round_manager(tournament_ids)
-		print('TOURNAMENT END')
 		winner = tournament_ids.pop()
 		user = Users.get(winner)
 		if user:

@@ -40,8 +40,8 @@ async function fetchChatRoom(userId) {
 	
 	const userData = await userResponse.json();
 	const userName = userData.username;
+	window.history.pushState({}, "", '/chat/' + userName + '/');
 	sessionStorage.setItem("userId", JSON.stringify(userId));
-	console.log(sessionStorage.getItem("userId"));
 	const response = await fetch("/static/html/chatRoom.html");
 	const html = await response.text();
 	document.querySelector("div#app").innerHTML = html;
@@ -51,11 +51,12 @@ async function fetchChatRoom(userId) {
 }
 
 function injectUserId() {
-    const UserId = sessionStorage.getItem("UserId"); // Retrieve stored chat name
-    if (UserId) {
-        const UserIdElement = document.getElementById("chat-name");
-        if (UserIdElement) {
-            UserIdElement.textContent = UserId;
+    const userId = sessionStorage.getItem("userId");
+	console.log(userId);
+    if (userId) {
+        const userIdElement = document.getElementById("chat-name");
+        if (userIdElement) {
+            userIdElement.textContent = userId;
         }
     }
 }
@@ -189,6 +190,7 @@ function extractParams(path, pattern) {
 }
 
 async function fetchBody() {
+	
 	const pathInfo = getRouteMatch(window.location.pathname);
 	updateNav();
 	
@@ -232,6 +234,11 @@ async function isUserInGame() {
 	const data = await response.json();
 	return data.in_game;
 }
+async function isUserInTournament() {
+	const response = await fetch("/api/matchmaking/inTournament");
+	const data = await response.json();
+	return data.in_tournament;
+}
 
 
 
@@ -247,8 +254,14 @@ async function updateContent() {
 			.some(route => pathMatchesPattern(pathInfo.route, route));
 		if (connect){
 			const game = await isUserInGame();
+			const tournament = await isUserInTournament();		
 			if (game) {
 				window.history.pushState({}, "", '/pong');
+				socketConnexion('matchmaking/classique');
+				return;
+			}
+			else if (tournament) {
+				window.history.pushState({}, "", '/waiting_room');
 				socketConnexion('matchmaking/classique');
 				return;
 			}

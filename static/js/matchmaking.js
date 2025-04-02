@@ -33,7 +33,7 @@ function game(data_json) {
 	document.addEventListener("click", give_up);
 	document.removeEventListener("click", handleQuit);
 	setPong(data_json['constant']);
-	// requestAnimationFrame(renderPong); //to show game behind the countdown
+	requestAnimationFrame(renderPong); //to show game behind the countdown
 }
 function start(data_json) {
 	document.addEventListener("keydown", handleKeyDown);
@@ -49,8 +49,46 @@ function end(data_json) {
 	fetchBody();
 }
 function countdown(data_json) {
-
+	if (!data_json.time)
+		return;
+	Game.ctx.fillStyle = "#401010";
+	Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
+	drawMidLine();
+	for (let i = 0; i < Game.players; i++){
+		switch(i){
+			case 0:
+				drawPaddle(1, Game.canvas.height / 2 - 50, 1);
+				break;
+			case 1:
+				drawPaddle(Game.canvas.width - 10, Game.canvas.height / 2 - 50, 1);
+				break;
+			case 2:
+				drawPaddle(Game.canvas.width / 2 - 50, 1, 0);
+				break;
+			case 3:	
+				drawPaddle(Game.canvas.width / 2 - 50, Game.canvas.height - 10, 0);
+				break;
+		}
+	}
+	drawBall(Game.canvas.width / 2 - 10, Game.canvas.height / 2 - 10);
+	drawCount(data_json.time, Game.canvas.width / 2, Game.canvas.height / 2, 64);
+	if (data_json.time && data_json.time > 0)
+		requestAnimationFrame(countdown);
+	else
+		return;
 }
+function drawCount(time, x, y, size){
+	Game.ctx.font = `${size}px 'Press Start 2P', monospace`;
+	Game.ctx.fillStyle = "#404040";
+	Game.ctx.textAlign = "center";
+	Game.ctx.textBaseline = "middle"; 
+	Game.ctx.fillStyle = "#404040";
+	Game.ctx.fillText(time, x, y);
+	Game.ctx.strokeStyle = "white";
+	Game.ctx.lineWidth = 2;
+	Game.ctx.strokeText(time, x, y);
+}
+
 function data(data_json) {
 	currentGameState = data_json['pong'];
 	lastGameState = currentGameState;
@@ -65,6 +103,11 @@ function temporary_end(data_json) {
 	window.history.pushState({}, "", '/waiting_room');
 	fetchBody();
 }
+function waiting_room(data_json) {
+	document.querySelector("div.card-header").hidden = true
+	window.history.pushState({}, "", '/waiting_room');
+	fetchBody();
+}
 
 const actions = {
 	'game':game,
@@ -73,6 +116,7 @@ const actions = {
 	'countdown':countdown,
 	'data':data,
 	'temporary_end': temporary_end,
+	'waiting_room': waiting_room,
 }
 
 async function socketConnexion(path) {
