@@ -20,7 +20,7 @@ function drawPaddle(x, y, vert) {
 	}
 	Game.ctx.fillStyle = "white";
 	Game.ctx.fillRect(x, y, width, height);
-	Game.ctx.strokeStyle = "black";
+	Game.ctx.strokeStyle = "#F1E0F0";
 	Game.ctx.lineWidth = 1;
 	Game.ctx.strokeRect(x, y, width, height); // Draw the border
 }
@@ -48,7 +48,7 @@ function drawWall(player) {
 		}
 	Game.ctx.fillStyle = "white";
 	Game.ctx.fillRect(start[0], start[1], size[0], size[1]);
-	Game.ctx.strokeStyle = "black";
+	Game.ctx.strokeStyle = "red";
 	Game.ctx.lineWidth = 1;
 	Game.ctx.strokeRect(start[0], start[1], size[0], size[1]); // Draw the border
 }
@@ -80,18 +80,18 @@ function CreateCanvas(width, height) {
 
 function drawMidLine(){
 	for (let i = 0; i < Game.canvas.height; i += 60){
-		Game.ctx.fillStyle = "white";
+		Game.ctx.fillStyle = "#F1E0F0";
 		Game.ctx.fillRect(Game.canvas.width / 2 - 4, i, 8, 30);
-		Game.ctx.strokeStyle = "black";
+		Game.ctx.strokeStyle = "white";
 		Game.ctx.lineWidth = 1;
-		Game.ctx.strokeRect(Game.canvas.width - 4, i, 8, 30); // Draw the border
+		Game.ctx.strokeRect(Game.canvas.width / 2 - 4, i, 8, 30); // Draw the border
 	}
 }
 
 function renderPong() {
 	
-	if (Game.ctx){
-		Game.ctx.fillStyle = "black";
+	if (Game.ctx && lastGameState){
+		Game.ctx.fillStyle = "#401010";
 		Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
 		drawMidLine();
 		for (let i = 0; i < Game.players; i++){

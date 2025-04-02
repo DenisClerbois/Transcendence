@@ -72,10 +72,10 @@ class Pong:
 			}
 		self.launcher = 0
 		self._paddle["p1"] = [1, self.game_const.board.y / 2 - self.game_const.paddle.height / 2]
-		self._paddle["p2"] = [self.game_const.board.x - self.game_const.paddle.width, self.game_const.board.y / 2 - self.game_const.paddle.height / 2]
+		self._paddle["p2"] = [self.game_const.board.x - (self.game_const.paddle.width + 1), self.game_const.board.y / 2 - self.game_const.paddle.height / 2]
 		if players_nb > 2:
 			self._paddle["p3"] = [self.game_const.board.x / 2 - self.game_const.paddle.height / 2, 1]
-			self._paddle["p4"] = [self.game_const.board.x / 2 - self.game_const.paddle.height / 2, self.game_const.board.y - self.game_const.paddle.width]
+			self._paddle["p4"] = [self.game_const.board.x / 2 - self.game_const.paddle.height / 2, self.game_const.board.y - (self.game_const.paddle.width + 1)]
 
 		self.game_const.initSpeed = self._speed
 		self.game_const.paddle.speed = sqrt(self._vector[0] ** 2 + self._vector[1] ** 2) * self._speed * 1.6

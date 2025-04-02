@@ -51,8 +51,9 @@ function end(data_json) {
 function countdown(data_json) {
 	if (!data_json.time)
 		return;
-	Game.ctx.fillStyle = "black";
+	Game.ctx.fillStyle = "#401010";
 	Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
+	drawMidLine();
 	for (let i = 0; i < Game.players; i++){
 		switch(i){
 			case 0:
@@ -70,7 +71,7 @@ function countdown(data_json) {
 		}
 	}
 	drawBall(Game.canvas.width / 2 - 10, Game.canvas.height / 2 - 10);
-	drawCount(data_json.time, Game.canvas.width / 2, Game.canvas.height / 2, 48);
+	drawCount(data_json.time, Game.canvas.width / 2, Game.canvas.height / 2, 64);
 	console.log(data_json, "\n\n", data_json.time)
 	if (data_json.time && data_json.time > 0)
 		requestAnimationFrame(countdown);
@@ -79,12 +80,15 @@ function countdown(data_json) {
 }
 function drawCount(time, x, y, size){
 	console.log(time, x, y, size);
-	Game.ctx.font = `${size}px Arial`;
-	Game.ctx.fillStyle = "red";
+	Game.ctx.font = `${size}px 'Press Start 2P', monospace`;
+	Game.ctx.fillStyle = "#404040";
 	Game.ctx.textAlign = "center";
 	Game.ctx.textBaseline = "middle"; 
-	Game.ctx.fillStyle = "red";
+	Game.ctx.fillStyle = "#404040";
 	Game.ctx.fillText(time, x, y);
+	Game.ctx.strokeStyle = "white";
+	Game.ctx.lineWidth = 2;
+	Game.ctx.strokeText(time, x, y);
 }
 
 function data(data_json) {
