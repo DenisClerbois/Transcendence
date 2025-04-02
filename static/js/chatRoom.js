@@ -1,11 +1,11 @@
 var chatLog = document.querySelector('#chat-log');
 
 
-var receiver_idRaw = sessionStorage.getItem("chatName");
-console.log("Raw chatName:", receiver_idRaw);
+var userId_raw = sessionStorage.getItem("userId");
+console.log("Raw userId:", userId_raw);
 
-var receiver_id = JSON.parse(receiver_idRaw);
-console.log("Parsed chatName:", receiver_id);
+var userId = JSON.parse(userId_raw);
+console.log("Parsed userId:", userId);
 
 if (window.chatSocket) {
     window.chatSocket.close();
@@ -14,7 +14,7 @@ var chatSocket = new WebSocket(
     'wss://'
     + window.location.host
     + '/ws/chat/'
-    + receiver_id
+    + userId
     + '/'
 );
 
@@ -30,8 +30,8 @@ chatSocket.onmessage = function(event) {
     messageElement.innerText = data.message;
     messageElement.classList.add('message');
     console.log(data.sender_id);
-    console.log(receiver_id);
-    if (data.sender_id != receiver_id) {
+    console.log(userId);
+    if (data.sender_id != userId) {
         messageElement.classList.add('user');
     } else {
         messageElement.classList.add('receiver');

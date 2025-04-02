@@ -51,11 +51,12 @@ async function fetchChatRoom(userId) {
 }
 
 function injectUserId() {
-    const UserId = sessionStorage.getItem("UserId"); // Retrieve stored chat name
-    if (UserId) {
-        const UserIdElement = document.getElementById("chat-name");
-        if (UserIdElement) {
-            UserIdElement.textContent = UserId;
+    const userId = sessionStorage.getItem("userId");
+	console.log(userId);
+    if (userId) {
+        const userIdElement = document.getElementById("chat-name");
+        if (userIdElement) {
+            userIdElement.textContent = userId;
         }
     }
 }
