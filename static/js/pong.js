@@ -78,11 +78,22 @@ function CreateCanvas(width, height) {
 	Game.ctx = Game.canvas.getContext("2d");
 }
 
+function drawMidLine(){
+	for (let i = 0; i < Game.canvas.height; i += 60){
+		Game.ctx.fillStyle = "white";
+		Game.ctx.fillRect(Game.canvas.width / 2 - 4, i, 8, 30);
+		Game.ctx.strokeStyle = "black";
+		Game.ctx.lineWidth = 1;
+		Game.ctx.strokeRect(Game.canvas.width - 4, i, 8, 30); // Draw the border
+	}
+}
+
 function renderPong() {
 	
 	if (Game.ctx){
 		Game.ctx.fillStyle = "black";
 		Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
+		drawMidLine();
 		for (let i = 0; i < Game.players; i++){
 			if (lastGameState.score[i] == -1)
 				drawWall(i)
