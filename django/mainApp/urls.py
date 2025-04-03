@@ -21,5 +21,6 @@ urlpatterns = [
 	path("api/user/", include("userManagementApp.urls")),
     path("api/matchmaking/", include("matchmakingApp.urls")),
     path("api/social/", include("socialApp.urls")),
-    path("api/gameStats/", include("gameStatsApp.urls"))
+    path("api/gameStats/", include("gameStatsApp.urls")),
+    # path("api/chat/", include("chatApp.urls")) #LORENZO
 ]

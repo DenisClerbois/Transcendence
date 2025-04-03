@@ -9,8 +9,7 @@ const routes_auth_required = {
 	"/pong":"/static/html/pong.html",
 	"/waiting_room":"/static/html/waiting_room.html",
 	"/chatRoom": "/static/html/chatRoom.html",
-	// "/tictactoe":"/static/html/tictactoe.html",
-	// "/leaderbord":"/static/html/leaderbord.html",
+	//"/chatRoom/:userId": "/static/html/chatRoom.html", LORENZO
 }
 const routes_free_access = {
 	"/":"/static/html/login.html",
