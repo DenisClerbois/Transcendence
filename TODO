@@ -30,9 +30,26 @@ MAJOR - 3d module
 
 MINOR - User and Game Stats Dashboards
 
-[...][INSERT OTHERS]
 
-Me:
 
-countdown pong 
-Front Pong
+before push:
+
+debug mode settings.py
+password policy update
+pdf correction, debug
+
+
+leo: 
+Bouton give up dans le tournoi relier fonction au bouton
+Display score winner
+
+
+facultatif:
+refrsh, ne plus voir login register
+
+Lorenzo:
+block message 
+nicknames au dessus du chat
+
+Denis:
+proteger si quelqu'un est deja en partie de pas pouvoir en rechercher une autre
