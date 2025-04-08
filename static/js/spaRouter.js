@@ -9,7 +9,7 @@ const routes_auth_required = {
 	"/pong":"/static/html/pong.html",
 	"/waiting_room":"/static/html/waiting_room.html",
 	"/chatRoom": "/static/html/chatRoom.html",
-	//"/chatRoom/:userId": "/static/html/chatRoom.html", LORENZO
+	"/chat/:userId": "/static/html/chatRoom.html",
 }
 const routes_free_access = {
 	"/":"/static/html/login.html",
@@ -34,12 +34,14 @@ function route(event) {
 }
 
 async function fetchChatRoom(userId) {
-	const userResponse = await fetch(`/api/user/profile/${userId}/`);
-	if (!userResponse.ok) throw new Error("Erreur lors de la récupération du profil");
-	
-	const userData = await userResponse.json();
-	const userName = userData.username;
-	window.history.pushState({}, "", '/chat/' + userName + '/');
+	const res = await fetch(`/api/chat/getRoom/${userId}/`);
+    if (!res.ok) {
+        console.error('Error fetching chat room');
+        return;
+    }
+    const data = await res.json();
+	const userName = data.username;
+	window.history.pushState({}, "", '/chat/' + userId);
 	sessionStorage.setItem("userId", JSON.stringify(userId));
 	const response = await fetch("/static/html/chatRoom.html");
 	const html = await response.text();
@@ -51,7 +53,6 @@ async function fetchChatRoom(userId) {
 
 function injectUserId() {
     const userId = sessionStorage.getItem("userId");
-	console.log(userId);
     if (userId) {
         const userIdElement = document.getElementById("chat-name");
         if (userIdElement) {
