@@ -33,17 +33,16 @@ class Consumer(AsyncWebsocketConsumer):
 			await Users.reconnect(self.id, self)
 		else:
 			self.nickname = await self.get_user_nickname(user)
-			Users.append(self.id, self)
 			action = self.scope['url_route']['kwargs']['action']
 			match action:
 				case 'classique':
-					await Match.append(self.id)
+					await Match.append(self.id, self)
 				case 'tournament':
-					await Tournament.append(self.id)
+					await Tournament.append(self.id, self)
 				case 'multiplayer':
-					await Multiplayer.append(self.id)
+					await Multiplayer.append(self.id, self)
 				case 'ia':
-					await MatchVsIA.append(self.id)
+					await MatchVsIA.append(self.id, self)
 	
 	async def msg(self, event):
 		event_data = event.copy()

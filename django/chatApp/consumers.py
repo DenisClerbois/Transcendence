@@ -5,7 +5,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mainApp.settings")
 django.setup()
 
 from django.contrib.auth.models import User
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer # type: ignore
 from asgiref.sync import sync_to_async
 import json
 from .models import PrivateMessage
