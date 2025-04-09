@@ -53,7 +53,7 @@ class Pong:
 			self.game_const.board.y = 750
 		self._vector = [1, 1]
 		self._speed = SPEED * FPS
-		self._score = [0, 0, 0, 0]
+		self._score = [0, 0]
 		self._ball = [self.game_const.board.x / 2, self.game_const.board.y / 2]
 		self._prevBall = self._ball
 		self.p_keys = players_keys
@@ -77,7 +77,7 @@ class Pong:
 		if players_nb > 2:
 			self._paddle["p3"] = [self.game_const.board.x / 2 - self.game_const.paddle.height / 2, 1]
 			self._paddle["p4"] = [self.game_const.board.x / 2 - self.game_const.paddle.height / 2, self.game_const.board.y - (self.game_const.paddle.width + 1)]
-
+			self._score.append(0, 0)
 		self.game_const.initSpeed = self._speed
 		self.game_const.paddle.speed = sqrt(self._vector[0] ** 2 + self._vector[1] ** 2) * self._speed * 1.6
 		self.endF = end_Function 
@@ -311,7 +311,7 @@ class Pong:
 		if looser_id in self._players:
 			self._score[self._players.index(looser_id)] = -1
 
-
+ 
 class PongAI:
 	def __init__(self, pong, AIKey):
 		self._pong = pong

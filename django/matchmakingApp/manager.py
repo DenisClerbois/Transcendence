@@ -41,7 +41,7 @@ class Match():
 		game = Game(users_id)
 		await game.start()
 		# await sync_to_async(save_game, thread_sensitive=True)(game.pong.get_result())
-		await cls._channel_layer.group_send(game.game_id, {"type": "end_message", "event": "end", "result": game.pong.get_result()})
+		await cls._channel_layer.group_send(game.game_id, {"type": "end_message", "event": "end", "result": game.pong.get_result(), "users": game.getNickname()})
 		for user_id in users_id:
 			user = Users.get(user_id)
 			if user:
@@ -61,7 +61,7 @@ class Tournament(Match):
 			for i in range(0, len(round_ids), 2):
 				asyncGameGroup.create_task(cls._play_match(round_ids[i:i+2], results))
 		return results
-
+ 
 
 	@classmethod
 	async def _play_match(cls, players: list, results: list):
@@ -88,10 +88,11 @@ class Tournament(Match):
 				"type": "end_message",
 				"event": "end",
 				"result": game.pong.get_result(),
+				"users": game.getNickname(),
 			})
 			await cls._channel_layer.group_discard(user.channel_group_name[0], user.channel_name)
 			Users.remove(loosers[0])
-
+  
 	@classmethod
 	async def _start(cls, tournament_ids: list):
 		for user_id in tournament_ids:
@@ -122,7 +123,7 @@ class MatchVsIA(Match):
 	_queue = []
 	_nb_players = 1
 
-
+ 
 class Clash():
 
 	_queue = {}

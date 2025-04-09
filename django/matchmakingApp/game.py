@@ -55,6 +55,7 @@ class Game:
 		if self.pong.AI:
 			dic['AI']="AI"
 		return dic
+
 	async def start(self):
 		await self.set_pong()
 		self.set_users()
@@ -67,7 +68,7 @@ class Game:
 		await self.countdown()
 		await self._run()
 		self._end()
-		await self.channel_layer.group_send(self.game_id, {"type": "end_message", "event": "end", "result": self.pong.get_result(), "users": self.getNickname()})
+		#await self.channel_layer.group_send(self.game_id, {"type": "end_message", "event": "end", "result": self.pong.get_result(), "users": self.getNickname()})
 
 	def _end(self):
 		for user_id in self.users:
@@ -76,7 +77,9 @@ class Game:
 				user.game_constant = None
 				user.in_game = False
 				user.game_stop_function = None
-
+				if user.in_tournament:
+					user.game_stop_function = self.mid_give_up
+ 
 	async def _run(self):
 		while self.is_running and self.nb_player > 1:
 			self.pong.update()
@@ -95,8 +98,16 @@ class Game:
 		})
 		await self.channel_layer.group_discard(user.channel_group_name[0], user.channel_name)
 		# self.users.remove(looser_id)
-		
-
+  
+	async def mid_give_up(self, looser_id):
+		user = Users.get(looser_id)
+		await self.channel_layer.send(user.channel_name, {
+			"type": "end_message",
+			"event": "end",
+			"result": "You gave up.",
+		})
+		await self.channel_layer.group_discard(user.channel_group_name[0], user.channel_name)
+ 
 	def stop(self):
 		self.is_running = False
 		# for user in self.users.values():
@@ -107,7 +118,7 @@ class Game:
 
 
 
-
+ 
 # import asyncio, uuid
 # from matchmakingApp.pong import Pong, FPS
 # from .users import Connections

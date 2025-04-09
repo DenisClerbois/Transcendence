@@ -52,7 +52,7 @@ function end(data_json) {
 			winner = key;
 		}
 	});
-	if (data_json['result'] === "You gave up.")
+	if (!data_json['users'])
 		alertNonModal(`Partie finie. Resultat :${data_json['result']}`);
 	else
 		alertNonModal(`Partie finie. Resultat :${data_json['users'][winner]} Won!!!`);
@@ -110,9 +110,11 @@ function temporary_end(data_json) {
 	document.removeEventListener("click", give_up);
 	document.removeEventListener("keydown", handleKeyDown);
 	document.removeEventListener("keyup", handleKeyUp);
-	console.log("new", data_json['result']);
 	alertNonModal(`Partie finie. Resultat : ${data_json['result']}`);
 	window.history.pushState({}, "", '/waiting_room');
+	if (window.location.pathname == "/waiting_room"){
+		document.addEventListener("click", give_up2);
+	}
 	fetchBody();
 }
 function waiting_room(data_json) {
