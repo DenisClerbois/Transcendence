@@ -29,7 +29,7 @@ chatSocket.onmessage = function(event) {
 			updateUI_chat("state1");
 		}
 		else if (data.type == 'challenge_accepted'){
-			socketConnexion(`matchmaking/clash/${data.game_id}`)
+			socketConnexion(`matchmaking/clash/${data.game_id}/`)
 		}
 		return;
 	}
