@@ -36,7 +36,7 @@ class Game:
 		self.pong = Pong(pong_inputs, self.stop, self.nb_player, users_ids, nicknames)
 		if self.nb_player == 1:
 			self.nb_player = 2
-
+  
 	def set_users(self):
 		constant = self.pong.get_game_constant()
 		for user_id in self.users:
@@ -47,6 +47,14 @@ class Game:
 				user.channel_group_name.append(self.game_id)
 				user.game_stop_function = self.give_up
 
+	def getNickname(self):
+		dic = {}
+		for user_id in self.users:
+			user = Users.get(user_id)
+			dic[str(user_id)] = user.nickname
+		if self.pong.AI:
+			dic['AI']="AI"
+		return dic
 	async def start(self):
 		await self.set_pong()
 		self.set_users()
@@ -59,7 +67,7 @@ class Game:
 		await self.countdown()
 		await self._run()
 		self._end()
-		# await self.channel_layer.group_send(self.game_id, {"type": "end_message", "event": "end", "result": self.pong.get_result()})
+		await self.channel_layer.group_send(self.game_id, {"type": "end_message", "event": "end", "result": self.pong.get_result(), "users": self.getNickname()})
 
 	def _end(self):
 		for user_id in self.users:
