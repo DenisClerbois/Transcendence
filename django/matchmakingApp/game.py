@@ -67,7 +67,7 @@ class Game:
 		await self.countdown()
 		await self._run()
 		self._end()
-		await self.channel_layer.group_send(self.game_id, {"type": "end_message", "event": "end", "result": self.pong.get_result(), "users": self.getNickname()})
+		# await self.channel_layer.group_send(self.game_id, {"type": "end_message", "event": "end", "result": self.pong.get_result(), "users": self.getNickname()})
 
 	def _end(self):
 		for user_id in self.users:
