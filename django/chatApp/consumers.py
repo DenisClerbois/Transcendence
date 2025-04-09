@@ -65,8 +65,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				case 'accept':
 					await Challenge.accept(Data(
 						self.room_group_name,
-						self.receiver_id),
-						str(self.sender.id))
+						self.receiver_id,
+						str(self.sender.id)))
 				case 'decline':
 					await Challenge.decline(Data(
 						self.room_group_name,
@@ -102,6 +102,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			await self.send(text_data=json.dumps({
 				"type": 'challenge_declined',
 			}))
+	async def acceptFight(self, event):
+		await self.send(text_data=json.dumps({
+			"type": 'challenge_accepted',
+			"game_id": event['game_id'],
+		}))
 
 
 

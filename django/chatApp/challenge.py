@@ -1,13 +1,7 @@
-from gameStatsApp.views import save_game
-
-from matchmakingApp.game import Game
-from matchmakingApp.users import Users
-
-import asyncio
-from asgiref.sync import sync_to_async
+import uuid
 
 from channels.layers import get_channel_layer # type: ignore
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 @dataclass
 class Data:
@@ -58,16 +52,10 @@ class Challenge():
 	async def accept(cls, data: Data):
 		if data.challenger_id in cls._queue:
 			del cls._queue[data.challenger_id]
-			# asyncio.create_task(cls._start([key, opponent_id]))
-	
-	# @classmethod
-	# async def _start(cls, users_id: list):
-	# 	game = Game(users_id)
-	# 	await game.start()
-	# 	await sync_to_async(save_game, thread_sensitive=True)(game.pong.get_result())
-	# 	await cls._channel_layer.group_send(game.game_id, {"type": "end_message", "event": "end", "result": game.pong.get_result()})
-	# 	for user_id in users_id:
-	# 		user = Users.get(user_id)
-	# 		if user:
-	# 			await cls._channel_layer.group_discard(user.channel_group_name[0], user.channel_name)
-	# 			Users.remove(user_id)
+			game_id = uuid.uuid4().hex
+			await cls._channel_layer.group_send(
+				data.room_group_name,
+				{
+					"type": "acceptFight",
+					"game_id": game_id,
+				})

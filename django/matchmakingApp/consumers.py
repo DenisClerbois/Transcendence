@@ -1,7 +1,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer # type: ignore
 import json
 
-from .manager import Match, Tournament, Multiplayer, MatchVsIA
+from .manager import Match, Tournament, Multiplayer, MatchVsIA, Clash
 from .users import Users
 from channels.db import database_sync_to_async # type: ignore
 
@@ -34,6 +34,9 @@ class Consumer(AsyncWebsocketConsumer):
 		else:
 			self.nickname = await self.get_user_nickname(user)
 			action = self.scope['url_route']['kwargs']['action']
+			param = self.scope['url_route']['kwargs'].get('param')
+			if param and action != 'clash':
+				self.close()
 			match action:
 				case 'classique':
 					await Match.append(self.id, self)
@@ -43,6 +46,8 @@ class Consumer(AsyncWebsocketConsumer):
 					await Multiplayer.append(self.id, self)
 				case 'ia':
 					await MatchVsIA.append(self.id, self)
+				case 'clash':
+					await Clash.append(self.id, param, self)
 	
 	async def msg(self, event):
 		event_data = event.copy()

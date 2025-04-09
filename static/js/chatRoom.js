@@ -28,6 +28,9 @@ chatSocket.onmessage = function(event) {
 		else if (data.type == 'challenge_declined'){
 			updateUI_chat("state1");
 		}
+		else if (data.type == 'challenge_accepted'){
+			socketConnexion(`matchmaking/clash/${data.game_id}`)
+		}
 		return;
 	}
 
@@ -104,10 +107,11 @@ document.querySelector('#chat-cancel-button').onclick = function(e) {
 	quit()
 };
 
-// document.querySelector('#chat-accept-button').onclick = function(e) {
-// 	json = JSON.stringify({type: 'challenge', action: 'accept'});
-// 	chatSocket.send(json);
-// };
+document.querySelector('#chat-accept-button').onclick = function(e) {
+	console.log('accept button on click')
+	json = JSON.stringify({type: 'challenge', action: 'accept'});
+	chatSocket.send(json);
+};
 
 document.querySelector('#chat-decline-button').onclick = function(e) {
 	updateUI_chat('state1');
