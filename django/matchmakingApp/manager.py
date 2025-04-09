@@ -123,45 +123,38 @@ class MatchVsIA(Match):
 	_queue = []
 	_nb_players = 1
 
- 
+
+
 class Clash():
 
 	_queue = {}
+	_user_data = {}
 	_channel_layer = get_channel_layer()
 
 	@classmethod
-	def append(cls, challenger_id: str, opponent_id: str):
-		if challenger_id not in cls._queue:
-			cls._queue[challenger_id] = opponent_id
+	async def append(cls, user_id: str, game_id: str, consumer):
+		if game_id not in cls._queue:
+			cls._queue[game_id] = user_id
+			cls._user_data[user_id] = consumer
+		else:
+			p1_id = cls._queue[game_id]
+			players = [p1_id, user_id]
+			Users.append(user_id, consumer)
+			Users.append(p1_id, cls._user_data[p1_id])
+			del cls._queue[game_id]
+			del cls._user_data[p1_id]
+			asyncio.create_task(cls._start(players))
+			# await cls._check_start()
 
-
-	@classmethod
-	def cancel(cls, challenger_id: str):
-		if challenger_id in cls._queue:
-			del cls._queue[challenger_id]
-	
-	@classmethod
-	def decline(cls, opponent_id: str):
-		for key, value in cls._queue.items():
-			if value == opponent_id:
-				del cls._queue[key]
-				return
-	
-	@classmethod
-	def accept(cls, opponent_id: str):
-		for key, value in cls._queue.items():
-			if value == opponent_id:
-				del cls._queue[key]
-				asyncio.create_task(cls._start([key, opponent_id]))
-	
 	@classmethod
 	async def _start(cls, users_id: list):
 		game = Game(users_id)
 		await game.start()
-		await sync_to_async(save_game, thread_sensitive=True)(game.pong.get_result())
+		# await sync_to_async(save_game, thread_sensitive=True)(game.pong.get_result())
 		await cls._channel_layer.group_send(game.game_id, {"type": "end_message", "event": "end", "result": game.pong.get_result()})
 		for user_id in users_id:
 			user = Users.get(user_id)
 			if user:
 				await cls._channel_layer.group_discard(user.channel_group_name[0], user.channel_name)
 				Users.remove(user_id)
+
