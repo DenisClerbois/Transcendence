@@ -12,6 +12,7 @@ class Match():
 	_user_data = {}
 	_nb_players = 2
 	_channel_layer = get_channel_layer()
+	_game_type = "Classic"
 
 	@classmethod
 	async def append(cls, user_id: str, consumer):
@@ -40,7 +41,8 @@ class Match():
 	async def _start(cls, users_id: list):
 		game = Game(users_id)
 		await game.start()
-		# await sync_to_async(save_game, thread_sensitive=True)(game.pong.get_result())
+		print(game.pong.get_result())
+		await sync_to_async(save_game, thread_sensitive=True)(game.pong.get_result(), cls._game_type)
 		await cls._channel_layer.group_send(game.game_id, {"type": "end_message", "event": "end", "result": game.pong.get_result(), "users": game.nicknames})
 		for user_id in users_id:
 			user = Users.get(user_id)
@@ -82,6 +84,7 @@ class Tournament(Match):
 				"event": "temporary_end",
 				"result": "You passed the round.",
 			})
+			await cls._channel_layer.group_discard(user.channel_group_name[0], user.channel_name)
 		user = Users.get(loosers[0])
 		if user:
 			await cls._channel_layer.send(user.channel_name, {
@@ -117,19 +120,21 @@ class Multiplayer(Match):
 
 	_queue = []
 	_nb_players = 4
+	_game_type = "Multiplayers"
 
 class MatchVsIA(Match):
 
 	_queue = []
 	_nb_players = 1
+	_game_type = "AI"
 
 
-
-class Clash():
+class Clash(Match):
 
 	_queue = {}
 	_user_data = {}
 	_channel_layer = get_channel_layer()
+	_game_type = "Challenge"
 
 	@classmethod
 	async def append(cls, user_id: str, game_id: str, consumer):
@@ -145,16 +150,4 @@ class Clash():
 			del cls._user_data[p1_id]
 			asyncio.create_task(cls._start(players))
 			# await cls._check_start()
-
-	@classmethod
-	async def _start(cls, users_id: list):
-		game = Game(users_id)
-		await game.start()
-		# await sync_to_async(save_game, thread_sensitive=True)(game.pong.get_result())
-		await cls._channel_layer.group_send(game.game_id, {"type": "end_message", "event": "end", "result": game.pong.get_result(), "users": game.nicknames})
-		for user_id in users_id:
-			user = Users.get(user_id)
-			if user:
-				await cls._channel_layer.group_discard(user.channel_group_name[0], user.channel_name)
-				Users.remove(user_id)
 

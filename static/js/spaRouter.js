@@ -333,7 +333,7 @@ async function onpopstate_handler(){
 			socket.send(JSON.stringify({type: 'give_up'}));
 	}
 	if (Object.keys(routes_game_required).includes(pathInfo.route)) {
-		alertNonModal('search a game first');
+		// alertNonModal('search a game first');
 		window.history.pushState({}, "", '/home');
 	}
 
