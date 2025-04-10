@@ -2,7 +2,7 @@ import asyncio
 import time
 from dataclasses import dataclass, asdict
 from math import sqrt, cos, sin, pi
-
+ 
 @dataclass
 class Paddle:
 	width: int
@@ -26,6 +26,7 @@ class GameData:
 # GLOBALE
 FPS = 1 / 60
 SPEED = 300 # px/s
+WIN_CON = 2
 
 # __________________
 #|        P3        |
@@ -52,7 +53,7 @@ class Pong:
 			self.game_const.board.y = 750
 		self._vector = [1, 1]
 		self._speed = SPEED * FPS
-		self._score = [0, 0, 0, 0]
+		self._score = [0, 0]
 		self._ball = [self.game_const.board.x / 2, self.game_const.board.y / 2]
 		self._prevBall = self._ball
 		self.p_keys = players_keys
@@ -76,7 +77,8 @@ class Pong:
 		if players_nb > 2:
 			self._paddle["p3"] = [self.game_const.board.x / 2 - self.game_const.paddle.height / 2, 1]
 			self._paddle["p4"] = [self.game_const.board.x / 2 - self.game_const.paddle.height / 2, self.game_const.board.y - (self.game_const.paddle.width + 1)]
-
+			self._score.append(0)
+			self._score.append(0)
 		self.game_const.initSpeed = self._speed
 		self.game_const.paddle.speed = sqrt(self._vector[0] ** 2 + self._vector[1] ** 2) * self._speed * 1.6
 		self.endF = end_Function 
@@ -276,7 +278,7 @@ class Pong:
 	def checkEndGame(self):
 		scoreDiff = 0
 		for i in range(self.p_nbr):
-			if self._score[i] >= 11:
+			if self._score[i] >= WIN_CON:
 				for j in range(self.p_nbr):
 					if i != j and abs(self._score[i] - self._score[j]) < 2:
 						scoreDiff += 1
@@ -294,6 +296,8 @@ class Pong:
 		for user in self._players:
 			result[str(user)] = self._score[i]
 			i += 1
+		if self.AI:
+			result['AI'] = self._score[1]
 		return result
 
 	def get_winners(self):
@@ -308,7 +312,7 @@ class Pong:
 		if looser_id in self._players:
 			self._score[self._players.index(looser_id)] = -1
 
-
+ 
 class PongAI:
 	def __init__(self, pong, AIKey):
 		self._pong = pong

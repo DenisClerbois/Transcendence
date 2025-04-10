@@ -44,7 +44,18 @@ function end(data_json) {
 	document.removeEventListener("click", give_up);
 	document.removeEventListener("keydown", handleKeyDown);
 	document.removeEventListener("keyup", handleKeyUp);
-	alertNonModal(`Partie finie. Resultat : ${data_json['result']}`);
+	let highscore = -1;
+	let winner = null;
+	Object.entries(data_json['result']).forEach(([key, value]) => {
+				if (value > highscore){
+			highscore = value;
+			winner = key;
+		}
+	});
+	if (!data_json['users'])
+		alertNonModal(`Partie finie. Resultat :${data_json['result']}`);
+	else
+		alertNonModal(`Partie finie. Resultat :${data_json['users'][winner]} Won!!!`);
 	window.history.pushState({}, "", '/home');
 	fetchBody();
 }
@@ -101,6 +112,9 @@ function temporary_end(data_json) {
 	document.removeEventListener("keyup", handleKeyUp);
 	alertNonModal(`Partie finie. Resultat : ${data_json['result']}`);
 	window.history.pushState({}, "", '/waiting_room');
+	if (window.location.pathname == "/waiting_room"){
+		document.addEventListener("click", give_up2);
+	}
 	fetchBody();
 }
 function waiting_room(data_json) {

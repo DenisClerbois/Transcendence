@@ -1,11 +1,22 @@
+<span id="chat-name"></span>
 <div class="container">
-    <div id="chat-log"></div>
+    <div id="chat-log" style="min-height: 400px;"></div>
 </div>
-<div class="card text-center all">
+<input class="textInput" id="chat-message-input" type="text" size="100">
+<input class="button" id="chat-message-submit" type="button" value="Send">
 
-    <input class="textInput" id="chat-message-input" ty[e="text" size="100"><br>
-    <input class="button" id="chat-message-submit" type="button" value="Send">
-    <span id="chat-name"></span>
+<div class="ui" id="state1">
+    <input class="button" id="chat-play-button" type="button" value="▶️ Play">
 </div>
+<div class="ui" id="state2" hidden>
+    waiting for opponent...
+    <input class="button" id="chat-cancel-button" type="button" value="Cancel">
+</div>
+<div class="ui" id="state3" hidden>
+    Your opponent want to play 
+    <input class="button" id="chat-accept-button" type="button" value="Accept">
+    <input class="button" id="chat-decline-button" type="button" value="Decline">
+</div>
+
 <script src="/static/js/chatRoom.js" type="text/javascript"></script>
-<!-- <script src="/static/js/chatRoom.checkMeOut.js" type="text/javascript"></script>  LORENZO  -->
+<!-- <script src="/static/js/chatRoom.checkMeOut.js" type="text/javascript"></script> -->
