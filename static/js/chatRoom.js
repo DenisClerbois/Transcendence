@@ -4,7 +4,6 @@ var chatLog = document.querySelector('#chat-log');
 var userId_raw = sessionStorage.getItem("userId");
 
 var userId = JSON.parse(userId_raw);
-console.log(userId);
 fetch(`/api/chat/getRoom/${userId}/`)
   .then(res => {
 	if (!res.ok) {
@@ -83,10 +82,13 @@ fetch(`/api/chat/getRoom/${userId}/`)
 		document.querySelector('#chat-message-submit').onclick = function(e) {
 			var messageInputDom = document.querySelector('#chat-message-input');
 			var message = messageInputDom.value;
-			chatSocket.send(JSON.stringify({
-				'message': message
-			}));
-			messageInputDom.value = '';
+			if (message.length)
+			{
+				chatSocket.send(JSON.stringify({
+					'message': message
+				}));
+				messageInputDom.value = '';
+			}
 		};
 		
 		function updateUI_chat(state){
