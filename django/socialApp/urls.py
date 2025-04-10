@@ -14,4 +14,6 @@ urlpatterns = [
     path("getFriends/", views.getFriends, name='getFriends'),
     path("getBlockedUsers/", views.getBlockedUsers, name='getBlockedUsers'),
     path("inFriendRequests/", views.inFriendRequests, name='inFriendRequests'),
+    path("isBlocked/<int:targetUserId>/", views.is_blocked, name='is_blocked'), #deprecated
+    path("socialStatus/<int:targetUserId>/", views.social_status, name='social_status'),
 ]

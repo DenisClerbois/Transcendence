@@ -12,6 +12,8 @@ from django.core.exceptions import ObjectDoesNotExist
 @login_required
 def invite(request, targetUserId):
 	try:
+		if targetUserId == request.user.id:
+			return JsonResponse({"error": 'You cannot invite yourself'}, status=400) 
 		to_user = User.objects.get(id=targetUserId)
 		friend_request_dupplicate = FriendRequest.objects.filter(
 			from_user=request.user, to_user=to_user
@@ -47,9 +49,16 @@ def remove(request, targetUserId):
 def block(request, targetUserId):
 	try:
 		targetUser = User.objects.get(id=targetUserId)
+		if targetUserId == request.user.id:
+			return JsonResponse({"error": 'You cannot block yourself'}, status=400) 
 		with transaction.atomic():
-			request.user.profile.friends.remove(targetUser.profile)
+			if targetUser.profile in request.user.profile.friends.all():
+				request.user.profile.friends.remove(targetUser.profile)
 			request.user.profile.blocked.add(targetUser.profile)
+
+			FriendRequest.objects.filter(from_user=request.user, to_user=targetUser).delete()
+			FriendRequest.objects.filter(to_user=request.user, from_user=targetUser).delete()
+	
 		return JsonResponse({
 			"success":f'Blocked user {targetUserId} from {request.user.id}\'s profile'
 		}, status=200)
@@ -72,14 +81,13 @@ def unblock(request, targetUserId):
 def accept(request, requestId): #id of FriendRequest instance
 	try:
 		with transaction.atomic():
-			friend_request = FriendRequest.objects.select_for_update().get(id=requestId)
-			
-			if friend_request.to_user != request.user:
+			fRequest = FriendRequest.objects.select_for_update().get(id=requestId)
+
+			if fRequest.to_user != request.user:# or fRequest.to_user.profile.blocked.filter(id=fRequest.from_user.id).exists() or fRequest.from_user.profile.blocked.filter(id=fRequest.to_user.id).exists():
 				return JsonResponse({"error": 'Unauthorized friend request'}, status=403)
-			
-			friend_request.to_user.profile.friends.add(friend_request.from_user.profile)
-			friend_request.from_user.profile.friends.add(friend_request.to_user.profile)
-			friend_request.delete()
+			fRequest.to_user.profile.friends.add(fRequest.from_user.profile)
+			fRequest.from_user.profile.friends.add(fRequest.to_user.profile)
+			fRequest.delete()
 		return JsonResponse({"success": 'Friend request accepted'}, status=200)
 
 	except FriendRequest.DoesNotExist:
@@ -92,7 +100,7 @@ def reject(request, requestId):
 		with transaction.atomic():
 			friend_request = FriendRequest.objects.select_for_update().get(id=requestId)
 
-			if friend_request.to_user != request.user:
+			if friend_request.to_user != request.user and friend_request.from_user != request.user:
 				return JsonResponse({"error": 'Unauthorized friend request'}, status=403)
 			friend_request.delete()
 			return JsonResponse({"success": 'Friend request rejected'}, status=200)
@@ -106,7 +114,7 @@ def getOnlinePlayers(request):
 		profile__is_online=True,
 	).exclude(id=request.user.id)
 	return JsonResponse({
-		str(user.id): user.username
+		str(user.id): user.profile.nickname
 		for user in connected_users
 	})
 
@@ -117,7 +125,7 @@ def getOnlineFriends(request):
 		user__profile__is_online=True
 	).exclude(user=request.user)
 	return JsonResponse({
-		str(profile.user.id): profile.user.username
+		str(profile.user.id): profile.nickname
 		for profile in connected_profiles
 	})
 
@@ -125,7 +133,7 @@ def getOnlineFriends(request):
 def getFriends(request):
 	friends = request.user.profile.friends.all()
 	return JsonResponse({
-		str(friend.user.id): friend.user.username
+		str(friend.user.id): friend.nickname
 		for friend in friends
 	})
 
@@ -133,7 +141,7 @@ def getFriends(request):
 def getBlockedUsers(request):
 	blockedUsers = request.user.profile.blocked.all()
 	return JsonResponse({
-		str(blockedUser.user.id): blockedUser.user.username
+		str(blockedUser.user.id): blockedUser.nickname
 		for blockedUser in blockedUsers
 	})
 
@@ -141,12 +149,14 @@ def getBlockedUsers(request):
 def getOnlineStrangers(request):
 	updateOnlineStatus()
 	friend_ids = request.user.profile.friends.values_list('user_id', flat=True)
+	blocked_ids = request.user.profile.blocked.values_list('user_id', flat=True)
 	connected_strangers = User.objects.filter(
 		profile__is_online=True,
-	).exclude(id__in = [request.user.id] + list(friend_ids))
+	).exclude(id__in = [request.user.id] + list(friend_ids) + list(blocked_ids))
+
 	
 	return JsonResponse({
-		str(user.id): user.username
+		str(user.id): user.profile.nickname
 		for user in connected_strangers
 	})
 
@@ -154,10 +164,14 @@ def getOnlineStrangers(request):
 @login_required
 def inFriendRequests(request):
 	Requests = FriendRequest.objects.filter(to_user=request.user)
-	return JsonResponse({
-		str(req.id): req.from_user.username
-		for req in Requests
-	})
+	invites = {}
+	for req in Requests:
+		from_user = {
+			"username": req.from_user.profile.nickname, 
+			"userId": req.from_user.id
+		}
+		invites[str(req.id)] = from_user
+	return JsonResponse(invites, status=200)
 
 def updateOnlineStatus():
 	threshold = timezone.now() - timedelta(minutes=1)
@@ -166,3 +180,27 @@ def updateOnlineStatus():
 		is_online=True, 
 		last_activity__lt=threshold
 	).update(is_online=False)
+
+@login_required
+def is_blocked(request, targetUserId):
+	return JsonResponse({'is_blocked': True if request.user.profile.blocked.filter(id=targetUserId).exists() else False
+	}, status=200)
+	
+@login_required
+def social_status(request, targetUserId):
+	if request.user.id == targetUserId:
+		return JsonResponse({'error': 'Unauthorized introspection'}, status=300)
+	inFrRequest = -1
+	if FriendRequest.objects.filter(to_user=request.user, from_user=targetUserId).exists():
+		inFrRequest = FriendRequest.objects.get(to_user=request.user, from_user=targetUserId).id
+	outFrRequest = -1
+	if FriendRequest.objects.filter(to_user=targetUserId, from_user=request.user).exists():
+		outFrRequest = FriendRequest.objects.get(to_user=targetUserId, from_user=request.user).id
+	return JsonResponse({
+		"is_blocked": True if request.user.profile.blocked.filter(id=targetUserId).exists() else False,
+		"blocked_me": True if User.objects.filter(id=targetUserId).exists() and User.objects.get(id=targetUserId).profile.blocked.filter(id=request.user.id).exists() else False,
+		"is_friend": True if request.user.profile.friends.filter(id=targetUserId).exists() else False,
+		"is_inviting": inFrRequest,
+		"was_invited": outFrRequest,
+	}, status=200 )
+

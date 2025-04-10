@@ -23,9 +23,6 @@ class Game(models.Model):
         default = uuid.uuid4
     )
     game_type = models.CharField(max_length=15)
-    def __str__(self):  # ~ofstream overload equivalent
-        player_names = ", ".join([player.username for player in self.players.all()])
-        return f"Game on {self.creation.strftime('%Y-%m-%d %H:%M')} - Players: {player_names}"
 
     def getWinner(self):
         max_score = max(self.scores.values())
@@ -34,4 +31,6 @@ class Game(models.Model):
                 return player
         return max_score
     def getScore(self, userId):
-        return self.scores[userId] if self.scores[userId] else 0
+        if userId in self.scores.keys():
+            return self.scores[userId]
+        return 0
