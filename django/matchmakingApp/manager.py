@@ -151,7 +151,7 @@ class Clash():
 		game = Game(users_id)
 		await game.start()
 		# await sync_to_async(save_game, thread_sensitive=True)(game.pong.get_result())
-		await cls._channel_layer.group_send(game.game_id, {"type": "end_message", "event": "end", "result": game.pong.get_result()})
+		await cls._channel_layer.group_send(game.game_id, {"type": "end_message", "event": "end", "result": game.pong.get_result(), "users": game.getNickname()})
 		for user_id in users_id:
 			user = Users.get(user_id)
 			if user:
