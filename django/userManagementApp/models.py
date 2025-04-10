@@ -5,6 +5,8 @@ from django.dispatch import receiver
 from django.contrib.auth.signals import user_logged_out
 from django.conf import settings
 from django.utils import timezone
+import uuid
+from uuid import uuid4
 import os
 
 

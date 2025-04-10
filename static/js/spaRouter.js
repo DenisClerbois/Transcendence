@@ -227,7 +227,8 @@ async function fetchBody() {
 
 async function auth() {
 	const response = await fetch('https://' + window.location.host + '/api/user/auth/');
-	return response.ok ? true : false;
+	const data = await response.json();
+	return data['authenticated'] ? true : false;
 }
 async function isUserInGame() {
 	const response = await fetch("/api/matchmaking/inGame");

@@ -60,11 +60,11 @@ async function insertFriendRows() {
                 ${statusBadge}
             </div>
             <div class="col-4 d-flex align-items-center">
-                <button class="btn btn-outline-primary game-btn" data-player-id="${userId}">Play</button>
-                <button class="btn btn-outline-secondary chat-btn" data-player-id="${userId}">Chat</button>
+            <button class="btn btn-outline-secondary chat-btn" data-player-id="${userId}">Chat</button>
             </div>
-        </div>`
-        html += row;
+            </div>`
+            html += row;
+            // <button class="btn btn-outline-primary game-btn" data-player-id="${userId}">Play</button>
     }
     document.querySelector(`div#friendsList`).innerHTML = html;
 
@@ -83,12 +83,12 @@ async function insertFriendRows() {
         });
     });
 
-    gameInviteButton.forEach(button => {
-        button.addEventListener('click', (event) => {
-            const userId = event.target.getAttribute('data-player-id');
-            console.log(`trying to start game with player ${userId}`);
-        });
-    });
+    // gameInviteButton.forEach(button => {
+    //     button.addEventListener('click', (event) => {
+    //         const userId = event.target.getAttribute('data-player-id');
+    //         console.log(`trying to start game with player ${userId}`);
+    //     });
+    // });
 }
 
 insertFriendRows();

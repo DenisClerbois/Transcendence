@@ -92,6 +92,8 @@ async function insertGameHistoryRows() {
     const urlId = window.routeParams.userId;
     const htmlID = document.getElementById('id');
     const data = await fetchGames(urlId);
+    if (data['warning'] != undefined)
+        return;
     let profile_id = urlId == undefined ? htmlID ? htmlID.innerHTML : -1 : urlId.toString();
     let html = "<div class='row row-cols-1 g-4 header'><p>Games History</p></div>";
     for (const gameId of Object.keys(data)) {

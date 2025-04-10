@@ -29,7 +29,8 @@ function switchDisplay() {
     document.getElementById('profile-edit-btn').hidden = !document.getElementById('profile-edit').hidden;
     document.getElementById('profilePicInput').value='';
     selectedImageFile = null;
-    //setProfilePic();
+    if (img_delete_request || img_upload_request)
+        setProfilePic(document.getElementById('id').innerHTML);
     img_delete_request = false;
     img_upload_request = false;
 }
@@ -192,7 +193,8 @@ async function insertFriendRows() {
                 const confirmRemove = confirm(`Remove friend ${userId}?`);
                 if (confirmRemove) {
                     let response = await removeFriend(userId);
-                    if (await response.ok) {
+                    console.log(response);
+                    if (await response == 200) {
                         row.remove();
                     }
                 }
@@ -201,7 +203,7 @@ async function insertFriendRows() {
                 const confirmRemove = confirm(`Block friend ${userId}?`);
                 if (confirmRemove) {
                     let response = await blockUser(userId);
-                    if (await response.ok) {
+                    if (await response == 200) {
                         row.remove();
                     }
                 }
@@ -242,7 +244,7 @@ async function insertBlockedUserRows() {
                 const confirmRemove = confirm(`Unblock user ${userId}?`);
                 if (confirmRemove) {
                     let response = await unblockUser(userId);
-                    if (response.ok) {
+                    if (await response == 200) {
                         row.remove();
                     }
                     else

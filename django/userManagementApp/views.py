@@ -46,7 +46,7 @@ def auth(request):
 	if request.user.is_authenticated:
 		return JsonResponse({'authenticated': True}, status=200)
 	else:
-		return JsonResponse({'authenticated': False}, status=401) # change this to 200 and adapt the js response
+		return JsonResponse({'authenticated': False}, status=200) # change this to 200 and adapt the js response
 
 @csrf_exempt
 def register(request):

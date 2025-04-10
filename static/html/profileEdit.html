@@ -65,6 +65,11 @@
             <input type="password" class="form-control" name="password confirmation">
             <p class="form-error-msg"></p>
           </label>
+          <div id="passwordHelpBlock" class="form-text">
+            Your password must be 
+            - at least 8 characters
+            - must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number
+        </div>
         </div>
         <button class="btn btn-primary uploadProfilePic" onclick="document.getElementById('profilePicInput').click()">Upload Profile Picture</button>
         <input class="btn btn-primary uploadProfilePic" type="file" id="profilePicInput" style="display:none">

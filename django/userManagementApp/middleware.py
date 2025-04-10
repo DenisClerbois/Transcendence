@@ -19,5 +19,5 @@ class UserActivityMiddleware:
 			
 			except PlayerProfile.DoesNotExist:
 				# Create profile if it doesn't exist
-				return response
+				return response								#LAST TOUCH add this to messaging app, see with Lorenzo
 		return response
