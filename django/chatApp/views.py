@@ -13,12 +13,12 @@ def get_room(request, targetUserId):
         from_user = request.user
         to_user_data = {
             'id': to_user.id,
-            'username': to_user.username,
+            'nickname': to_user.profile.nickname,
             'email': to_user.email,
         }
         from_user_data = {
             'id': from_user.id,
-            'username': from_user.username,
+            'nickname': from_user.profile.nickname,
             'email': from_user.email,
         }
         if not are_friends(from_user.id, to_user.id) :

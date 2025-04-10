@@ -52,7 +52,6 @@ async function fetchChatRoom(userId) {
     }
     const data = await res.json();
 	console.log(data);
-	const userName = data.username;
 	window.history.pushState({}, "", '/chat/' + userId);
 	sessionStorage.setItem("userId", JSON.stringify(userId));
 	const response = await fetch("/static/html/chatRoom.html");
@@ -60,7 +59,8 @@ async function fetchChatRoom(userId) {
 	document.querySelector("div#app").innerHTML = html;
 	runScriptsInHTML(html);
 	injectUserId();
-	document.getElementById("chat-name").innerText = userName;
+	document.getElementById("chat-name").innerText = data.user_2.nickname;
+	document.getElementById("chat-name-2").innerText = data.user_1.nickname;
 }
 
 function injectUserId() {

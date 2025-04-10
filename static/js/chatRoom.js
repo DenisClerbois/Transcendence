@@ -9,7 +9,7 @@ fetch(`/api/chat/getRoom/${userId}/`)
 	if (!res.ok) {
 		alertNonModal('Chat not found');
 		window.history.pushState({}, "", '/home');
-		fetchBody();  // reloads home
+		fetchBody();
 		return;
 	}
 
@@ -17,6 +17,8 @@ fetch(`/api/chat/getRoom/${userId}/`)
   })
   .then(data => {
 	if (data) {
+		document.getElementById("chat-name").innerText = data.user_2.nickname;
+		document.getElementById("chat-name-2").innerText = data.user_1.nickname;
 		if (window.chatSocket) {
 			window.chatSocket.close();
 		}
