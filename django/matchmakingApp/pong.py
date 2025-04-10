@@ -306,7 +306,7 @@ class Pong:
 			result[str(user)] = self._score[i]
 			i += 1
 		if self.AI:
-			result['AI'] = self._score[1]
+			result['1'] = self._score[1]
 		return result
 
 	def get_winners(self):

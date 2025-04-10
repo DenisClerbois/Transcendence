@@ -48,6 +48,8 @@ class Game:
 				user.channel_group_name.append(self.game_id)
 				user.game_stop_function = self.give_up
 				self.nicknames[str(user_id)] = user.nickname
+		if self.pong.AI:
+			self.nicknames['1']="AI"
 
 	# def getNickname(self):
 	# 	dic = {}
