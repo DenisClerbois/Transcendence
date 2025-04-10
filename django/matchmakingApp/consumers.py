@@ -75,6 +75,7 @@ class Consumer(AsyncWebsocketConsumer):
 		user = Users.get(self.id)
 		if user and (user.in_game or user.in_tournament):
 			await user.game_stop_function(self.id)
+			Users.remove(self.id)
  
 	async def _quit(self, message):
 		user = Users.get(self.id)

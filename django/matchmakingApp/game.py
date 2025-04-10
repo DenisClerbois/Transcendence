@@ -106,7 +106,7 @@ class Game:
 			"event": "end",
 			"result": "You gave up.",
 		})
-		Users.remove(looser_id)
+		# Users.remove(looser_id)
 		# await self.channel_layer.group_discard(user.channel_group_name[0], user.channel_name)
  
 	def stop(self):

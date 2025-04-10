@@ -53,3 +53,8 @@ nicknames au dessus du chat
 
 Denis:
 proteger si quelqu'un est deja en partie de pas pouvoir en rechercher une autre
+
+
+BUG 
+
+Multi : empecher le gain de point si score = -1 (abandon)
