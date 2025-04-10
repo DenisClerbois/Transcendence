@@ -66,10 +66,18 @@ class Consumer(AsyncWebsocketConsumer):
 	
 	async def _input(self, messsage):
 		dic = {'keydown': True, 'keyup': False}
-		arrow = messsage.get('key')
-		move = messsage.get('bool')
-		if arrow and move:
-			self.inputs[arrow] = dic[move]
+		arrow_topbot = {'ArrowRight': 'ArrowDown', 'ArrowLeft': 'ArrowUp'}
+
+		user = Users.get(self.id)
+		if user and user.in_game:
+			arrow_type = messsage.get('key')
+			move = messsage.get('bool')
+			if arrow_type and move:
+				if user.top_bot:
+					if arrow_type in arrow_topbot:
+						self.inputs[arrow_topbot[arrow_type]] = dic[move]
+				else:
+					self.inputs[arrow_type] = dic[move]
 
 	async def _giveUp(self, messsage):
 		user = Users.get(self.id)

@@ -15,6 +15,7 @@ class User:
 	in_game: bool = False
 	in_tournament: bool = False
 	game_stop_function: any = None
+	top_bot: bool = False
 
 
 class Users:
