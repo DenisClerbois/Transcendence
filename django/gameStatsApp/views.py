@@ -35,15 +35,13 @@ def save_game(data, game_type='classic'): #{uid_player1: score, uid_player2: sco
 		else:
 			profile.losses += 1
 		profile.save(update_fields=['wins', 'losses'])
-	return JsonResponse({'success': 'saved it perfecty'}, status=200)
-
-
-
+	return JsonResponse({'success': 'saved it perfecty'}, status=300)
 
 @login_required
-def get_games(request):
+def get_games(request, targetUserId=None):
 	try:
-		games = request.user.profile.game_history.all()
+		user = request.user if targetUserId == None else User.objects.get(id=targetUserId)
+		games = user.profile.game_history.all()
 		gamesJSON = {}
 		for game in games:
 			game_data = {
@@ -58,13 +56,16 @@ def get_games(request):
 					}
 					for player in game.players.all()
 				],
-				'winner': str(game.getWinner())
+				'winner': str(game.getWinner()),
+				'request': str(request.user.id),
 			}
 			gamesJSON[str(game.id)] = game_data
-		return JsonResponse(gamesJSON)
+		if bool(gamesJSON):
+			return JsonResponse(gamesJSON, status=200)
+		else:
+			return JsonResponse({'warning': 'no game history found'}, status=201)
 	except Exception as e:
 		return JsonResponse({'error': str(e)}, status=500)
-
 
 def save_fake_game(request):
 	data = {

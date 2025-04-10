@@ -2,7 +2,7 @@
 if (!window.user_modifiables) {
     //django/userManagementApp/views.py
     //static/html/profile.html
-    window.user_modifiables = ["username", "email", "nickname"];
+    window.user_modifiables = ["username", "email", "nickname", "password", "password confirmation"];
     window.user_constants = ["id", "wins", "losses", "ratio"];
     window.user_variables = [...window.user_modifiables, ...window.user_constants];
 }
@@ -54,13 +54,11 @@ async function setProfilePic(userId) {
             img.src = '/media/profile_pictures/default_cute.png'
         }
     }
-    // else {
-    //     console.log(response);
-    // }
 }
 
-async function fetchGames() {
-    const response = await fetch('api/gameStats/getGames/', {
+async function fetchGames(targetUserId) {
+    let url = targetUserId == undefined ? "/api/gameStats/getGames/" : `/api/gameStats/getGames/${targetUserId.toString()}/`;
+    const response = await fetch(url, {
         method: 'GET',
         headers: {
             'X-CSRFToken': getCsrfToken(),
@@ -75,7 +73,7 @@ async function fetchGames() {
     return data;
 }
 
-async function saveFakeGame() {
+async function saveFakeGame() { //dbg
     const response = await fetch('api/gameStats/saveFakeGame/', {
         method: 'GET',
         headers: {
@@ -87,23 +85,31 @@ async function saveFakeGame() {
         return;
     }
     const data = await response.json();
-    console.log(await data);
     return data;
 }
 
 async function insertGameHistoryRows() {
-    const data = await fetchGames();
-    const id = document.getElementsByClassName('display').namedItem('id').innerHTML; //degueu
-    let html = "<div class='row header'><p>Games History</p></div>";
+    const urlId = window.routeParams.userId;
+    const htmlID = document.getElementById('id');
+    const data = await fetchGames(urlId);
+    let profile_id = urlId == undefined ? htmlID ? htmlID.innerHTML : -1 : urlId.toString();
+    let html = "<div class='row row-cols-1 g-4 header'><p>Games History</p></div>";
     for (const gameId of Object.keys(data)) {
         let gameObj = data[gameId];
-        let vs_list = "";
+        let requester_id = gameObj.request;
+        let vs_list = [];
+        let score = [];
         for (let p of gameObj.players) {
-            vs_list += `vs. <a href="/profile/${p.id}">
-                                ${p.username}
-                                </a>`
+            if (p.id != requester_id) {
+                vs_list.push(`<a href="/profile/${p.id}">${p.nickname}</a>`);
+                score.push(p.score.toString());
+            }
+            else { //if p.id == id
+                vs_list.push(`<b>YOU</b>`);
+                score.push(`<b>${p.score.toString()}</b>`);
+            }
         }
-        let win_loss_badge = gameObj.winner == id
+        let win_loss_badge = gameObj.winner == profile_id
             ? '<span class="badge bg-success">WIN</span>'
             : '<span class="badge bg-secondary">LOSS</span>'
         let row = `
@@ -111,13 +117,12 @@ async function insertGameHistoryRows() {
             <div class="card stats-card loss">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title">${vs_list}</h5>
+                        <h5 class="card-title">${vs_list.join(' vs')}</h5>
                         ${win_loss_badge}
                     </div>
                     <p class="card-text">${gameObj.datetime} • ${gameObj.game_type}</p>
                     <div class="d-flex justify-content-between">
-                        <small class="text-muted">Score: 5-3</small>
-                        <small class="text-muted">Duration: 24 min</small>
+                        <small class="text-muted">Score: ${score.join('-')}</small>
                     </div>
                 </div>
             </div>
@@ -127,5 +132,149 @@ async function insertGameHistoryRows() {
     document.querySelector("div#gameHistoryList").innerHTML = html;
 }
 
+async function insertSocialButton() {
+    let userId = window.routeParams.userId
+    if (userId == undefined) //if we're looking at our own profile
+        return ;
+    userId = userId.toString();
+    const response = await fetch(`/api/social/socialStatus/${userId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+        }
+    });
+    if (!response.ok)
+        return ;
+    const data = await response.json();
+    document.querySelector("div#social_buttons").innerHTML = `<div class="col d-flex align-items-center">
+                <button class="btn btn-outline-primary friend"></button>
+                <button class="btn btn-outline-secondary btn-outline-danger foe"></button>
+            </div>`;
+    const friend_btn = document.querySelector("div#social_buttons").getElementsByClassName('friend')[0];
+    const foe_btn = document.querySelector("div#social_buttons").getElementsByClassName('foe')[0];
+    if (data['is_blocked'] == true) {
+        foe_btn.innerHTML =  "Unblock user";
+        foe_btn.classList.add('unblock-user');
+        friend_btn.style.display='None';
+    } else {
+        foe_btn.innerHTML =  "Block user";
+        foe_btn.classList.add('block-user');
+        friend_btn.style.display='';
+    }
+    if (data['blocked_me'] == true) {
+        friend_btn.style.display='None';
+    } else if (data['is_friend'] == true) {
+        friend_btn.innerHTML =  "Remove friend";
+        friend_btn.classList.add('remove-friend');
+    } else if (data['is_inviting'] != -1) {
+        friend_btn.innerHTML = "Accept friend request";
+        friend_btn.classList.add('accept-invite');
+        foe_btn.innerHTML = "Reject invite";
+        foe_btn.classList.remove('block-user')
+        foe_btn.classList.add('remove-in-request');
+    } else if (data['was_invited'] != -1) {
+        friend_btn.innerHTML = "Cancel friend invite";
+        friend_btn.classList.add('remove-out-request');
+    } else {
+        friend_btn.innerHTML =  "Send friend request";
+        friend_btn.classList.add('friend-invite');
+    }
+    let sent_invite_id = -1;
+    document.querySelector('div#social_buttons').addEventListener('click', async (event) => {
+        if (event.target.matches('.friend-invite')) {
+            sent_invite_id = await sendFriendRequest(userId);
+            if (sent_invite_id != -1) {
+                friend_btn.innerHTML = "Cancel friend invite";
+                friend_btn.classList.remove('friend-invite');
+                friend_btn.classList.add('remove-out-request');
+            }
+        }
+        else if (event.target.matches('.remove-out-request')) {
+            if (sent_invite_id != -1 || data['was_invited'] != -1) {
+                let response = await rejectFriendRequest(sent_invite_id == -1 ? data['was_invited'] : sent_invite_id);
+                if (response == 200) {
+                    friend_btn.innerHTML = 'Send friend request';
+                    friend_btn.classList.remove('remove-out-invite');
+                    friend_btn.classList.add('friend-invite');
+                }
+            }
+        }
+        else if (event.target.matches('.accept-invite')) {
+            let response = await acceptFriendRequest(data['is_inviting']);
+            if (response == 200) {
+                friend_btn.innerHTML = 'Remove friend';
+                friend_btn.classList.remove('accept-invite');
+                friend_btn.classList.add('remove-friend');
+                foe_btn.innerHTML = 'Block user';
+                foe_btn.classList.remove('remove-in-request');
+                foe_btn.classList.add('block-user');
+            }
+            else
+                console.log('Failed to accept invite');
+        }
+        else if (event.target.matches('.remove-in-request')) {
+            let response = await rejectFriendRequest(data['is_inviting']);
+            if (response == 200) {
+                friend_btn.innerHTML = 'Send friend request';
+                friend_btn.classList.remove('accept-invite');
+                friend_btn.classList.add('friend-invite');
+                foe_btn.innerHTML = 'Block user';
+                foe_btn.classList.remove('remove-in-request');
+                foe_btn.classList.add('block-user');
+            }
+        }
+        else if (event.target.matches('.remove-friend')) {
+            const confirmRemove = confirm(`Remove user from your friends list?`);
+            if (confirmRemove) {
+                let response = await removeFriend(userId);
+                if (response == 200) {
+                    friend_btn.classList.remove('remove-friend');
+                    friend_btn.classList.add('friend-invite');
+                    friend_btn.innerHTML = 'Send friend request';
+                }
+                else
+                    console.log(`Failed to remove friend`);
+            }
+        }
+        else if (event.target.matches('.unblock-user')) {
+            const confirmRemove = confirm(`Unblock user?`);
+            if (confirmRemove) {
+                let response = await unblockUser(userId);
+                if (response == 200) {
+                    foe_btn.classList.remove('unblock-user');
+                    foe_btn.classList.add('block-user');
+                    foe_btn.innerHTML = 'block user';
+                    friend_btn.classList.add('friend-invite')
+                    friend_btn.innerHTML='Send friend request';
+                    if (data["blocked_me"] == false) {
+                        friend_btn.style.display='';
+                    }
+                }
+                else
+                    console.log(`Failed to unblock user`);
+            }
+        }
+        else if (event.target.matches('.block-user')) {
+            const confirmRemove = confirm(`Block user?`);
+            if (confirmRemove) {
+                let response = await blockUser(userId);
+                if (response == 200) {
+                    foe_btn.classList.remove('block-user');
+                    foe_btn.classList.add('unblock-user');
+                    foe_btn.innerHTML = 'unblock user';
+                    friend_btn.style.display='None';
+                    friend_btn.classList.remove('remove-friend');
+                    friend_btn.classList.remove('friend-invite');
+                    friend_btn.classList.remove('remove-out-request');
+                    friend_btn.classList.remove('accept-invite');
+                }
+                else
+                    console.log(`Failed to block user`);
+            }
+        }
+    });
+}
+
 fetchProfile();
+insertSocialButton();
 insertGameHistoryRows();

@@ -11,11 +11,16 @@ async function insertFriendRequests() {
         return ;
     }
     const data = await response.json();
+
     let html = "<div class='row header'><p>Friend requests</p></div>"
+    let i = 0;
     for (const requestId of Object.keys(data)) {
+        let reqObj = data[requestId]
         let row = `<div class="row request-row g-1" data-request-id="${requestId}" data-request-sender="${data[requestId]}">
             <div class="col-8">
-                ${data[requestId]} sent you a friend request
+                <a href="/profile/${reqObj['userId']}">
+                    ${reqObj['username']}
+                </a> sent you a friend request
             </div>
             <div class="col-4 d-flex align-items-center">
                 <button class="btn btn-outline-primary accept-btn">Accept</button>
@@ -23,30 +28,32 @@ async function insertFriendRequests() {
             </div>
         </div>`
         html += row;
+        i++;
     }
-    document.querySelector("div#friendRequests").innerHTML = html;
-
-    document.querySelector('div#friendRequests').addEventListener('click', async (event) => {
-        const row = event.target.closest('.request-row');
-        const requestId = row.dataset.requestId;
-        // const senderUsername = row.dataset.requestSender;
-        
-        if (event.target.matches('.accept-btn')) {
-            let status = await acceptFriendRequest(requestId);
-            // console.log(`acceptation status=${status}`)
-            if (status == 200) {
-                event.target.closest('.request-row').remove();
+    if (i) {
+        document.querySelector("div#friendRequests").innerHTML = html;
+    
+        document.querySelector('div#friendRequests').addEventListener('click', async (event) => {
+            const row = event.target.closest('.request-row');
+            const requestId = row.dataset.requestId;
+            // const senderUsername = row.dataset.requestSender;
+            
+            if (event.target.matches('.accept-btn')) {
+                let status = await acceptFriendRequest(requestId);
+                if (status == 200) {
+                    event.target.closest('.request-row').remove();
+                }
             }
-        }
-
-        if (event.target.matches('.reject-btn')) {
-            let status = await rejectFriendRequest(requestId);
-            // console.log(`rejection status=${status}`)
-            if (status == 200) {
-                event.target.closest('.request-row').remove();
+    
+            if (event.target.matches('.reject-btn')) {
+                let status = await rejectFriendRequest(requestId);
+                if (status == 200) {
+                    event.target.closest('.request-row').remove();
+                }
             }
-        }
-    })
+        })
+
+    }
 }
 
 async function sendFriendRequest(to_user) {
@@ -56,10 +63,12 @@ async function sendFriendRequest(to_user) {
             'X-CSRFToken': getCsrfToken(),
         }
     })
-    if (!response.ok) {
+    let data = await response.json();
+    if (response.status != 200) {
         console.error('Error sending friend request');
+        return -1;
     }
-    return response.status;
+    return data['request_id'];
 }
 
 async function acceptFriendRequest(requestId) {
