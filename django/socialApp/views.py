@@ -207,3 +207,9 @@ def social_status(request, targetUserId):
 		"was_invited": outFrRequest,
 	}, status=200 )
 
+def are_friends(uID1, uID2):
+	try:
+		user1 = User.objects.get(id=uID1)
+		return user1.profile.friends.filter(id=uID2).exists()
+	except User.DoesNotExist:
+		return False

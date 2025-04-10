@@ -1,4 +1,13 @@
+Add this in your chat app or pong app to update activity time every now and then
 
+try: #necessaire parce que user n'a pas tout de suite un playerprofile
+    profile = request.user.profile
+    profile.is_online = True
+    profile.last_activity = timezone.now()
+    profile.save(update_fields=['is_online', 'last_activity'])
+
+except PlayerProfile.DoesNotExist:
+    # Create profile if it doesn't exist
 
 [BUG]
 
