@@ -66,7 +66,6 @@ async function saveProfile() {
             updatedData[key] = formField.value;
         }
     }
-    console.log(`updated data: ${JSON.stringify(updatedData)}`);
     const response = await fetch('/api/user/profileUpdate/', {
         method: 'POST',
         headers:  {
@@ -194,7 +193,6 @@ async function insertFriendRows() {
                 if (confirmRemove) {
                     let response = await removeFriend(userId);
                     if (await response.ok) {
-                        console.log(`Removed friend ${userId}`);
                         row.remove();
                     }
                 }
@@ -205,7 +203,6 @@ async function insertFriendRows() {
                     let response = await blockUser(userId);
                     if (await response.ok) {
                         row.remove();
-                        console.log(`Blocked friend ${userId}`);
                     }
                 }
             }
@@ -246,7 +243,6 @@ async function insertBlockedUserRows() {
                 if (confirmRemove) {
                     let response = await unblockUser(userId);
                     if (response.ok) {
-                        console.log(`Unblock user ${userId}`);
                         row.remove();
                     }
                     else

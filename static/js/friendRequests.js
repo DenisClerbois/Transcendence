@@ -40,7 +40,6 @@ async function insertFriendRequests() {
             
             if (event.target.matches('.accept-btn')) {
                 let status = await acceptFriendRequest(requestId);
-                // console.log(`acceptation status=${status}`)
                 if (status == 200) {
                     event.target.closest('.request-row').remove();
                 }
@@ -48,7 +47,6 @@ async function insertFriendRequests() {
     
             if (event.target.matches('.reject-btn')) {
                 let status = await rejectFriendRequest(requestId);
-                // console.log(`rejection status=${status}`)
                 if (status == 200) {
                     event.target.closest('.request-row').remove();
                 }
