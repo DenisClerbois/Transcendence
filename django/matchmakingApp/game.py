@@ -106,7 +106,8 @@ class Game:
 			"event": "end",
 			"result": "You gave up.",
 		})
-		await self.channel_layer.group_discard(user.channel_group_name[0], user.channel_name)
+		Users.remove(looser_id)
+		# await self.channel_layer.group_discard(user.channel_group_name[0], user.channel_name)
  
 	def stop(self):
 		self.is_running = False

@@ -39,12 +39,16 @@ class Consumer(AsyncWebsocketConsumer):
 				self.close()
 			match action:
 				case 'classique':
+					self.manager = Match
 					await Match.append(self.id, self)
 				case 'tournament':
+					self.manager = Tournament
 					await Tournament.append(self.id, self)
 				case 'multiplayer':
+					self.manager = Multiplayer
 					await Multiplayer.append(self.id, self)
 				case 'ia':
+					self.manager = MatchVsIA
 					await MatchVsIA.append(self.id, self)
 				case 'clash':
 					await Clash.append(self.id, param, self)
@@ -69,26 +73,15 @@ class Consumer(AsyncWebsocketConsumer):
 
 	async def _giveUp(self, messsage):
 		user = Users.get(self.id)
-		if user and user.in_game:
+		if user and (user.in_game or user.in_tournament):
 			await user.game_stop_function(self.id)
-		elif user and user.in_tournament and not user.in_game:
-			await user.game_stop_function(self.id)
-			Users.remove(self.id)
-
-	# async def _disconnect(self, messsage):
-	# 	await Users.disconnect(self.id)
-	# 	await self.close()
-	
-	# async def _quitQueue(self, message):
-	# 	Users.remove(self.id)
-	# 	await self.close()
  
 	async def _quit(self, message):
 		user = Users.get(self.id)
 		if user and (user.in_game or user.in_tournament):
 			await Users.disconnect(self.id)
-		else:
-			Users.remove(self.id)
+		elif self.manager:
+			self.manager.rmv_from_queue(self.id)
 		await self.close()
 
 	async def receive(self, text_data):
