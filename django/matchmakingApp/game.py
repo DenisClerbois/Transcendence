@@ -39,6 +39,7 @@ class Game:
 			self.nb_player = 2
   
 	def set_users(self):
+		i = 0
 		constant = self.pong.get_game_constant()
 		for user_id in self.users:
 			user = Users.get(user_id)
@@ -48,6 +49,9 @@ class Game:
 				user.channel_group_name.append(self.game_id)
 				user.game_stop_function = self.give_up
 				self.nicknames[str(user_id)] = user.nickname
+				if i >= 2:
+					user.top_bot = True
+			i += 1
 		if self.pong.AI:
 			self.nicknames['1']="AI"
 

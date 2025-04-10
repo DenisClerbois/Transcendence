@@ -2,7 +2,8 @@
 
 let socket = null;
 let isKeyDown = false;
-let keys = ['ArrowUp', 'ArrowDown'];
+let keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+let keys_input = {ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false};
 let lastGameState = null;
 let currentGameState = null;
 let lastUpdateTime = performance.now();
@@ -173,16 +174,19 @@ function handleQuit(event){
 function handleUnload(event) {
 	socket.send(JSON.stringify({type: 'quit'}));
 }
+
 function handleKeyDown(event) {
-	if (!isKeyDown && keys.includes(event.key)){
+	if (keys.includes(event.key) && !keys_input[event.key]){
+		console.log(event.key)
 		socket.send(JSON.stringify({type: 'input', bool: event.type, key: event.key}));
-		isKeyDown = true;
+		keys_input[event.key] = true;
 	}
 }
 function handleKeyUp(event) {
 	if (keys.includes(event.key)) {
+		console.log(event.key);
 		socket.send(JSON.stringify({type: 'input', bool: event.type, key: event.key}));
-		isKeyDown = false;
+		keys_input[event.key] = false;
 	}
 }
 
