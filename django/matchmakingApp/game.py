@@ -13,6 +13,7 @@ class Game:
 		self.game_id = uuid.uuid4().hex
 		self.is_running = True
 		self.pong = None
+		self.nicknames = {}
 
 	async def countdown(self):
 		await asyncio.sleep(1)
@@ -46,15 +47,16 @@ class Game:
 				user.in_game = True
 				user.channel_group_name.append(self.game_id)
 				user.game_stop_function = self.give_up
+				self.nicknames[str(user_id)] = user.nickname
 
-	def getNickname(self):
-		dic = {}
-		for user_id in self.users:
-			user = Users.get(user_id)
-			dic[str(user_id)] = user.nickname
-		if self.pong.AI:
-			dic['AI']="AI"
-		return dic
+	# def getNickname(self):
+	# 	dic = {}
+	# 	for user_id in self.users:
+	# 		user = Users.get(user_id)
+	# 		dic[str(user_id)] = user.nickname
+	# 	if self.pong.AI:
+	# 		dic['AI']="AI"
+	# 	return dic
 
 	async def start(self):
 		await self.set_pong()

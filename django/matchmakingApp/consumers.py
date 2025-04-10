@@ -9,7 +9,7 @@ class Consumer(AsyncWebsocketConsumer):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.nickanme = None
+		self.nickname = None
 		self.inputs = {'ArrowDown': False, 'ArrowUp': False}
 		self.manager = None
 		self.id = None
