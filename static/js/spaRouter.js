@@ -323,7 +323,18 @@ async function updateContent() {
  * BACK && FORWARD BUTTON
  * HAS TO BE PROTECTED FOR COMING BACK AFTER CONNEXION !!!! ERROR
  */
-window.onpopstate = fetchBody;
+async function onpopstate_handler(){
+	const game = await isUserInGame();
+	const tournament = await isUserInTournament();
+
+	if (game || tournament){
+		socket.send(JSON.stringify({type: 'give_up'}));
+	}
+	fetchBody();
+}
+
+
+window.onpopstate = onpopstate_handler;
 /**
  * EACH TIME THE SCRIPT IS LOADED (WHEN PRESSING TAB IN THE URL), EXECUTE UPDATECONTENT FUNCTION
  */
