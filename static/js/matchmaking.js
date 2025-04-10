@@ -47,7 +47,7 @@ function end(data_json) {
 	let highscore = -1;
 	let winner = null;
 	Object.entries(data_json['result']).forEach(([key, value]) => {
-		if (value > highscore){
+				if (value > highscore){
 			highscore = value;
 			winner = key;
 		}

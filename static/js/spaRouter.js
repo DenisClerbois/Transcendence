@@ -327,9 +327,16 @@ async function onpopstate_handler(){
 	const game = await isUserInGame();
 	const tournament = await isUserInTournament();
 
+	const pathInfo = getRouteMatch(window.location.pathname);
 	if (game || tournament){
-		socket.send(JSON.stringify({type: 'give_up'}));
+		if (socket)
+			socket.send(JSON.stringify({type: 'give_up'}));
 	}
+	if (Object.keys(routes_game_required).includes(pathInfo.route)) {
+		alertNonModal('search a game first');
+		window.history.pushState({}, "", '/home');
+	}
+
 	fetchBody();
 }
 

@@ -117,9 +117,11 @@ def profileUpdate(request):
 					user.email = arg
 				case "nickname":
 					profile.nickname = arg
+				case "password":
+					user.set_password(arg)
 				case _:
 					print("profileUpdate() data anomaly: key={}, arg={}".format(key, arg))
-		user.save(update_fields=['username', 'email'])
+		user.save(update_fields=['username', 'email', 'password'])
 		profile.save(update_fields=['nickname'])
 		return JsonResponse(data, status=200)
 	return JsonResponse({'error': 'Invalid request'}, status=400)
