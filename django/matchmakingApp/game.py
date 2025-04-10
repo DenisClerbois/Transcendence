@@ -51,14 +51,8 @@ class Game:
 		if self.pong.AI:
 			self.nicknames['1']="AI"
 
-	# def getNickname(self):
-	# 	dic = {}
-	# 	for user_id in self.users:
-	# 		user = Users.get(user_id)
-	# 		dic[str(user_id)] = user.nickname
-	# 	if self.pong.AI:
-	# 		dic['AI']="AI"
-	# 	return dic
+	def getNickname(self):
+		return self.nicknames
 
 	async def start(self):
 		await self.set_pong()
