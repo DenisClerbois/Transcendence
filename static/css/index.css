@@ -117,3 +117,12 @@ dialog {
     font-weight: bold;
     color: #333;
 }
+
+.UI2 > div {
+    border: 2px solid #d3d3d3; /* Bordure grise claire */
+    background-color: #f9f9f9; /* Fond légèrement coloré */
+    border-radius: 8px; /* Coins arrondis */
+    padding: 15px; /* Espacement interne */
+    margin: 10px 0; /* Espacement entre les div */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre subtile */
+}
