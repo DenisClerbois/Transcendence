@@ -51,11 +51,12 @@ class Game:
 		dic = {}
 		for user_id in self.users:
 			user = Users.get(user_id)
-			dic[str(user_id)] = user.nickname
+			if user:
+				dic[str(user_id)] = user.nickname
 		if self.pong.AI:
 			dic['AI']="AI"
 		return dic
-
+ 
 	async def start(self):
 		await self.set_pong()
 		self.set_users()
