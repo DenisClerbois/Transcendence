@@ -26,7 +26,7 @@ class GameData:
 # GLOBALE
 FPS = 1 / 60
 SPEED = 300 # px/s
-WIN_CON = 2
+WIN_CON = 11
 
 # __________________
 #|        P3        |
@@ -257,20 +257,29 @@ class Pong:
 	# with the implementation of a 4 player game instead of watching where the ball ended to score, it watches who send it and set the looser as the new sender
 	def scoreAndResetBall(self):
 		const = self.game_const
-		self._score[self.launcher] += 1
+		if self._score[self.launcher] >= 0:
+			self._score[self.launcher] += 1
 		"""need to think about the pause/delay state in between the score and the service"""
 		self._speed = const.initSpeed
 		if (self._ball[0] <= 0 or self._ball[0] >= const.board.x):
 			self._vector[0] *= -1  #send the service to the opposite way with the same impulse as before score (maybe rand val or fix val)
 			if self._ball[0] <= 0:
+				if self.launcher == 0:
+					self._score[self.launcher] = max(self._score[self.launcher] - 2, 0)
 				self.launcher = 0
 			else:
+				if self.launcher == 1:
+					self._score[self.launcher] = max(self._score[self.launcher] - 2, 0)
 				self.launcher = 1
 		elif (self._ball[1] <= 0 or self._ball[1] >= const.board.y):
 			self._vector[1] *= -1  #send the service to the opposite way with the same impulse as before score (maybe rand val or fix val)
 			if self._ball[1] <= 0:
+				if self.launcher == 2:
+					self._score[self.launcher] = max(self._score[self.launcher] - 2, 0)
 				self.launcher = 2
 			else:
+				if self.launcher == 3:
+					self._score[self.launcher] = max(self._score[self.launcher] - 2, 0)
 				self.launcher = 3
 		self._ball = [const.board.x / 2, const.board.y / 2]
 		self.checkEndGame()
