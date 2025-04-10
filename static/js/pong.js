@@ -147,7 +147,8 @@ function setNames(names){
 
 function adjustPlayerPositions() {
     let canvas = document.getElementById("pong");
-
+	if (window.location.pathname != "/pong")
+		return;
     if (!canvas)
         return;
 
