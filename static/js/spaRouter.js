@@ -10,6 +10,8 @@ const routes_auth_required = {
 	"/waiting_room":"/static/html/waiting_room.html",
 	"/chatRoom": "/static/html/chatRoom.html",
 	"/chat/:userId": "/static/html/chatRoom.html",
+	"/tournament": "/static/html/tournament.html",
+
 }
 const routes_free_access = {
 	"/":"/static/html/login.html",
@@ -32,6 +34,15 @@ function route(event) {
 	window.history.pushState({}, "", event.target.href);
 	fetchBody();
 }
+
+document.body.addEventListener('click', function(event) {
+	if (event.target){
+		if (event.target.matches('button#local-tournament')){
+			window.history.pushState({}, "", '/tournament');
+			fetchBody();
+		}
+	}
+});
 
 async function fetchChatRoom(userId) {
 	const res = await fetch(`/api/chat/getRoom/${userId}/`);
@@ -279,7 +290,7 @@ async function updateContent() {
 			window.history.pushState({}, "", '/');
 		}
 	}
-	fetchBody();
+	await fetchBody();
 }
 
 

@@ -1,69 +1,33 @@
 
 
-
-document.body.addEventListener('click', function(event) {
-	if (event.target){
-		if (event.target.matches('button#local-tournament')){
-			tournament_manager();
-		}
-	}
-});
-
-function tournament_manager() {
-	let users = getPlayerNames();
+function match(p1, p2){
+	return (p1);
 }
 
-function getPlayerNames() {
-	let players = [];
-	while (players.length < 4) {
-		let name = prompt(`Entrez le nom du joueur ${players.length + 1} (non vide) :`);
-		if (name && name.trim() !== "")
-			players.push(name.trim());
-		else
-			alert("Le nom ne peut pas être vide. Veuillez réessayer.");
+function tournament_manager(users){
+	while (users.length > 1){
+		winners = [];
+		while (users.length)
+			winners.push(match(users.pop(), users.pop()));
+		users = winners;
 	}
-	return players;
+	console.log(users);
 }
 
+document.querySelector('button#Playername-Submit').onclick = function(e) {
+	e.preventDefault();
 
-// document.addEventListener("DOMContentLoaded", () => {
-// 	const getPlayerNames = () => {
-// 		let players = [];
-// 		while (players.length < 4) {
-// 			let name = prompt(`Entrez le nom du joueur ${players.length + 1} (non vide) :`);
-// 			if (name && name.trim() !== "") {
-// 				players.push(name.trim());
-// 			} else {
-// 				alert("Le nom ne peut pas être vide. Veuillez réessayer.");
-// 			}
-// 		}
-// 		return players;
-// 	};
+	const form = document.querySelector('form#playerForm');
+	const formDataArray = Array.from(new FormData(form));
+	const valuesArray = formDataArray.map(([key, value]) => value);
+	const playerValues = valuesArray.map(value => value.trim());
 
-// 	const organizeMatches = (players) => {
-// 		let matches = [];
-// 		for (let i = 0; i < players.length; i += 2) {
-// 			matches.push([players[i], players[i + 1]]);
-// 		}
-// 		return matches;
-// 	};
+	const uniqueValues = new Set(playerValues);
 
-// 	const displayMatches = (matches) => {
-// 		const container = document.createElement("div");
-// 		container.style.fontFamily = "Arial, sans-serif";
-// 		container.style.margin = "20px";
-
-// 		matches.forEach((match, index) => {
-// 			const matchDiv = document.createElement("div");
-// 			matchDiv.textContent = `Match ${index + 1} : ${match[0]} vs ${match[1]}`;
-// 			matchDiv.style.marginBottom = "10px";
-// 			container.appendChild(matchDiv);
-// 		});
-
-// 		document.body.appendChild(container);
-// 	};
-
-// 	const players = getPlayerNames();
-// 	const matches = organizeMatches(players);
-// 	displayMatches(matches);
-// });
+    if (playerValues.includes(""))
+		alertNonModal('Tous les champs doivent être remplis !');
+    else if (uniqueValues.size !== playerValues.length)
+        alertNonModal("Les noms doivent être uniques !");
+    else
+        tournament_manager(playerValues);
+};
