@@ -39,33 +39,33 @@ def save_game(data, game_type='classic'): #{uid_player1: score, uid_player2: sco
 
 @login_required
 def get_games(request, targetUserId=None):
-	# try:
-	user = request.user if targetUserId == None else User.objects.get(id=targetUserId)
-	games = user.profile.game_history.all()
-	gamesJSON = {}
-	for game in games:
-		game_data = {
-			'datetime': game.creation.strftime('%d %B %Y - %H:%M'),
-			'game_type': game.game_type,
-			'players': [
-				{
-					'id': str(player.id),
-					'username': str(player.user.username),
-					'nickname': str(player.nickname),
-					'score': str(game.getScore(str(player.id)))
-				}
-				for player in game.players.all()
-			],
-			'winner': str(game.getWinner()),
-			'request': str(request.user.id),
-		}
-		gamesJSON[str(game.id)] = game_data
-	if bool(gamesJSON):
-		return JsonResponse(gamesJSON, status=201)
-	else:
-		return JsonResponse({'warning': 'no game history found'}, status=300)
-	# except Exception as e:
-	# 	return JsonResponse({'error': str(e)}, status=500)
+	try:
+		user = request.user if targetUserId == None else User.objects.get(id=targetUserId)
+		games = user.profile.game_history.all()
+		gamesJSON = {}
+		for game in games:
+			game_data = {
+				'datetime': game.creation.strftime('%d %B %Y - %H:%M'),
+				'game_type': game.game_type,
+				'players': [
+					{
+						'id': str(player.id),
+						'username': str(player.user.username),
+						'nickname': str(player.nickname),
+						'score': str(game.getScore(str(player.id)))
+					}
+					for player in game.players.all()
+				],
+				'winner': str(game.getWinner()),
+				'request': str(request.user.id),
+			}
+			gamesJSON[str(game.id)] = game_data
+		if bool(gamesJSON):
+			return JsonResponse(gamesJSON, status=200)
+		else:
+			return JsonResponse({'warning': 'no game history found'}, status=201)
+	except Exception as e:
+		return JsonResponse({'error': str(e)}, status=500)
 
 def save_fake_game(request):
 	data = {

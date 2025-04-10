@@ -19,7 +19,7 @@ User = get_user_model()
 username = "$DJANGO_SUPERUSER_USERNAME"
 email = "$DJANGO_SUPERUSER_EMAIL"
 password = "$DJANGO_SUPERUSER_PASSWORD"
-user2 = User.objects.create_user(username='newuser', password='newuser')
+user2 = User.objects.create_user(username='AI', password='Xamagut%86f6dq#d')
 user2.email = 'newuser@example.com'
 user2.save()
 channel_layer = channels.layers.get_channel_layer()
