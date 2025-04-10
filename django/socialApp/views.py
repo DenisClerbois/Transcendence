@@ -150,9 +150,12 @@ def getOnlineStrangers(request):
 	updateOnlineStatus()
 	friend_ids = request.user.profile.friends.values_list('user_id', flat=True)
 	blocked_ids = request.user.profile.blocked.values_list('user_id', flat=True)
+	# blocked_by_ids = User.objects.filter(
+    #     profile__blocked=request.user.profile	#dbg
+    # ).values_list('id', flat=True)
 	connected_strangers = User.objects.filter(
 		profile__is_online=True,
-	).exclude(id__in = [request.user.id] + list(friend_ids) + list(blocked_ids))
+	).exclude(id__in = [request.user.id] + list(friend_ids) + list(blocked_ids))# + list(blocked_by_ids))
 
 	
 	return JsonResponse({
