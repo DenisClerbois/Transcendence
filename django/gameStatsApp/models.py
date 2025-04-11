@@ -7,11 +7,8 @@ import uuid
 #data instance for each played game, whatever the number of players
 class Game(models.Model):
     creation = models.DateTimeField(
-        auto_now_add=True #auto timestamp upon model instance creation
+        # auto_now_add=True #auto timestamp upon model instance creation
     )
-    # last_edit = models.DateTimeField(
-    #     auto_now = True #auto timestamp upon game.save() call. Why it can be useful: auto save game end time
-    # )
     players = models.ManyToManyField(
         'userManagementApp.PlayerProfile', #no need to import PlayerProfile at the top of model.py
         related_name='game_history' #no need to add game_history in PlayerProfile, it's automatic
@@ -19,7 +16,7 @@ class Game(models.Model):
     scores = models.JSONField(default=None) #{uid_player1: score, uid_player2: score}
     game_id = models.UUIDField(
         unique=True,
-        editable=False, #Unique as fuck
+        editable=False,
         default = uuid.uuid4
     )
     game_type = models.CharField(max_length=15)

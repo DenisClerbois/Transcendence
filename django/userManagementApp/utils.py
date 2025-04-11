@@ -20,7 +20,7 @@ def emailInDB(email):
 	return User.objects.filter(email=email).exists()
 
 def emailErrFind(email):
-	if not email or not goodEmailFormat(email): #chiant pendant le developpement
+	if not email:# or not goodEmailFormat(email): #chiant pendant le developpement
 		return 'invalid format'
 	elif emailInDB(email):
 		return 'already in use'
@@ -48,7 +48,7 @@ def duplicateErrFind(target, string, stringConf):
 	return None
 
 def passwordErrFind(password):
-	if not password or not goodPasswordFormat(password): #chiant pendant le developpement
+	if not password:# or not goodPasswordFormat(password): #chiant pendant le developpement
 		return 'invalid format'
 	return None 
 

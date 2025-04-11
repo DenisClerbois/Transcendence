@@ -159,33 +159,46 @@ function preDelete() {
 async function insertFriendRows() {
     const friends = await fetchFriends();
     const onlineFriends = await fetchOnlineFriends();
-    let html = "<div class='row header'><p>Friends</p></div>"
+
+    let containerHTML = `
+    <div class='row header mb-2'>
+        <p class="mb-0">Friends</p>
+    </div>
+    <div class="overflow-auto bg-light rounded p-2 mb-4" style="max-height: 400px;">
+        <div id="friendsListContent">
+            <!-- Friends cards will be inserted here -->
+        </div>
+    </div>`;
+
+    let listHTML = ""
     let i = 0;
     for (const userId of Object.keys(await friends)) {
         let statusBadge = await onlineFriends[userId]
             ? '<span class="badge bg-success ms-2">Online</span>'
             : '<span class="badge bg-secondary ms-2">Offline</span>';
         let row = `
-        <div class="row friend-row g-1" data-user-id="${userId}" data-user-name="${friends[userId]}">
+        <div class="row friend-row g-1 mb-2 p-2 border-bottom" data-user-id="${userId}" data-user-name="${friends[userId]}">
             <div class="col-7 d-flex align-items-center">
                 <a href="/profile/${userId}">
                     Player ${userId}#${friends[userId]}
                 </a>
                 ${statusBadge}
             </div>
-             <div class="col-5 d-flex align-items-center">
-                <button class="btn btn-outline-primary remove-friend">Remove friend</button>
-                <button class="btn btn-outline-secondary btn-outline-danger block-friend">Block user</button>
+             <div class="col-md-5 d-flex align-items-center gap-1">
+                <button class="btn btn-sm btn-outline-primary remove-friend">Remove friend</button>
+                <button class="btn btn-sm btn-outline-secondary btn-outline-danger block-friend">Block user</button>
             </div>
         </div>`
-        html += row;
+        listHTML += row;
         i++;
     }
+    document.querySelector(`div#profileFriendsList`).innerHTML = containerHTML;
+    document.querySelector(`div#friendsListContent`).innerHTML = listHTML;
     if (i) {
-        document.querySelector(`div#profileFriendsList`).innerHTML = html;
-    
+
         document.querySelector('div#profileFriendsList').addEventListener('click', async (event) => {
             const row = event.target.closest('.friend-row');
+            if (!row) return;
             const userId = row.getAttribute('data-user-id');
             const userName = row.getAttribute('data-user-name');
             
@@ -208,14 +221,31 @@ async function insertFriendRows() {
                     }
                 }
             }
+            if (document.querySelectorAll('.friend-row').length === 0) {
+                document.getElementById('friendsListContent').innerHTML = '<div class="text-center py-3">No friends added yet.</div>';
+            }
         });
+    } else {
+        document.getElementById('friendsListContent').innerHTML = '<div class="text-center py-3">No friends added yet.</div>';
     }
 }
 
 //TEMPORARY?
 async function insertBlockedUserRows() {
     const foes = await fetchBlockedUsers();
-    let html = "<div class='row header'><p>Blocked Users</p></div>"
+
+    let containerHTML = `
+    <div class='row header mb-2'>
+        <p class="mb-0">Blocked users</p>
+    </div>
+    <div class="overflow-auto bg-light rounded p-2 mb-4" style="max-height: 400px;">
+        <div id="blockedListContent">
+            <!-- Blocked cards will be inserted here -->
+        </div>
+    </div>`;
+
+
+    let listHTML = ""
     let i = 0;
     for (const userId of Object.keys(await foes)) {
         let row = `
@@ -229,11 +259,12 @@ async function insertBlockedUserRows() {
                 <button class="btn btn-outline-secondary btn-outline-danger unblock-user">Unblock 🐦‍🔥</button>
             </div>
         </div>`
-        html += row;
+        listHTML += row;
         i++;
     }
+    document.querySelector(`div#blockedUsersList`).innerHTML = containerHTML;
+    document.querySelector(`div#blockedListContent`).innerHTML = listHTML;
     if (i) {
-        document.querySelector(`div#blockedUsersList`).innerHTML = html;
     
         document.querySelector('div#blockedUsersList').addEventListener('click', async (event) => {
             const row = event.target.closest('.blocked-user-row');
@@ -251,7 +282,12 @@ async function insertBlockedUserRows() {
                         console.log(`Failed to unblock user ${userId}`);
                 }
             }
+            if (document.querySelectorAll('.blocked-user-row').length === 0) {
+                document.getElementById('blockedListContent').innerHTML = '<div class="text-center py-3">No blocked users yet.</div>';
+            }
         });
+    } else {
+        document.getElementById('blockedListContent').innerHTML = '<div class="text-center py-3">No blocked users yet.</div>';
     }
 }
 
