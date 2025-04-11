@@ -127,19 +127,19 @@ function setNames(names){
 		switch (i){
 			case 0:
 				if (names[i])
-					document.querySelector("#player-left .player-name").innerText = names[i];
+					document.querySelector(".player-left .player-name").innerText = names[i];
 				break;
 			case 1:
 				if (names[i])
-					document.querySelector("#player-right .player-name").innerText = names[i];
+					document.querySelector(".player-right .player-name").innerText = names[i];
 				break;
 			case 2:
 				if (names[i])
-					document.querySelector("#player-top .player-name").innerText = names[i];
+					document.querySelector(".player-top .player-name").innerText = names[i];
 				break;
 			case 3:
 				if (names[i])
-					document.querySelector("#player-bottom .player-name").innerText = names[i];
+					document.querySelector(".player-bottom .player-name").innerText = names[i];
 				break;
 		}
 	}
@@ -147,7 +147,8 @@ function setNames(names){
 
 function adjustPlayerPositions() {
     let canvas = document.getElementById("pong");
-
+	if (window.location.pathname != "/pong")
+		return;
     if (!canvas)
         return;
 

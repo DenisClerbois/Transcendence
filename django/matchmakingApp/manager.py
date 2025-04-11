@@ -41,7 +41,6 @@ class Match():
 	async def _start(cls, users_id: list):
 		game = Game(users_id)
 		await game.start()
-		print(game.pong.get_result())
 		await sync_to_async(save_game, thread_sensitive=True)(game.pong.get_result(), cls._game_type)
 		await cls._channel_layer.group_send(game.game_id, {"type": "end_message", "event": "end", "result": game.pong.get_result(), "users": game.nicknames})
 		for user_id in users_id:

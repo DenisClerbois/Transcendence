@@ -45,6 +45,21 @@ dialog {
     display: none;
 }
 
+.chat-names {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    box-sizing: border-box;
+    font-size: 1rem;
+    font-weight: bold;
+  }
+  
+#chat-name-2 {
+    color: #034a96;
+  }
+
 #chat-log {
     display: flex;
     flex-direction: column;
@@ -109,13 +124,6 @@ dialog {
 
 .button:hover {
     background: #0056b3;
-}
-
-#chat-name {
-    margin-top: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
 }
 
 .UI2 > div {

@@ -10,6 +10,9 @@ from asgiref.sync import sync_to_async
 import json
 from .models import PrivateMessage
 
+from channels.db import database_sync_to_async # type: ignore
+from django.utils import timezone
+
 from .challenge import Challenge, Data
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -19,6 +22,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		if self.sender.is_anonymous:
 			await self.close()
 			return
+		await self.update_activity(self.sender)
 		self.receiver_id = self.scope["url_route"]["kwargs"]["receiver_id"]
 		self.receiver = await self.get_user(self.receiver_id)
 
@@ -48,7 +52,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	async def disconnect(self, close_code):
 		await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
+	@database_sync_to_async
+	def update_activity(self, user):
+		profile = user.profile
+		profile.is_online = True
+		profile.last_activity = timezone.now()
+		profile.save(update_fields=['is_online', 'last_activity'])
+
 	async def receive(self, text_data):
+		await self.update_activity(self.sender)
 		jason = json.loads(text_data)
 		if jason.get('type') == 'challenge':
 			match jason.get('action'):

@@ -238,7 +238,6 @@ class Pong:
 
 	def OutOfBound(self):
 		board = self.game_const.board
-		paddle = self.game_const.paddle
 		if self._ball[0] <= 0 or self._ball[0] >= board.x - 0:
 			return True
 		if self._ball[1] <= 0 or self._ball[1] >= board.y - 0:

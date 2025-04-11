@@ -3,7 +3,11 @@ import json
 
 from .manager import Match, Tournament, Multiplayer, MatchVsIA, Clash
 from .users import Users
+# from userManagementApp.models import PlayerProfile
+# from django.contrib.auth.models import User
+from django.utils import timezone
 from channels.db import database_sync_to_async # type: ignore
+# from asgiref.sync import sync_to_async
 
 class Consumer(AsyncWebsocketConsumer):
 
@@ -20,19 +24,29 @@ class Consumer(AsyncWebsocketConsumer):
 			# "quit": self._quitQueue,
 			"quit": self._quit,
 		}
+		self.user = None
 
 	@database_sync_to_async
 	def get_user_nickname(self, user):
 		return user.profile.nickname
 
+	@database_sync_to_async
+	def update_activity(self, user):
+		profile = user.profile
+		profile.is_online = True
+		profile.last_activity = timezone.now()
+		profile.save(update_fields=['is_online', 'last_activity'])
+
 	async def connect(self):
 		await self.accept()
-		user = self.scope['user']
-		self.id = user.id
+		# profile = self.scope['profile']
+		self.user = self.scope['user']
+		await self.update_activity(self.user)
+		self.id = self.user.id
 		if Users.get(self.id):
 			await Users.reconnect(self.id, self)
 		else:
-			self.nickname = await self.get_user_nickname(user)
+			self.nickname = await self.get_user_nickname(self.user)
 			action = self.scope['url_route']['kwargs']['action']
 			param = self.scope['url_route']['kwargs'].get('param')
 			if param and action != 'clash':
@@ -94,6 +108,7 @@ class Consumer(AsyncWebsocketConsumer):
 		await self.close()
 
 	async def receive(self, text_data):
+		await self.update_activity(self.user)
 		data = json.loads(text_data)
 		message_type = data.get('type')
 		action = self._actions.get(message_type)

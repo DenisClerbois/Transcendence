@@ -1,17 +1,21 @@
 
 
 function match(p1, p2){
+	setLocalPong(p1, p2);
+	if (localData.score[0] < localData.score[1])
+		p1 = p2;
 	return (p1);
 }
 
-function tournament_manager(users){
+async function tournament_manager(users){
 	while (users.length > 1){
 		winners = [];
 		while (users.length)
 			winners.push(match(users.pop(), users.pop()));
 		users = winners;
 	}
-	console.log(users);
+	window.history.pushState({}, "", '/home');
+	await fetchBody();
 }
 
 document.querySelector('button#Playername-Submit').onclick = function(e) {
