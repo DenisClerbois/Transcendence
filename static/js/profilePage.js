@@ -95,44 +95,69 @@ async function insertGameHistoryRows() {
     if (data['warning'] != undefined)
         return;
     let profile_id = urlId == undefined ? htmlID ? htmlID.innerHTML : -1 : urlId.toString();
-    let html = "<div class='row row-cols-1 g-4 header'><p>Games History</p></div>";
-    for (const gameId of Object.keys(data)) {
-        let gameObj = data[gameId];
-        let requester_id = gameObj.request;
-        let vs_list = [];
-        let score = [];
-        for (let p of gameObj.players) {
-            if (p.id != requester_id) {
-                vs_list.push(`<a href="/profile/${p.id}">${p.nickname}</a>`);
-                score.push(p.score.toString());
-            }
-            else { //if p.id == id
-                vs_list.push(`<b>YOU</b>`);
-                score.push(`<b>${p.score.toString()}</b>`);
-            }
+
+    let containerHTML = `
+    <div class='row header mb-2'>
+        <p class="mb-0">Games History</p>
+    </div>
+    <div class="overflow-auto bg-light rounded p-2 mb-4" style="max-height: 400px;">
+        <div id="gameHistoryContent">
+            <!-- Game cards will be inserted here -->
+        </div>
+    </div>`;
+
+    document.querySelector("div#gameHistoryList").innerHTML = containerHTML;
+
+    //turn json to array of gameObj, gameId becoming a parameter
+    let gameEntries = Object.entries(data).map(([gameId, gameObj]) => {
+        return { gameId, ...gameObj };
+    });
+    gameEntries.sort((a, b) => {
+    const idA = parseInt(a.gameId);
+    const idB = parseInt(b.gameId);
+    return idB - idA;
+    });
+      
+      
+    let historyHTML = "";
+    for (const gameEntry of gameEntries) {
+    const gameObj = gameEntry;
+    let requester_id = gameObj.request;
+    let vs_list = [];
+    let score = [];
+    for (let p of gameObj.players) {
+        if (p.id != requester_id) {
+            vs_list.push(`<a href="/profile/${p.id}">${p.nickname}</a>`);
+            score.push(p.score.toString());
         }
-        let win_loss_badge = gameObj.winner == profile_id
-            ? '<span class="badge bg-success">WIN</span>'
-            : '<span class="badge bg-secondary">LOSS</span>'
-        let row = `
-        <div class="col">
-            <div class="card stats-card loss">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title">${vs_list.join(' vs')}</h5>
-                        ${win_loss_badge}
-                    </div>
-                    <p class="card-text">${gameObj.datetime} • ${gameObj.game_type}</p>
-                    <div class="d-flex justify-content-between">
-                        <small class="text-muted">Score: ${score.join('-')}</small>
-                    </div>
+        else { //if p.id == id
+            vs_list.push(`<b>YOU</b>`);
+            score.push(`<b>${p.score.toString()}</b>`);
+        }
+    }
+    let win_loss_badge = gameObj.winner == profile_id
+        ? '<span class="badge bg-success">WIN</span>'
+        : '<span class="badge bg-secondary">LOSS</span>'
+    let row = `
+    <div class="col mb-2">
+        <div class="card stats-card ${gameObj.winner == profile_id ? 'win' : 'loss'}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">${vs_list.join(' vs')}</h5>
+                    ${win_loss_badge}
+                </div>
+                <p class="card-text">${gameObj.datetime} • ${gameObj.game_type}</p>
+                <div class="d-flex justify-content-between">
+                    <small class="text-muted">Score: ${score.join('-')}</small>
                 </div>
             </div>
-        </div>`
-        html += row;
+        </div>
+    </div>`
+    historyHTML += row;
     }
-    document.querySelector("div#gameHistoryList").innerHTML = html;
+    document.querySelector("div#gameHistoryContent").innerHTML = historyHTML;
 }
+
 
 async function insertSocialButton() {
     let userId = window.routeParams.userId

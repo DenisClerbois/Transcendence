@@ -23,7 +23,7 @@ until pg_isready -U postgres; do
   sleep 1
 done
 
-psql -c "SET timezone = 'UTC';"
+psql -c "SET timezone = 'Europe/Paris';"
 
 # Create the database if it doesn't exist
 echo "Creating database $DB..."
