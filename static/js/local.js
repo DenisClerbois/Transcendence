@@ -1,7 +1,8 @@
 
 
-function match(p1, p2){
-	setLocalPong(p1, p2);
+async function match(p1, p2){
+	await setLocalPong(p1, p2);
+	console.log("coucou2");
 	if (localData.score[0] < localData.score[1])
 		p1 = p2;
 	return (p1);
@@ -10,9 +11,12 @@ function match(p1, p2){
 async function tournament_manager(users){
 	while (users.length > 1){
 		winners = [];
-		while (users.length)
-			winners.push(match(users.pop(), users.pop()));
+		for (let i = users.length; i > 0; i -= 2){
+			await winners.push(await match(users.pop(), users.pop()));
+			console.log("coucou ma bite");}
 		users = winners;
+		window.history.pushState({}, "", '/local-tournament.html');
+		await fetchBody();
 	}
 	window.history.pushState({}, "", '/home');
 	await fetchBody();

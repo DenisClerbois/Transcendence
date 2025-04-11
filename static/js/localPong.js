@@ -8,7 +8,8 @@ const localData = {
 	ball: null,
 	vector: null,
 	paddleSpeed: null,
-	running: null,
+	AnimationID: null,
+	players: null,
 }
 
 //PONG SETUP
@@ -22,9 +23,10 @@ async function setLocalPong(p1, p2) {
 	Game.players = 2;
 	CreateCanvas(1000, 750);
 	setLocalData();
-	console.log(p1, p2);
-	if (p1 && p2)
-		setNames([p1, p2]); // need string values, not sure
+	if (p1 && p2){
+		setNames([p1, p2]);
+		localData.players = [p1, p2];
+	}
 	document.addEventListener("keydown", (e) => {
 		if (e.key in localData.keys)
 			localData.keys[e.key] = true;
@@ -34,33 +36,35 @@ async function setLocalPong(p1, p2) {
 		if (e.key in localData.keys)
 			localData.keys[e.key] = false;
 	});
-	localData.running = true;
-	renderPongLocal();
+	return new Promise((resolve) => {
+		renderPongLocal(resolve); // <-- pass resolver to loop
+	});
 }
 
 function setLocalData(){
 	localData.paddles = {"p1": [1, Game.canvas.height / 2 - 50], "p2": [Game.canvas.width - 11, Game.canvas.height / 2 - 50]}
 	localData.scores = [0, 0];
 	localData.ball = [Game.canvas.width / 2, Game.canvas.height / 2]
-	localData.vector = localData.InitSpeed;
+	localData.vector = [localData.InitSpeed[0], localData.InitSpeed[1]];
 	localData.paddleSpeed = Math.sqrt((localData.vector[0] **2 + localData.vector[1] **2 ) * 1.6)
 }
 
 //PONG DISPLAY
-function renderPongLocal() {
-	if (Game.ctx){
-		Game.ctx.fillStyle = "#401010";
-		Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
-		drawMidLine();
-		for (let i = 0; i < Game.players; i++){
-			drawPaddle(localData.paddles["p" + (i + 1)][0], localData.paddles["p" + (i + 1)][1], i < 2)
-		}
-		drawBall(localData.ball[0], localData.ball[1]);
-		drawScoresL();
-		moveBall();
-		movePaddles();
-		requestAnimationFrame(renderPongLocal);
+function renderPongLocal(resolveGameEnd) {
+	Game.ctx.fillStyle = "#401010";
+	Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
+	drawMidLine();
+	for (let i = 0; i < Game.players; i++){
+		drawPaddle(localData.paddles["p" + (i + 1)][0], localData.paddles["p" + (i + 1)][1], i < 2)
 	}
+	drawBall(localData.ball[0], localData.ball[1]);
+	drawScoresL();
+	moveBall();
+	movePaddles();
+	if (checkEndGame(resolveGameEnd)){
+		return;
+	}
+	localData.AnimationID = requestAnimationFrame(() => renderPongLocal(resolveGameEnd));
 }
 
 function drawScoresL() {
@@ -180,7 +184,8 @@ function increaseSpeed(pp){
 		}
 }
 function scoreAndResetBall(){
-	localData.vector = localData.InitSpeed;
+	localData.vector = [localData.InitSpeed[0], localData.InitSpeed[1]];
+	console.log(localData.vector, "vs", localData.InitSpeed);
 	if (localData.ball[0] <= 0 || localData.ball[0] >= Game.canvas.width){
 		localData.vector[0] *= -1
 		if (localData.ball[0] <= 0)
@@ -189,19 +194,19 @@ function scoreAndResetBall(){
 			localData.scores[0]++;
 	}
 	localData.ball = [Game.canvas.width / 2, Game.canvas.height / 2];
-	checkEndGame();
 }
-function checkEndGame(){
+function checkEndGame(resolve){
 	if ((localData.scores[0] >= 5 || localData.scores[1] >= 5) && Math.abs(localData.scores[0] - localData.scores[1]) > 1){
 		localData.vector[0] = 0; localData.vector[1] = 0;
-		Game.ctx.font = "24px Arial";
-		Game.ctx.fillStyle = "gray";
 		if (localData.scores[0] >= 5)
-			Game.ctx.fillText("Player 1 Won!", Game.canvas.width / 2, Game.canvas.height / 2);
+			alertNonModal(`${localData.players[0]} Won!`);
 		else
-			Game.ctx.fillText("Player 2 Won!", Game.canvas.width / 2 - 80, Game.canvas.height / 2);
-		cancelAnimationFrame(renderPongLocal);
-		localData.running = false;
+			alertNonModal(`${localData.players[1]} Won!`);
 		// end();
+		if (resolve)
+			resolve;
+		// cancelAnimationFrame(localData.AnimationID);
+		return true;
 	}
+	return false;
 }
