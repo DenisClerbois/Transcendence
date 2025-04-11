@@ -10,8 +10,9 @@ const routes_auth_required = {
 	"/waiting_room":"/static/html/waiting_room.html",
 	"/chatRoom": "/static/html/chatRoom.html",
 	"/chat/:userId": "/static/html/chatRoom.html",
-	"/tournament": "/static/html/tournament.html",
-
+	"/local-1vs1": "/static/html/local-1vs1.html",
+	"/local-tournament": "/static/html/local-tournament.html",
+	"/pongLocal": "/static/html/pongLocal.html",
 }
 const routes_free_access = {
 	"/":"/static/html/login.html",
@@ -35,11 +36,16 @@ function route(event) {
 	fetchBody();
 }
 
-document.body.addEventListener('click', function(event) {
+
+document.body.addEventListener('click', async function(event) {
 	if (event.target){
-		if (event.target.matches('button#local-tournament')){
-			window.history.pushState({}, "", '/tournament');
-			fetchBody();
+		if (event.target.matches('button#local-1vs1')){
+			window.history.pushState({}, "", '/local-1vs1');
+			await fetchBody();
+		}
+		else if (event.target.matches('button#local-tournament')){
+			window.history.pushState({}, "", '/local-tournament');
+			await fetchBody();
 		}
 	}
 });
@@ -277,6 +283,9 @@ async function updateContent() {
 				window.history.pushState({}, "", '/waiting_room');
 				socketConnexion('matchmaking/classique');
 				return;
+			}
+			else if (pathInfo.route == "/pongLocal") {
+				window.history.pushState({}, "", '/home');
 			}
 			else if (Object.keys(routes_game_required).includes(pathInfo.route)) {
 				alertNonModal('search a game first');
