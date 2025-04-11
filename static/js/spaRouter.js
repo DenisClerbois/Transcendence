@@ -57,7 +57,6 @@ async function fetchChatRoom(userId) {
         return;
     }
     const data = await res.json();
-	console.log(data);
 	window.history.pushState({}, "", '/chat/' + userId);
 	sessionStorage.setItem("userId", JSON.stringify(userId));
 	const response = await fetch("/static/html/chatRoom.html");
