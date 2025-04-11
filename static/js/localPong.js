@@ -8,8 +8,9 @@ const localData = {
 	ball: null,
 	vector: null,
 	paddleSpeed: null,
-	AnimationID: null,
+	running: null,
 	players: null,
+	stop: null
 }
 
 //PONG SETUP
@@ -27,6 +28,8 @@ async function setLocalPong(p1, p2) {
 		setNames([p1, p2]);
 		localData.players = [p1, p2];
 	}
+	document.querySelector('button.start').innerText = "Start";
+	document.addEventListener("click", startStopButton)
 	document.addEventListener("keydown", (e) => {
 		if (e.key in localData.keys)
 			localData.keys[e.key] = true;
@@ -41,12 +44,29 @@ async function setLocalPong(p1, p2) {
 	});
 }
 
+function startStopButton(event){
+	if (event.target && event.target.matches('button.start')){
+		if (document.querySelector('button.start').innerText == "Start"){
+			localData.vector = [localData.InitSpeed[0], localData.InitSpeed[1]];
+			document.querySelector('button.start').innerText = "Stop";
+		}
+		else {
+			localData.running = false;
+			localData.stop = true;
+			window.history.pushState({}, "", '/home');
+			fetchBody();
+		}
+	}
+}
+
 function setLocalData(){
 	localData.paddles = {"p1": [1, Game.canvas.height / 2 - 50], "p2": [Game.canvas.width - 11, Game.canvas.height / 2 - 50]}
 	localData.scores = [0, 0];
 	localData.ball = [Game.canvas.width / 2, Game.canvas.height / 2]
-	localData.vector = [localData.InitSpeed[0], localData.InitSpeed[1]];
-	localData.paddleSpeed = Math.sqrt((localData.vector[0] **2 + localData.vector[1] **2 ) * 1.6)
+	localData.vector = [0, 0];
+	localData.paddleSpeed = Math.sqrt((5 **2 + 5 **2 ) * 1.6)
+	localData.running = true;
+	localData.stop = false;
 }
 
 //PONG DISPLAY
@@ -64,7 +84,7 @@ function renderPongLocal(resolveGameEnd) {
 	if (checkEndGame(resolveGameEnd)){
 		return;
 	}
-	localData.AnimationID = requestAnimationFrame(() => renderPongLocal(resolveGameEnd));
+	requestAnimationFrame(() => renderPongLocal(resolveGameEnd));
 }
 
 function drawScoresL() {
@@ -185,7 +205,6 @@ function increaseSpeed(pp){
 }
 function scoreAndResetBall(){
 	localData.vector = [localData.InitSpeed[0], localData.InitSpeed[1]];
-	console.log(localData.vector, "vs", localData.InitSpeed);
 	if (localData.ball[0] <= 0 || localData.ball[0] >= Game.canvas.width){
 		localData.vector[0] *= -1
 		if (localData.ball[0] <= 0)
@@ -196,16 +215,18 @@ function scoreAndResetBall(){
 	localData.ball = [Game.canvas.width / 2, Game.canvas.height / 2];
 }
 function checkEndGame(resolve){
-	if ((localData.scores[0] >= 5 || localData.scores[1] >= 5) && Math.abs(localData.scores[0] - localData.scores[1]) > 1){
+	const win = 11;
+	if (((localData.scores[0] >= win || localData.scores[1] >= win) && Math.abs(localData.scores[0] - localData.scores[1]) > 1) || !localData.running){
 		localData.vector[0] = 0; localData.vector[1] = 0;
-		if (localData.scores[0] >= 5)
+		if (localData.scores[0] >= win)
 			alertNonModal(`${localData.players[0]} Won!`);
-		else
+		else if (localData.scores[1] >= win)
 			alertNonModal(`${localData.players[1]} Won!`);
-		// end();
-		if (resolve)
-			resolve;
-		// cancelAnimationFrame(localData.AnimationID);
+		else
+			alertNonModal("Game Interrupted!");
+		if (resolve){
+			resolve();
+		}
 		return true;
 	}
 	return false;
