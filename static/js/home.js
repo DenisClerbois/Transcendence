@@ -37,7 +37,7 @@ async function insertPlayerRows() {
         gameInviteButton.forEach(button => {
             button.addEventListener('click', (event) => {
                 const userId = event.target.getAttribute('data-player-id');
-                console.log(`trying to start game with player ${userId}`);
+                // console.log(`trying to start game with player ${userId}`);
             });
         });
     } else {
