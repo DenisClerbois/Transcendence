@@ -14,7 +14,7 @@ import os
 @receiver(post_save, sender=User)
 def create_player_profile(sender, instance, created, **kwargs):
     if created:
-        PlayerProfile.objects.create(user=instance, nickname=instance.username[:5].upper())
+        PlayerProfile.objects.create(user=instance, nickname=instance.username[:15].upper())
 
 @receiver(user_logged_out)
 def set_user_offline(sender, user, request, **kwargs):
@@ -36,7 +36,7 @@ class PlayerProfile(models.Model):
         related_name='profile'
     )
     nickname = models.CharField(
-        max_length = 5, #could be higher. Small is nice
+        max_length = 15, #could be higher. Small is nice
         default='', # empty string necessary for create_player_profile()
     )
     profile_picture = models.ImageField(
@@ -50,7 +50,7 @@ class PlayerProfile(models.Model):
     blocked = models.ManyToManyField('self', symmetrical=False, blank=True)
     is_online = models.BooleanField(default=False)
     last_activity = models.DateTimeField(default=timezone.now)
-    
+
     def is_friend(self, targetUID):
         return self.friends.filter(id=targetUID).exists()
     def is_blocked(self, targetUID):

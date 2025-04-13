@@ -77,6 +77,11 @@ async function saveProfile() {
     });
     const data = await response.json();
     if (response.ok) {
+        if (updatedData['password'] != undefined) {
+            window.location.href = response.url;
+            updateContent();
+            return;
+        }
         updateHtml(data);
         switchDisplay();
     } else {
@@ -116,6 +121,7 @@ async function uploadProfilePic() {
     });
     if (!response.ok) {
         console.error('Error uploading profile picture');
+        document.getElementById('profilePic').src = '/media/profile_pictures/default_cute.png';
         return;
     }
     const data = await response.json();
@@ -292,6 +298,10 @@ async function insertBlockedUserRows() {
 }
 
 
-insertFriendRequests();
-insertFriendRows();
-insertBlockedUserRows();
+async function loadPersonalProfile() {
+    insertFriendRequests();
+    insertFriendRows();
+    insertBlockedUserRows();
+}
+
+loadPersonalProfile();

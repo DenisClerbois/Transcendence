@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.http import JsonResponse
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.utils import timezone
 import pytz
 
@@ -27,10 +27,7 @@ def save_game(data, game_type='classic'): #{uid_player1: score, uid_player2: sco
 	dataErrors = gameDataErrorFinder(data) #utile pour le developpement
 	if bool(dataErrors):
 		return JsonResponse(dataErrors, status=401)
-	local_tz = pytz.timezone('Europe/Paris')
-	local_time = timezone.now().astimezone(local_tz)
-	# print(f"local_tz={local_tz}, local_time={local_time}")
-	game = Game.objects.create(scores=data, game_type=game_type, creation=local_time)
+	game = Game.objects.create(scores=data, game_type=game_type, creation=datetime.now() + timedelta(hours=2))
 	winner = game.getWinner()
 	for key, value in data.items():
 		game.players.add(PlayerProfile.objects.get(user__id=key))
@@ -49,7 +46,6 @@ def get_games(request, targetUserId=None):
 		games = user.profile.game_history.all()
 		gamesJSON = {}
 		for game in games:
-			print(f"{game.creation} ------ {game.creation.strftime('%d %B %Y - %H:%M')}")
 			game_data = {
 				'datetime': game.creation.strftime('%d %B %Y - %H:%M'),
 				'game_type': game.game_type,
