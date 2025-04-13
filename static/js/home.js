@@ -75,10 +75,10 @@ async function insertFriendRows() {
         document.querySelector(`div#friendsList`).innerHTML = html;
         const chatInviteButton = document.querySelectorAll('.chat-btn');
         chatInviteButton.forEach(button => {
-            button.addEventListener('click', (event) => {
+            button.addEventListener('click', async (event) => {
                 const userId = event.target.getAttribute('data-player-id');
                 if (userId) {
-                    fetchChatRoom(userId);
+                    await fetchChatRoom(userId);
                     } else {
                         console.error("User ID not found");
                     }

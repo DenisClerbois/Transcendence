@@ -259,6 +259,20 @@ async function isUserInTournament() {
 }
 
 
+function isNumeric(value) {
+    return /^\d+$/.test(value); // Vérifie si la variable contient uniquement des chiffres
+}
+
+async function friendsTest(userId) {
+	if (!userId || !isNumeric(userId))
+		return false;
+	console.log(userId);
+	const response = await fetch(`/api/chat/friends/${userId}`);
+	console.log(response);
+	const data = await response.json();
+	return data['friendship'];
+}
+
 
 async function updateContent() {
 	const connect = await auth();
@@ -285,6 +299,19 @@ async function updateContent() {
 			}
 			else if (pathInfo.route == "/pongLocal") {
 				window.history.pushState({}, "", '/home');
+			}
+			else if (pathInfo.route == "/chat/:userId") {
+				const friendsId = pathInfo.params['userId'];
+				const friendship = await friendsTest(friendsId);
+				if (!friendship){
+					alertNonModal('There is no friendship around here');
+					window.history.pushState({}, "", '/home');
+				}
+				else {
+					window.history.pushState({}, "", '/ChatRoom');
+					await fetchChatRoom(friendsId);
+					return;
+				}
 			}
 			else if (Object.keys(routes_game_required).includes(pathInfo.route)) {
 				alertNonModal('search a game first');
