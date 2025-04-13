@@ -36,8 +36,8 @@ def usernameErrFind(username):
 def nicknameErrFind(nickname):
 	if not nickname:
 		return 'invalid format'
-	elif len(nickname) > 5:
-		return 'over 5 characters limit'
+	elif len(nickname) > 15:
+		return 'over 15 characters limit'
 	elif nicknameInDB(nickname):  #How about it's okay if two players have the same nickname?
 		return 'already in use'
 	return None

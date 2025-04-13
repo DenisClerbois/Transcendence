@@ -279,7 +279,7 @@ async function updateContent() {
 	
 	if (!pathInfo.route) {
 		window.history.pushState({}, "", connect ? '/home' : '/');
-		alertNonModal('This page doesn\'t exist.');
+		// alertNonModal('This page doesn\'t exist.');
 	} else {
 		const isAuthRequired = Object.keys(routes_auth_required)
 			.some(route => pathMatchesPattern(pathInfo.route, route));

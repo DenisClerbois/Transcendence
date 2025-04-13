@@ -21,13 +21,13 @@ async function fetchProfile() {
         : '/api/user/profile/';
     const response = await fetch(url);
     if (!response.ok) {
-        console.error('Error fetching profile:', error);
-        return;
+        return -1;
     }
     const data = await response.json();
     updateHtml(data);
     if (data && data.id)
         setProfilePic(data.id);
+    return 0;
 }
 
 async function fetchProfilePicUrl(userId) {
@@ -173,7 +173,7 @@ async function insertSocialButton() {
     if (!response.ok)
         return ;
     const data = await response.json();
-    document.querySelector("div#social_buttons").innerHTML = `<div class="col d-flex align-items-center">
+    document.querySelector("div#social_buttons").innerHTML = `<div class="col d-flex align-items-center p-3 border">
                 <button class="btn btn-outline-primary friend"></button>
                 <button class="btn btn-outline-secondary btn-outline-danger foe"></button>
             </div>`;
@@ -302,6 +302,15 @@ async function insertSocialButton() {
     });
 }
 
-fetchProfile();
-insertSocialButton();
-insertGameHistoryRows();
+async function loadPage() {
+    if (await fetchProfile() == 0) {
+        insertSocialButton();
+        insertGameHistoryRows();
+    } else {
+        window.location.href = "/home";
+        await updateContent();
+        
+    }
+}
+
+loadPage();
