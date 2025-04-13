@@ -1,4 +1,4 @@
-const localData = {
+let localData = {
 	InitSpeed: [5, 5],
 	keys: { w: false, s: false, ArrowUp: false, ArrowDown: false },
 	paddles: null,

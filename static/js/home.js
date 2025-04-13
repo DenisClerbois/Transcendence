@@ -83,6 +83,9 @@ async function insertFriendRows() {
                 } else {
                     console.error("User ID not found");
                 }
+                // else {
+                //     console.error("User ID not found");
+                // }
         });
     });
 }
