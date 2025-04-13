@@ -60,9 +60,9 @@ fetch(`/api/chat/getRoom/${userId}/`)
 		
 		};
 		
-		function sendMessage(message) {
-			chatSocket.send(JSON.stringify({ message: message }));
-		}
+		// function sendMessage(message) {
+		// 	chatSocket.send(JSON.stringify({ message: message }));
+		// }
 		
 		// chatSocket.onclose = function(e) {
 		// 	console.error('Chat socket closed unexpectedly');
