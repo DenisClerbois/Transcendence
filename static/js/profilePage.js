@@ -236,8 +236,8 @@ async function insertSocialButton() {
                 foe_btn.classList.remove('remove-in-request');
                 foe_btn.classList.add('block-user');
             }
-            else
-                console.log('Failed to accept invite');
+            // else
+            //     console.log('Failed to accept invite');
         }
         else if (event.target.matches('.remove-in-request')) {
             let response = await rejectFriendRequest(data['is_inviting']);
@@ -259,8 +259,8 @@ async function insertSocialButton() {
                     friend_btn.classList.add('friend-invite');
                     friend_btn.innerHTML = 'Send friend request';
                 }
-                else
-                    console.log(`Failed to remove friend`);
+                // else
+                //     console.log(`Failed to remove friend`);
             }
         }
         else if (event.target.matches('.unblock-user')) {
@@ -277,8 +277,8 @@ async function insertSocialButton() {
                         friend_btn.style.display='';
                     }
                 }
-                else
-                    console.log(`Failed to unblock user`);
+                // else
+                //     console.log(`Failed to unblock user`);
             }
         }
         else if (event.target.matches('.block-user')) {
@@ -295,8 +295,8 @@ async function insertSocialButton() {
                     friend_btn.classList.remove('remove-out-request');
                     friend_btn.classList.remove('accept-invite');
                 }
-                else
-                    console.log(`Failed to block user`);
+                // else
+                //     console.log(`Failed to block user`);
             }
         }
     });

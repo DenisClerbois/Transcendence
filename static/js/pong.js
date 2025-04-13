@@ -111,12 +111,9 @@ async function setPong(gameConstant) {
 	const response = await fetch('/static/html/pong.html');
 	const html = await response.text();
 	document.querySelector("div#app").innerHTML = html;
-	// console.log(html);
-	// runScriptsInHTML(html);
 	Game.paddleSize = { width: gameConstant.paddle.width, height: gameConstant.paddle.height };
 	Game.ballRadius = gameConstant.ballRadius;
 	Game.players = gameConstant.players;
-	// updateUI(); //specific a la page pong
 	CreateCanvas(gameConstant.board.x, gameConstant.board.y);
 	setNames(gameConstant.names);
 	adjustPlayerPositions();

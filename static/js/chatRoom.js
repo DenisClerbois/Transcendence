@@ -126,7 +126,6 @@ fetch(`/api/chat/getRoom/${userId}/`)
 		};
 		
 		document.querySelector('#chat-accept-button').onclick = function(e) {
-			console.log('accept button on click')
 			json = JSON.stringify({type: 'challenge', action: 'accept'});
 			chatSocket.send(json);
 		};

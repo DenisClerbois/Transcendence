@@ -206,7 +206,6 @@ async function insertFriendRows() {
                 const confirmRemove = confirm(`Remove friend ${userId}?`);
                 if (confirmRemove) {
                     let response = await removeFriend(userId);
-                    console.log(response);
                     if (await response == 200) {
                         row.remove();
                     }
@@ -278,8 +277,8 @@ async function insertBlockedUserRows() {
                     if (await response == 200) {
                         row.remove();
                     }
-                    else
-                        console.log(`Failed to unblock user ${userId}`);
+                    // else
+                    //     console.log(`Failed to unblock user ${userId}`);
                 }
             }
             if (document.querySelectorAll('.blocked-user-row').length === 0) {

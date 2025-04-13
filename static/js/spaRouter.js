@@ -113,9 +113,10 @@ function updateNav() {
 		if (pubElem && priElem) {
 			pubElem.hidden = isAuthRequired;
 			priElem.hidden = !isAuthRequired;
-		} else {
-			console.log('BUG: no public or private div.');
 		}
+		// else {
+		// 	console.log('BUG: no public or private div.');
+		// }
 	}
 }
 
@@ -126,7 +127,7 @@ function updateNav() {
 const closeButton = document.querySelector("dialog button");
 const popup = document.querySelector('dialog');
 if (!closeButton || !popup)
-	console.log('BUG: dialog button not found..');
+	// console.log('BUG: dialog button not found..');
 closeButton.addEventListener("click", () => {
 	popup.close();
  });
@@ -266,9 +267,7 @@ function isNumeric(value) {
 async function friendsTest(userId) {
 	if (!userId || !isNumeric(userId))
 		return false;
-	console.log(userId);
 	const response = await fetch(`/api/chat/friends/${userId}`);
-	console.log(response);
 	const data = await response.json();
 	return data['friendship'];
 }
