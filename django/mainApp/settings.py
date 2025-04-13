@@ -61,8 +61,9 @@ CSRF_COOKIE_HTTPONLY = False # Ensure JavaScript can access the cookie
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost',
     'https://localhost:8443',
-	'https://10.2.6.7:8443',
 ]
+CSRF_TRUSTED_ORIGINS += [f"https://{os.getenv('NEW_HOST', '')}:8443"]
+print(CSRF_TRUSTED_ORIGINS)
  
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
