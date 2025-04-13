@@ -79,9 +79,10 @@ async function insertFriendRows() {
             const userId = event.target.getAttribute('data-player-id');
             if (userId) {
                 await fetchChatRoom(userId);
-                } else {
-                    console.error("User ID not found");
                 }
+                // else {
+                //     console.error("User ID not found");
+                // }
         });
     });
 }
