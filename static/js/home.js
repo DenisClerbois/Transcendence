@@ -76,7 +76,8 @@ async function insertFriendRows() {
         button.addEventListener('click', async (event) => {
             const userId = event.target.getAttribute('data-player-id');
             if (userId) {
-                await fetchChatRoom(userId);
+                window.history.pushState({}, "", '/chat/' + userId);
+                await fetchBody();
                 } else {
                     console.error("User ID not found");
                 }

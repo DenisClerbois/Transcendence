@@ -1,151 +1,130 @@
-var chatLog = document.querySelector('#chat-log');
+var chatSocket = null;
+var chatData = null;
 
+// ========== INIT ==========
+async function initChat() {
+	try {
+		const data = await getChatRoom();
+		chatData = data;
 
-var userId_raw = sessionStorage.getItem("userId");
+		document.getElementById("chat-name").innerText = data.user_2.nickname;
+		document.getElementById("chat-name-2").innerText = data.user_1.nickname;
 
-var userId = JSON.parse(userId_raw);
-fetch(`/api/chat/getRoom/${userId}/`)
-  .then(res => {
-	if (!res.ok) {
+		setupWebSocket(data.user_2.id);
+		initEventListeners();
+	} catch (error) {
+		console.error('Chat init error:', error);
 		alertNonModal('Chat not found');
 		window.history.pushState({}, "", '/home');
 		fetchBody();
+	}
+}
+initChat();
+
+function extractUserIdFromURL() {
+	const match = window.location.pathname.match(/\/chat\/(\d+)(\/)?$/);
+	return match ? match[1] : null;
+}
+
+// ========== FETCH ROOM ==========
+async function getChatRoom() {
+	const userId = extractUserIdFromURL();
+	if (!userId) {
+		return;
+	}
+	const response = await fetch(`/api/chat/getRoom/${userId}/`, {
+		method: 'POST',
+		headers: { 'X-CSRFToken': getCsrfToken() },
+		credentials: 'include'
+	});
+	if (!response.ok) throw new Error("Room fetch failed");
+	return await response.json();
+}
+
+// ========== WEBSOCKET ==========
+function setupWebSocket(userId) {
+	if (window.chatSocket) window.chatSocket.close();
+	chatSocket = new WebSocket(`wss://${window.location.host}/ws/chat/${userId}/`);
+	window.chatSocket = chatSocket;
+
+	chatSocket.onmessage = handleSocketMessage;
+	chatSocket.onerror = () => {
+		alertNonModal('Chat not found');
+		window.history.pushState({}, "", '/home');
+		fetchBody();
+	};
+}
+
+function handleSocketMessage(event) {
+	const data = JSON.parse(event.data);
+
+	if (data.type) {
+		handleChallengeEvents(data);
 		return;
 	}
 
-	return res.json();
-  })
-  .then(data => {
-	if (data) {
-		document.getElementById("chat-name").innerText = data.user_2.nickname;
-		document.getElementById("chat-name-2").innerText = data.user_1.nickname;
-		if (window.chatSocket) {
-			window.chatSocket.close();
-		}
-		var chatSocket = new WebSocket(
-			'wss://'
-			+ window.location.host
-			+ '/ws/chat/'
-			+ userId
-			+ '/'
-		);
-		chatSocket.onmessage = function(event) {
-			var data = JSON.parse(event.data);
-			if ('type' in data){
-				if (data.type == 'challenge_received'){
-					updateUI_chat("state3");
-				}
-				else if (data.type == 'challenge_cancelled'){
-					updateUI_chat("state1");
-				}
-				else if (data.type == 'challenge_declined'){
-					updateUI_chat("state1");
-				}
-				else if (data.type == 'challenge_accepted'){
-					socketConnexion(`matchmaking/clash/${data.game_id}`)
-				}
-				return;
-			}
-		
-			var messageElement = document.createElement('div');
-			messageElement.innerText = data.message;
-			messageElement.classList.add('message');
-			if (data.sender_id != userId) {
-				messageElement.classList.add('user');
-			} else {
-				messageElement.classList.add('receiver');
-			}
-			chatLog.appendChild(messageElement);
-			messageElement.scrollIntoView({ behavior: 'smooth' });
-		
-		};
-		
-		// function sendMessage(message) {
-		// 	chatSocket.send(JSON.stringify({ message: message }));
-		// }
-		
-		// chatSocket.onclose = function(e) {
-		// 	console.error('Chat socket closed unexpectedly');
-		// };
-		
-		 chatSocket.onerror = function(error) {
-			alertNonModal('Chat not found');
-			window.history.pushState({}, "", '/home');
-			fetchBody();
-		 };
-		
-		document.querySelector('#chat-message-input').focus();
-		document.querySelector('#chat-message-input').onkeyup = function(e) {
-			if (e.key === 'Enter') {
-				document.querySelector('#chat-message-submit').click();
-			}
-		};
-		
-		document.querySelector('#chat-message-submit').onclick = function(e) {
-			var messageInputDom = document.querySelector('#chat-message-input');
-			var message = messageInputDom.value;
-			if (message.length)
-			{
-				chatSocket.send(JSON.stringify({
-					'message': message
-				}));
-				messageInputDom.value = '';
-			}
-		};
-		
-		function updateUI_chat(state){
-			// const navbar = document.querySelector('div.card-header');
-			// navbar.hidden = !navbar.hidden;
-			document.querySelectorAll('div.ui').forEach(element => {
-				if (element.id == state)
-					element.hidden = false
-				else
-					element.hidden = true
-		
-			});
-		}
-		
-		// class="card-header">
-		
-		document.querySelector('#chat-play-button').onclick = function(e) {
-			updateUI_chat('state2');
-			window.addEventListener('beforeunload', quit);
-			json = JSON.stringify({type: 'challenge', action: 'join'});
-			chatSocket.send(json);
-			// socketConnexion('clash')
-		};
-		
-		function quit(){
-			updateUI_chat('state1');
-			json = JSON.stringify({type: 'challenge', action: 'cancel'});
-			chatSocket.send(json);
-			window.removeEventListener("beforeunload", quit);
-		}
-		document.querySelector('#chat-cancel-button').onclick = function(e) {
-			quit()
-		};
-		
-		document.querySelector('#chat-accept-button').onclick = function(e) {
-			console.log('accept button on click')
-			json = JSON.stringify({type: 'challenge', action: 'accept'});
-			chatSocket.send(json);
-		};
-		
-		document.querySelector('#chat-decline-button').onclick = function(e) {
-			updateUI_chat('state1');
-			json = JSON.stringify({type: 'challenge', action: 'decline'});
-			chatSocket.send(json);
-		};
+	displayMessage(data.message, data.sender_id !== chatData.user_1.id);
+}
+
+function displayMessage(message, isReceived) {
+	const chatLog = document.getElementById('chat-log');
+	const messageElement = document.createElement('div');
+	messageElement.innerText = message;
+	messageElement.classList.add('message', isReceived ? 'receiver' : 'user');
+	chatLog.appendChild(messageElement);
+	messageElement.scrollIntoView({ behavior: 'smooth' });
+}
+
+function handleChallengeEvents(data) {
+	switch (data.type) {
+		case 'challenge_received': updateUI_chat("state3"); break;
+		case 'challenge_cancelled': 
+		case 'challenge_declined': updateUI_chat("state1"); break;
+		case 'challenge_accepted': socketConnexion(`matchmaking/clash/${data.game_id}`); break;
 	}
-  })
-  .catch(err => {
-	console.error('Error fetching chat room:', err);
-	alertNonModal('No chat found');
-	window.history.pushState({}, "", '/home');
-	fetchBody();
-  });
+}
 
+// ========== UI + EVENTS ==========
+function updateUI_chat(state) {
+	document.querySelectorAll('div.ui').forEach(element => {
+		element.hidden = element.id !== state;
+	});
+}
 
+function initEventListeners() {
+	document.querySelector('#chat-message-input').focus();
+	document.querySelector('#chat-message-input').onkeyup = e => {
+		if (e.key === 'Enter') document.querySelector('#chat-message-submit').click();
+	};
 
+	document.querySelector('#chat-message-submit').onclick = () => {
+		const messageInputDom = document.querySelector('#chat-message-input');
+		const message = messageInputDom.value;
+		if (message.length) {
+			chatSocket.send(JSON.stringify({ message }));
+			messageInputDom.value = '';
+		}
+	};
 
+	document.querySelector('#chat-play-button').onclick = () => {
+		updateUI_chat('state2');
+		window.addEventListener('beforeunload', quit);
+		chatSocket.send(JSON.stringify({ type: 'challenge', action: 'join' }));
+	};
 
+	document.querySelector('#chat-cancel-button').onclick = quit;
+	document.querySelector('#chat-accept-button').onclick = () => {
+		chatSocket.send(JSON.stringify({ type: 'challenge', action: 'accept' }));
+	};
+	document.querySelector('#chat-decline-button').onclick = () => {
+		updateUI_chat('state1');
+		chatSocket.send(JSON.stringify({ type: 'challenge', action: 'decline' }));
+	};
+}
+
+// ========== CLEANUP ==========
+function quit() {
+	updateUI_chat('state1');
+	chatSocket.send(JSON.stringify({ type: 'challenge', action: 'cancel' }));
+	window.removeEventListener("beforeunload", quit);
+}
