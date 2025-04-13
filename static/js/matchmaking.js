@@ -31,7 +31,6 @@ document.body.addEventListener('click', function(event) {
 
 function game(data_json) {
 	document.querySelector("div.card-header").hidden = true
-	document.addEventListener("click", give_up);
 	document.removeEventListener("click", handleQuit);
 	setPong(data_json['constant']);
 	requestAnimationFrame(renderPong); //to show game behind the countdown
@@ -84,6 +83,8 @@ function countdown(data_json) {
 	}
 	drawBall(Game.canvas.width / 2 - 10, Game.canvas.height / 2 - 10);
 	drawCount(data_json.time, Game.canvas.width / 2, Game.canvas.height / 2, 64);
+	if (data_json.time == 1)
+		document.addEventListener("click", give_up);
 	if (data_json.time && data_json.time > 0)
 		requestAnimationFrame(countdown);
 	else
@@ -177,71 +178,13 @@ function handleUnload(event) {
 
 function handleKeyDown(event) {
 	if (keys.includes(event.key) && !keys_input[event.key]){
-		console.log(event.key)
 		socket.send(JSON.stringify({type: 'input', bool: event.type, key: event.key}));
 		keys_input[event.key] = true;
 	}
 }
 function handleKeyUp(event) {
 	if (keys.includes(event.key)) {
-		console.log(event.key);
 		socket.send(JSON.stringify({type: 'input', bool: event.type, key: event.key}));
 		keys_input[event.key] = false;
 	}
 }
-
-
-
-// async function socketConnexion(path) {
-// 	console.log(window.location.host);
-// 	socket = new WebSocket(`wss://` + window.location.host + `/ws/${path}/`);
-// 	socket.onopen = () => {
-// 		console.log('ws open')
-// 		window.addEventListener('beforeunload', handleUnload)
-// 		document.addEventListener("click", handleQuit);
-// 	};
-// 	socket.onmessage = (e) => {
-// 		const data_json = JSON.parse(e.data)['event'];
-// 		// console.log(data_json);
-// 		switch (data_json['event']) {
-// 			case 'Game':
-// 				document.addEventListener("click", give_up);
-// 				console.log(data_json['constant'])
-// 				document.removeEventListener("click", handleQuit);
-// 				// window.removeEventListener("beforeunload", handleUnload);
-// 				// data_json['gameConst']
-// 				setPong(data_json['constant']);
-// 				requestAnimationFrame(renderPong);
-// 				break;
-// 			case 'Data':
-// 				currentGameState = data_json['pong'];
-// 				lastGameState = currentGameState;
-// 				lastUpdateTime = performance.now();
-// 				requestAnimationFrame(renderPong);
-// 				break;
-// 			case 'Countdown':
-
-// 				break;
-// 			case 'Go':
-// 				document.addEventListener("keydown", handleKeyDown);
-// 				document.addEventListener("keyup", handleKeyUp);
-// 				break;
-// 			case 'End':
-// 				document.removeEventListener("click", give_up);
-// 				document.removeEventListener("keydown", handleKeyDown);
-// 				document.removeEventListener("keyup", handleKeyUp);
-// 				alertNonModal(`Partie finie. Resultat : ${data_json['result']}`);
-// 				window.history.pushState({}, "", '/home');
-// 				fetchBody();
-// 				break;
-// 			case 'Error':
-// 				alert(data_json['log']); // Meilleure alerte necessaire
-// 				break;
-// 		}
-// 	};
-// 	socket.onclose = () => {
-// 		console.log('ws close')
-// 		document.removeEventListener("click", handleQuit);
-// 		window.removeEventListener("beforeunload", handleUnload);
-// 	};
-// }

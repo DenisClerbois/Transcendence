@@ -113,9 +113,10 @@ function updateNav() {
 		if (pubElem && priElem) {
 			pubElem.hidden = isAuthRequired;
 			priElem.hidden = !isAuthRequired;
-		} else {
-			console.log('BUG: no public or private div.');
 		}
+		// else {
+		// 	console.log('BUG: no public or private div.');
+		// }
 	}
 }
 
@@ -126,7 +127,7 @@ function updateNav() {
 const closeButton = document.querySelector("dialog button");
 const popup = document.querySelector('dialog');
 if (!closeButton || !popup)
-	console.log('BUG: dialog button not found..');
+	// console.log('BUG: dialog button not found..');
 closeButton.addEventListener("click", () => {
 	popup.close();
  });
@@ -259,9 +260,12 @@ async function isUserInTournament() {
 }
 
 
+function isNumeric(value) {
+    return /^\d+$/.test(value); // Vérifie si la variable contient uniquement des chiffres
+}
 
 async function friendsTest(userId) {
-	if (!userId)
+	if (!userId || !isNumeric(userId))
 		return false;
 	const response = await fetch(`/api/chat/friends/${userId}`);
 	const data = await response.json();
@@ -275,7 +279,7 @@ async function updateContent() {
 	
 	if (!pathInfo.route) {
 		window.history.pushState({}, "", connect ? '/home' : '/');
-		alertNonModal('This page doesn\'t exist.');
+		// alertNonModal('This page doesn\'t exist.');
 	} else {
 		const isAuthRequired = Object.keys(routes_auth_required)
 			.some(route => pathMatchesPattern(pathInfo.route, route));

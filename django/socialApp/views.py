@@ -86,7 +86,7 @@ def accept(request, requestId): #id of FriendRequest instance
 			if fRequest.to_user != request.user:# or fRequest.to_user.profile.blocked.filter(id=fRequest.from_user.id).exists() or fRequest.from_user.profile.blocked.filter(id=fRequest.to_user.id).exists():
 				return JsonResponse({"error": 'Unauthorized friend request'}, status=403)
 			fRequest.to_user.profile.friends.add(fRequest.from_user.profile)
-			fRequest.from_user.profile.friends.add(fRequest.to_user.profile)
+			#fRequest.from_user.profile.friends.add(fRequest.to_user.profile) #symetrical
 			fRequest.delete()
 		return JsonResponse({"success": 'Friend request accepted'}, status=200)
 

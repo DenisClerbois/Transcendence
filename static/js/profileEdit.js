@@ -77,6 +77,11 @@ async function saveProfile() {
     });
     const data = await response.json();
     if (response.ok) {
+        if (updatedData['password'] != undefined) {
+            window.location.href = response.url;
+            updateContent();
+            return;
+        }
         updateHtml(data);
         switchDisplay();
     } else {
@@ -116,6 +121,7 @@ async function uploadProfilePic() {
     });
     if (!response.ok) {
         console.error('Error uploading profile picture');
+        document.getElementById('profilePic').src = '/media/profile_pictures/default_cute.png';
         return;
     }
     const data = await response.json();
@@ -206,7 +212,6 @@ async function insertFriendRows() {
                 const confirmRemove = confirm(`Remove friend ${userId}?`);
                 if (confirmRemove) {
                     let response = await removeFriend(userId);
-                    console.log(response);
                     if (await response == 200) {
                         row.remove();
                     }
@@ -278,8 +283,8 @@ async function insertBlockedUserRows() {
                     if (await response == 200) {
                         row.remove();
                     }
-                    else
-                        console.log(`Failed to unblock user ${userId}`);
+                    // else
+                    //     console.log(`Failed to unblock user ${userId}`);
                 }
             }
             if (document.querySelectorAll('.blocked-user-row').length === 0) {
@@ -292,6 +297,10 @@ async function insertBlockedUserRows() {
 }
 
 
-insertFriendRequests();
-insertFriendRows();
-insertBlockedUserRows();
+async function loadPersonalProfile() {
+    insertFriendRequests();
+    insertFriendRows();
+    insertBlockedUserRows();
+}
+
+loadPersonalProfile();

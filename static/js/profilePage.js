@@ -21,13 +21,13 @@ async function fetchProfile() {
         : '/api/user/profile/';
     const response = await fetch(url);
     if (!response.ok) {
-        console.error('Error fetching profile:', error);
-        return;
+        return -1;
     }
     const data = await response.json();
     updateHtml(data);
     if (data && data.id)
         setProfilePic(data.id);
+    return 0;
 }
 
 async function fetchProfilePicUrl(userId) {
@@ -173,7 +173,7 @@ async function insertSocialButton() {
     if (!response.ok)
         return ;
     const data = await response.json();
-    document.querySelector("div#social_buttons").innerHTML = `<div class="col d-flex align-items-center">
+    document.querySelector("div#social_buttons").innerHTML = `<div class="col d-flex align-items-center p-3 border">
                 <button class="btn btn-outline-primary friend"></button>
                 <button class="btn btn-outline-secondary btn-outline-danger foe"></button>
             </div>`;
@@ -236,8 +236,8 @@ async function insertSocialButton() {
                 foe_btn.classList.remove('remove-in-request');
                 foe_btn.classList.add('block-user');
             }
-            else
-                console.log('Failed to accept invite');
+            // else
+            //     console.log('Failed to accept invite');
         }
         else if (event.target.matches('.remove-in-request')) {
             let response = await rejectFriendRequest(data['is_inviting']);
@@ -259,8 +259,8 @@ async function insertSocialButton() {
                     friend_btn.classList.add('friend-invite');
                     friend_btn.innerHTML = 'Send friend request';
                 }
-                else
-                    console.log(`Failed to remove friend`);
+                // else
+                //     console.log(`Failed to remove friend`);
             }
         }
         else if (event.target.matches('.unblock-user')) {
@@ -277,8 +277,8 @@ async function insertSocialButton() {
                         friend_btn.style.display='';
                     }
                 }
-                else
-                    console.log(`Failed to unblock user`);
+                // else
+                //     console.log(`Failed to unblock user`);
             }
         }
         else if (event.target.matches('.block-user')) {
@@ -295,13 +295,22 @@ async function insertSocialButton() {
                     friend_btn.classList.remove('remove-out-request');
                     friend_btn.classList.remove('accept-invite');
                 }
-                else
-                    console.log(`Failed to block user`);
+                // else
+                //     console.log(`Failed to block user`);
             }
         }
     });
 }
 
-fetchProfile();
-insertSocialButton();
-insertGameHistoryRows();
+async function loadPage() {
+    if (await fetchProfile() == 0) {
+        insertSocialButton();
+        insertGameHistoryRows();
+    } else {
+        window.location.href = "/home";
+        await updateContent();
+        
+    }
+}
+
+loadPage();

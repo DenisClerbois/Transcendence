@@ -1,5 +1,3 @@
-console.log("pong script loaded");
-
 const localData = {
 	InitSpeed: [5, 5],
 	keys: { w: false, s: false, ArrowUp: false, ArrowDown: false },

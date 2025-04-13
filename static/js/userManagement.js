@@ -36,8 +36,8 @@ async function connexion(path) {
 	const handler = connexionStatusHandlers[response.status];
 	if (handler)
     	handler(responseData);
-	else
-		console.log(`Unexpected status: ${response.status}`);
+	// else
+	// 	console.log(`Unexpected status: ${response.status}`);
 }
 
 async function logout(){
