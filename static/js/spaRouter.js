@@ -259,11 +259,16 @@ async function isUserInTournament() {
 }
 
 
+function isNumeric(value) {
+    return /^\d+$/.test(value); // Vérifie si la variable contient uniquement des chiffres
+}
 
 async function friendsTest(userId) {
-	if (!userId)
+	if (!userId || !isNumeric(userId))
 		return false;
+	console.log(userId);
 	const response = await fetch(`/api/chat/friends/${userId}`);
+	console.log(response);
 	const data = await response.json();
 	return data['friendship'];
 }
