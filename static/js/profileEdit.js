@@ -98,7 +98,7 @@ async function deleteProfilePic() {
         },
     });
     if (!response.ok) {
-        console.error('Error deleting profile picture');
+        // console.error('Error deleting profile picture');
         return;
     }
     // setDefaultPic();
@@ -120,7 +120,7 @@ async function uploadProfilePic() {
         body: formData
     });
     if (!response.ok) {
-        console.error('Error uploading profile picture');
+        // console.error('Error uploading profile picture');
         document.getElementById('profilePic').src = '/media/profile_pictures/default_cute.png';
         return;
     }

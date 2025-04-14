@@ -65,8 +65,8 @@ async function fetchGames(targetUserId) {
         }
     })
     if (!response.ok) {
-        console.error(response);
-        console.error('Error fetching game stats');
+        // console.error(response);
+        // console.error('Error fetching game stats');
         return;
     }
     const data = await response.json();
@@ -81,7 +81,7 @@ async function saveFakeGame() { //dbg
         }
     })
     if (!response.ok) {
-        console.error('Error faking it');
+        // console.error('Error faking it');
         return;
     }
     const data = await response.json();
