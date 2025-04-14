@@ -283,8 +283,6 @@ async function updateContent() {
 					alertNonModal('There is no friendship around here');
 					window.history.pushState({}, "", '/home');
 				}
-				else
-					window.history.pushState({}, "", '/chat/' + friendsId);
 			}
 			else if (Object.keys(routes_game_required).includes(pathInfo.route)) {
 				alertNonModal('search a game first');
