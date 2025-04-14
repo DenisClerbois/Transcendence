@@ -98,14 +98,16 @@ function updateNav() {
  */
 const closeButton = document.querySelector("dialog button");
 const popup = document.querySelector('dialog');
-if (!closeButton || !popup)
-	// console.log('BUG: dialog button not found..');
 closeButton.addEventListener("click", () => {
 	popup.close();
  });
 function alertNonModal(alert){
-	popup.querySelector('p').textContent = alert;
-	popup.show();
+	const popup = document.querySelector('dialog');
+
+	if (popup){
+		popup.querySelector('p').textContent = alert;
+		popup.show();
+	}
 }
 
 function getRouteMatch(path) {
