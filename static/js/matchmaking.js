@@ -152,14 +152,13 @@ async function socketConnexion(path) {
 		window.removeEventListener("beforeunload", handleUnload);
 	};
 }
- 
+
+
+
 function updateUI() {
-	const ui1 = document.querySelector('div.UI1');
-	const ui2 = document.querySelector('div.UI2');
-	if (ui1)
-		ui1.hidden = !ui1.hidden;
-	if (ui2)
-		ui2.hidden = !ui2.hidden;
+	document.querySelectorAll('div.ui').forEach(element => {
+		element.hidden = !element.hidden;
+	});
 }
 function give_up(event){
 	if (event.target && event.target.matches('button.give_up')){

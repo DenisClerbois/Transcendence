@@ -126,7 +126,7 @@ dialog {
     background: #0056b3;
 }
 
-.UI2 > div {
+.matchmaking-button > div {
     border: 2px solid #d3d3d3; /* Bordure grise claire */
     background-color: #f9f9f9; /* Fond légèrement coloré */
     border-radius: 8px; /* Coins arrondis */
