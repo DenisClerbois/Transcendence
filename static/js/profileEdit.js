@@ -76,7 +76,7 @@ async function saveProfile() {
         body: JSON.stringify(updatedData),
     });
     const data = await response.json();
-    if (response.ok) {
+    if (response.status == 200) {
         if (updatedData['password'] != undefined) {
             window.location.href = response.url;
             updateContent();

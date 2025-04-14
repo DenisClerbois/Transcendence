@@ -101,7 +101,7 @@ def getProfile(request, userId=None):
 @login_required
 @transaction.atomic
 def profileUpdate(request):
-	if request.method == "POST":# and request.user.is_authenticated:
+	if request.method == "POST":
 		data = json.loads(request.body)
 		dataErrors = userDataErrorFinder(data) #no argv since json contains strictly only modified user data fields
 		if bool(dataErrors):
