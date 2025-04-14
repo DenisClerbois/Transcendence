@@ -56,6 +56,8 @@ function countdown(data_json) {
 	Game.ctx.fillStyle = "#401010";
 	Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
 	drawMidLine();
+	if (Game.players == 4)
+		drawMidLineHor()
 	for (let i = 0; i < Game.players; i++){
 		switch(i){
 			case 0:
