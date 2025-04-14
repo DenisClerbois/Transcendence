@@ -210,7 +210,7 @@ async function fetchBody() {
 				alertNonModal('Error loading page content.');
 			}
 		} catch (error) {
-			// console.error('Error fetching template:', error);
+			// // console.error('Error fetching template:', error);
 			alertNonModal('Failed to load page content.');
 		}
 	} else {

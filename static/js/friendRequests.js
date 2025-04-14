@@ -7,7 +7,7 @@ async function insertFriendRequests() {
         }
     })
     if (!response.ok) {
-        console.error('Error fetching incoming friend requests');
+        // console.error('Error fetching incoming friend requests');
         return ;
     }
     const data = await response.json();
@@ -65,7 +65,7 @@ async function sendFriendRequest(to_user) {
     })
     let data = await response.json();
     if (response.status != 200) {
-        console.error('Error sending friend request');
+        // console.error('Error sending friend request');
         return -1;
     }
     return data['request_id'];
@@ -79,7 +79,7 @@ async function acceptFriendRequest(requestId) {
         }
     })
     if (!response.ok) {
-        console.error('Error accepting friend request');
+        // console.error('Error accepting friend request');
     }
     return response.status;
 }
@@ -92,7 +92,7 @@ async function rejectFriendRequest(requestId) {
         }
     })
     if (!response.ok) {
-        console.error('Error rejecting friend request');
+        // console.error('Error rejecting friend request');
     }
     return response.status;
 }
@@ -105,7 +105,7 @@ async function removeFriend(to_user) {
         }
     })
     if (!response.ok) {
-        console.error('Error removing friend');
+        // console.error('Error removing friend');
     }
     return response.status;
 }
@@ -118,7 +118,7 @@ async function blockUser(to_user) {
         }
     })
     if (!response.ok) {
-        console.error('Error blocking user');
+        // console.error('Error blocking user');
     }
     return response.status;
 }
@@ -131,7 +131,7 @@ async function unblockUser(to_user) {
         }
     })
     if (!response.ok) {
-        console.error('Error unblocking user');
+        // console.error('Error unblocking user');
     }
     return response.status;
 }

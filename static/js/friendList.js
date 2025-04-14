@@ -7,7 +7,7 @@ async function fetchOnlinePlayers() {
         }
     })
     if (!response.ok) {
-        console.error('Error fetching online players');
+        // // console.error('Error fetching online players');
         return ;
     }
     const data = await response.json();
@@ -22,7 +22,7 @@ async function fetchOnlineStrangers() {
         }
     })
     if (!response.ok) {
-        console.error('Error fetching online players');
+        // // console.error('Error fetching online players');
         return ;
     }
     const data = await response.json();
@@ -37,7 +37,7 @@ async function fetchOnlineFriends() {
         }
     })
     if (!response.ok) {
-        console.error('Error fetching online friends');
+        // // console.error('Error fetching online friends');
         return ;
     }
     const data = await response.json();
@@ -53,7 +53,7 @@ async function fetchFriends() {
         }
     })
     if (!response.ok) {
-        console.error('Error fetching friends');
+        // // console.error('Error fetching friends');
         return ;
     }
     const data = await response.json();
@@ -69,7 +69,7 @@ async function fetchBlockedUsers() {
         }
     })
     if (!response.ok) {
-        console.error('Error fetching blocked users');
+        // // console.error('Error fetching blocked users');
         return ;
     }
     const data = await response.json();

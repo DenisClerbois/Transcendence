@@ -12,7 +12,7 @@ async function initChat() {
 		setupWebSocket(data.user_2.id);
 		initEventListeners();
 	} catch (error) {
-		// console.error('Chat init error:', error);
+		// // console.error('Chat init error:', error);
 		alertNonModal('Chat not found');
 		window.history.pushState({}, "", '/home');
 		await updateContent();
