@@ -28,6 +28,7 @@ function game(data_json) {
 function start(data_json) {
 	document.addEventListener("keydown", handleKeyDown);
 	document.addEventListener("keyup", handleKeyUp);
+	document.addEventListener("click", give_up);
 }
 async function end(data_json) {
 	document.querySelector("div.card-header").hidden = false
@@ -74,8 +75,6 @@ function countdown(data_json) {
 	}
 	drawBall(Game.canvas.width / 2 - 10, Game.canvas.height / 2 - 10);
 	drawCount(data_json.time, Game.canvas.width / 2, Game.canvas.height / 2, 64);
-	if (data_json.time == 1)
-		document.addEventListener("click", give_up);
 	if (data_json.time && data_json.time > 0)
 		requestAnimationFrame(countdown);
 	else

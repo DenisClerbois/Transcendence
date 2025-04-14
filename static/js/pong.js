@@ -79,12 +79,22 @@ function CreateCanvas(width, height) {
 }
 
 function drawMidLine(){
-	for (let i = 0; i < Game.canvas.height; i += 60){
+	for (let i = 0; i < Game.canvas.height; i += 50){
 		Game.ctx.fillStyle = "#F1E0F0";
-		Game.ctx.fillRect(Game.canvas.width / 2 - 4, i, 8, 30);
+		Game.ctx.fillRect(Game.canvas.width / 2 - 4, i, 8, 25);
 		Game.ctx.strokeStyle = "white";
 		Game.ctx.lineWidth = 1;
-		Game.ctx.strokeRect(Game.canvas.width / 2 - 4, i, 8, 30); // Draw the border
+		Game.ctx.strokeRect(Game.canvas.width / 2 - 4, i, 8, 25); // Draw the border
+	}
+}
+
+function drawMidLineHor(){
+	for (let i = 0; i < Game.canvas.width; i += 50){
+		Game.ctx.fillStyle = "#F1E0F0";
+		Game.ctx.fillRect(i, Game.canvas.height / 2 - 4, 25, 8);
+		Game.ctx.strokeStyle = "white";
+		Game.ctx.lineWidth = 1;
+		Game.ctx.strokeRect(i, Game.canvas.height / 2 - 4, 25, 8); // Draw the border
 	}
 }
 
@@ -94,6 +104,8 @@ function renderPong() {
 		Game.ctx.fillStyle = "#401010";
 		Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
 		drawMidLine();
+		if (Game.players == 4)
+			drawMidLineHor()
 		for (let i = 0; i < Game.players; i++){
 			if (lastGameState.score[i] == -1)
 				drawWall(i)
