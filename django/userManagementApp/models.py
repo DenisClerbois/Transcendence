@@ -18,7 +18,7 @@ def create_player_profile(sender, instance, created, **kwargs):
 
 @receiver(user_logged_out)
 def set_user_offline(sender, user, request, **kwargs):
-    if user:  # Just to be safe
+    if user:
         profile = user.profile
         profile.is_online = False
         profile.save(update_fields=['is_online'])
@@ -31,12 +31,12 @@ def set_profile_image_path(instance, filename):
 
 class PlayerProfile(models.Model):
     user = models.OneToOneField(
-        User,  #copy user data from auth app
+        User,
         on_delete=models.CASCADE, #if user deleted, PlayerProfile deleted. (Not the other way around)
         related_name='profile'
     )
     nickname = models.CharField(
-        max_length = 15, #could be higher. Small is nice
+        max_length = 15,
         default='', # empty string necessary for create_player_profile()
     )
     profile_picture = models.ImageField(
