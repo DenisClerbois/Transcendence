@@ -50,34 +50,6 @@ document.body.addEventListener('click', async function(event) {
 	}
 });
 
-async function fetchChatRoom(userId) {
-	const res = await fetch(`/api/chat/getRoom/${userId}/`);
-    if (!res.ok) {
-        console.error('Error fetching chat room');
-        return;
-    }
-    const data = await res.json();
-	window.history.pushState({}, "", '/chat/' + userId);
-	sessionStorage.setItem("userId", JSON.stringify(userId));
-	const response = await fetch("/static/html/chatRoom.html");
-	const html = await response.text();
-	document.querySelector("div#app").innerHTML = html;
-	runScriptsInHTML(html);
-	injectUserId();
-	document.getElementById("chat-name").innerText = data.user_2.nickname;
-	document.getElementById("chat-name-2").innerText = data.user_1.nickname;
-}
-
-function injectUserId() {
-    const userId = sessionStorage.getItem("userId");
-    if (userId) {
-        const userIdElement = document.getElementById("chat-name");
-        if (userIdElement) {
-            userIdElement.textContent = userId;
-        }
-    }
-}
-
 /**
  * LOAD AND EXECUTE ANY SCRIPT FIND IN HTML
  */
@@ -233,7 +205,7 @@ async function fetchBody() {
 				alertNonModal('Error loading page content.');
 			}
 		} catch (error) {
-			console.error('Error fetching template:', error);
+			// console.error('Error fetching template:', error);
 			alertNonModal('Failed to load page content.');
 		}
 	} else {
@@ -306,11 +278,8 @@ async function updateContent() {
 					alertNonModal('There is no friendship around here');
 					window.history.pushState({}, "", '/home');
 				}
-				else {
-					window.history.pushState({}, "", '/ChatRoom');
-					await fetchChatRoom(friendsId);
-					return;
-				}
+				else
+					window.history.pushState({}, "", '/chat/' + friendsId);
 			}
 			else if (Object.keys(routes_game_required).includes(pathInfo.route)) {
 				alertNonModal('search a game first');
