@@ -1,4 +1,3 @@
-var chatSocket = null;
 var chatData = null;
 
 // ========== INIT ==========
@@ -44,8 +43,10 @@ async function getChatRoom() {
 
 // ========== WEBSOCKET ==========
 function setupWebSocket(userId) {
-	if (window.chatSocket) window.chatSocket.close();
-	chatSocket = new WebSocket(`wss://${window.location.host}/ws/chat/${userId}/`);
+	if (window.chatSocket) {
+		window.chatSocket.close();
+	}
+	var chatSocket = new WebSocket(`wss://${window.location.host}/ws/chat/${userId}/`);
 	window.chatSocket = chatSocket;
 
 	chatSocket.onmessage = handleSocketMessage;
