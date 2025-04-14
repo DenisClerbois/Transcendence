@@ -1,14 +1,10 @@
 from django.db import models
-# from django.contrib.auth.models import User
 from userManagementApp.models import PlayerProfile
 import uuid
 
 
-#data instance for each played game, whatever the number of players
 class Game(models.Model):
-    creation = models.DateTimeField(
-        # auto_now_add=True #auto timestamp upon model instance creation
-    )
+    creation = models.DateTimeField()
     players = models.ManyToManyField(
         'userManagementApp.PlayerProfile', #no need to import PlayerProfile at the top of model.py
         related_name='game_history' #no need to add game_history in PlayerProfile, it's automatic

@@ -151,7 +151,7 @@ def getOnlineStrangers(request):
 	friend_ids = request.user.profile.friends.values_list('user_id', flat=True)
 	blocked_ids = request.user.profile.blocked.values_list('user_id', flat=True)
 	# blocked_by_ids = User.objects.filter(
-    #     profile__blocked=request.user.profile	#dbg
+    #     profile__blocked=request.user.profile	#Uncomment to make block-behaviour more strict
     # ).values_list('id', flat=True)
 	connected_strangers = User.objects.filter(
 		profile__is_online=True,
@@ -178,7 +178,6 @@ def inFriendRequests(request):
 
 def updateOnlineStatus():
 	threshold = timezone.now() - timedelta(minutes=1)
-	# Update all profiles that are marked online but haven't been active recently
 	count = PlayerProfile.objects.filter(
 		is_online=True, 
 		last_activity__lt=threshold

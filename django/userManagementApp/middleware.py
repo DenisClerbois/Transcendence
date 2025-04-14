@@ -10,7 +10,6 @@ class UserActivityMiddleware:
 	def __call__(self, request):
 		response = self.get_response(request)
 		
-		# Update user's activity timestamp if authenticated
 		if request.user.is_authenticated:
 			try: #necessaire parce que user n'a pas tout de suite un playerprofile
 				with transaction.atomic():
@@ -20,6 +19,5 @@ class UserActivityMiddleware:
 					profile.save(update_fields=['is_online', 'last_activity'])
 			
 			except PlayerProfile.DoesNotExist:
-				# Create profile if it doesn't exist
-				return response								#LAST TOUCH add this to messaging app, see with Lorenzo
+				return response
 		return response

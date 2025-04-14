@@ -7,4 +7,3 @@ class FriendRequest(models.Model):
     to_user = models.ForeignKey(
         User, related_name='to_user', on_delete=models.CASCADE)
 
-# Create your models here.

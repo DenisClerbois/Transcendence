@@ -20,7 +20,7 @@ def emailInDB(email):
 	return User.objects.filter(email=email).exists()
 
 def emailErrFind(email):
-	if not email:# or not goodEmailFormat(email): #chiant pendant le developpement
+	if not email or not goodEmailFormat(email):
 		return 'invalid format'
 	elif emailInDB(email):
 		return 'already in use'
@@ -38,7 +38,7 @@ def nicknameErrFind(nickname):
 		return 'invalid format'
 	elif len(nickname) > 15:
 		return 'over 15 characters limit'
-	elif nicknameInDB(nickname):  #How about it's okay if two players have the same nickname?
+	elif nicknameInDB(nickname):
 		return 'already in use'
 	return None
 
@@ -48,11 +48,10 @@ def duplicateErrFind(target, string, stringConf):
 	return None
 
 def passwordErrFind(password):
-	if not password:# or not goodPasswordFormat(password): #chiant pendant le developpement
+	if not password or not goodPasswordFormat(password):
 		return 'invalid format'
 	return None 
 
-#argv allows targetting specific json elements when data contains garbage
 def userDataErrorFinder(data, *argv):
 	responseObj = {}
 	error = ""
