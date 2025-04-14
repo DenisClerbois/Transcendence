@@ -33,7 +33,8 @@ document.body.querySelectorAll('a').forEach( function(link) {
 function route(event) {
 	event.preventDefault();
 	window.history.pushState({}, "", event.target.href);
-	fetchBody();
+	updateContent();
+	// fetchBody();
 }
 
 
