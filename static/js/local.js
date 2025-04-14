@@ -18,7 +18,8 @@ async function tournament_manager(users){
 		users = winners;
 	}
 	window.history.pushState({}, "", '/home');
-	await fetchBody();
+	await updateContent();
+	// await fetchBody();
 }
 
 document.querySelector('button#Playername-Submit').onclick = function(e) {

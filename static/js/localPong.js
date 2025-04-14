@@ -42,7 +42,7 @@ async function setLocalPong(p1, p2) {
 	});
 }
 
-function startStopButton(event) {
+async function startStopButton(event) {
 	if (event.target && event.target.matches('button.start')) {
 		if (document.querySelector('button.start').innerText == "Start") {
 			localData.vector = [localData.InitSpeed[0], localData.InitSpeed[1]];
@@ -52,7 +52,8 @@ function startStopButton(event) {
 			localData.running = false;
 			localData.stop = true;
 			window.history.pushState({}, "", '/home');
-			fetchBody();
+			await updateContent();
+			// fetchBody();
 		}
 	}
 }

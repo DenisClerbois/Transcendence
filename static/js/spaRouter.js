@@ -30,10 +30,10 @@ const routes = {...routes_auth_required,
 document.body.querySelectorAll('a').forEach( function(link) {
 	link.addEventListener("click", route);
 });
-function route(event) {
+async function route(event) {
 	event.preventDefault();
 	window.history.pushState({}, "", event.target.href);
-	updateContent();
+	await updateContent();
 	// fetchBody();
 }
 
@@ -42,11 +42,13 @@ document.body.addEventListener('click', async function(event) {
 	if (event.target){
 		if (event.target.matches('button#local-1vs1')){
 			window.history.pushState({}, "", '/local-1vs1');
-			await fetchBody();
+			await updateContent();
+			// await fetchBody();
 		}
 		else if (event.target.matches('button#local-tournament')){
 			window.history.pushState({}, "", '/local-tournament');
-			await fetchBody();
+			await updateContent();
+			// await fetchBody();
 		}
 	}
 });
@@ -318,8 +320,8 @@ async function onpopstate_handler(){
 		// alertNonModal('search a game first');
 		window.history.pushState({}, "", '/home');
 	}
-
-	fetchBody();
+	await updateContent();
+	// fetchBody();
 }
 
 

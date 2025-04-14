@@ -11,6 +11,7 @@ document.body.addEventListener('click', function(event) {
 const connexionStatusHandlers = {
     200: () => { /* Handle success */ 
 		window.history.pushState({}, "", '/home');
+		// await updateContent();
 		fetchBody();
 	},
     401: (errorData) => {
@@ -43,7 +44,8 @@ async function connexion(path) {
 async function logout(){
 	const response = await fetch('https://' + window.location.host + '/api/user/log_out/');
 	window.history.pushState({}, "", '/');
-	fetchBody();
+	await updateContent();
+	// fetchBody();
 }
 
 function getCsrfToken() {

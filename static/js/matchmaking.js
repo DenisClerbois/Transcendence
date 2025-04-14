@@ -8,23 +8,13 @@ let lastGameState = null;
 let currentGameState = null;
 let lastUpdateTime = performance.now();
 
-document.body.addEventListener('click', function(event) {
+document.body.addEventListener('click', async function(event) {
 	if (event.target){
-		if (event.target.matches('button.matchmaking')){
-			updateUI();
-			socketConnexion('matchmaking/classique');
-		}
-		if (event.target.matches('button.tournament')){
-			updateUI();
-			socketConnexion('matchmaking/tournament');
-		}
-		if (event.target.matches('button.multiplayer')){
-			updateUI();
-			socketConnexion('matchmaking/multiplayer');
-		}
-		if (event.target.matches('button.ia')){
-			updateUI();
-			socketConnexion('matchmaking/ia');
+		if (event.target.matches('button.match')){
+			const ret = await authANDupdateUI();
+			if (ret)
+				console.log(event.target.id);
+				await socketConnexion(`matchmaking/${event.target.id}`);
 		}
 	}
 });
@@ -39,7 +29,7 @@ function start(data_json) {
 	document.addEventListener("keydown", handleKeyDown);
 	document.addEventListener("keyup", handleKeyUp);
 }
-function end(data_json) {
+async function end(data_json) {
 	document.querySelector("div.card-header").hidden = false
 	document.removeEventListener("click", give_up);
 	document.removeEventListener("keydown", handleKeyDown);
@@ -57,7 +47,8 @@ function end(data_json) {
 	else
 		alertNonModal(`Partie finie. Resultat :${data_json['users'][winner]} Won!!!`);
 	window.history.pushState({}, "", '/home');
-	fetchBody();
+	await updateContent();
+	// fetchBody();
 }
 function countdown(data_json) {
 	if (!data_json.time)
@@ -108,7 +99,7 @@ function data(data_json) {
 	lastUpdateTime = performance.now();
 	requestAnimationFrame(renderPong);
 }
-function temporary_end(data_json) {
+async function temporary_end(data_json) {
 	document.removeEventListener("click", give_up);
 	document.removeEventListener("keydown", handleKeyDown);
 	document.removeEventListener("keyup", handleKeyUp);
@@ -117,18 +108,20 @@ function temporary_end(data_json) {
 	if (window.location.pathname == "/waiting_room"){
 		document.addEventListener("click", give_up2);
 	}
-	fetchBody();
+	await updateContent();
+	// fetchBody();
 }
-function waiting_room(data_json) {
+async function waiting_room(data_json) {
 	document.querySelector("div.card-header").hidden = true
 	window.history.pushState({}, "", '/waiting_room');
-	fetchBody();
+	await updateContent();
+	// fetchBody();
 }
 
 const actions = {
 	'game':game,
 	'start':start,
-	'end':end,
+	'end': end,
 	'countdown':countdown,
 	'data':data,
 	'temporary_end': temporary_end,
@@ -136,6 +129,7 @@ const actions = {
 }
 
 async function socketConnexion(path) {
+	console.log('socketConnexion');
 	socket = new WebSocket(`wss://` + window.location.host + `/ws/${path}/`);
 	socket.onopen = () => {
 		window.addEventListener('beforeunload', handleUnload)
@@ -155,10 +149,18 @@ async function socketConnexion(path) {
 
 
 
-function updateUI() {
+async function authANDupdateUI() {
+	const connect = await auth();
+	if (!connect){
+		window.history.pushState({}, "", '/login');
+		await updateContent();
+		alertNonModal('You have to be logged in to access this resource.');
+		return false;
+	}
 	document.querySelectorAll('div.ui').forEach(element => {
 		element.hidden = !element.hidden;
 	});
+	return true;
 }
 function give_up(event){
 	if (event.target && event.target.matches('button.give_up')){
@@ -168,7 +170,9 @@ function give_up(event){
 function handleQuit(event){
 	if (event.target && event.target.matches('button.close')){
 		socket.send(JSON.stringify({type: 'quit'}));
-		updateUI();
+		document.querySelectorAll('div.ui').forEach(element => {
+			element.hidden = !element.hidden;
+		});
 	}
 }
 function handleUnload(event) {

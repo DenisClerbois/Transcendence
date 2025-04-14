@@ -77,7 +77,8 @@ async function insertFriendRows() {
 				const userId = event.target.getAttribute('data-player-id');
 				if (userId) {
 					window.history.pushState({}, "", '/chat/' + userId);
-					await fetchBody();
+					await updateContent();
+					// await fetchBody();
 				}
 			});
 		});

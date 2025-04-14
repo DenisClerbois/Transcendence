@@ -38,9 +38,11 @@ class Consumer(AsyncWebsocketConsumer):
 		profile.save(update_fields=['is_online', 'last_activity'])
 
 	async def connect(self):
+		self.user = self.scope['user']
+		if self.user.is_anonymous:
+			return
 		await self.accept()
 		# profile = self.scope['profile']
-		self.user = self.scope['user']
 		await self.update_activity(self.user)
 		self.id = self.user.id
 		if Users.get(self.id):
