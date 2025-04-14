@@ -26,14 +26,16 @@ def log(request):
 		data = json.loads(request.body)
 		username = data.get('username')
 		password = data.get('password')
+		if (username == 'AI'):
+			return JsonResponse({'username': 'unauthorized'}, status=202)
 		user = authenticate(request, username=username, password=password)
 		if user is not None:
 			login(request, user)
 			return JsonResponse({'message': 'User logged in.'}, status=200)
 		elif User.objects.filter(username=username).exists():
-			return JsonResponse({'password': 'invalid'}, status=401)
+			return JsonResponse({'password': 'invalid'}, status=202)
 		else:
-			return JsonResponse({'username': 'invalid'}, status=401)
+			return JsonResponse({'username': 'invalid'}, status=202)
 
 @login_required
 def log_out(request):
@@ -54,7 +56,7 @@ def register(request):
 	# Check format and duplicates
 	dataErrors = userDataErrorFinder(data)
 	if bool(dataErrors):
-		return JsonResponse(dataErrors, status=401)
+		return JsonResponse(dataErrors, status=202)
 
 	# Create the user
 	user = User.objects.create_user(
@@ -63,7 +65,7 @@ def register(request):
 		password=data.get('password')
 	)
 	if user is None:
-		return JsonResponse({'message': 'Error on user creation.'}, status=401)
+		return JsonResponse({'message': 'Error on user creation.'}, status=500)
 	login(request, user)
 	return JsonResponse({'message': 'User account created.'}, status=200)
 
@@ -99,11 +101,11 @@ def getProfile(request, userId=None):
 @login_required
 @transaction.atomic
 def profileUpdate(request):
-	if request.method == "POST":# and request.user.is_authenticated:
+	if request.method == "POST":
 		data = json.loads(request.body)
 		dataErrors = userDataErrorFinder(data) #no argv since json contains strictly only modified user data fields
 		if bool(dataErrors):
-			return JsonResponse(dataErrors, status=401)
+			return JsonResponse(dataErrors, status=202)
 
 		# Update user details
 		user = request.user

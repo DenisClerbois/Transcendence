@@ -12,7 +12,6 @@ import pytz
 def gamePlayerErrFind(userId):
 	if not User.objects.filter(id=userId).exists():
 		return "user id not found"
-#might be useful for development
 def gameDataErrorFinder(data):
 	responseObj = {}
 	error = ""
@@ -24,7 +23,7 @@ def gameDataErrorFinder(data):
 
 @transaction.atomic
 def save_game(data, game_type='classic'): #{uid_player1: score, uid_player2: score}
-	dataErrors = gameDataErrorFinder(data) #utile pour le developpement
+	dataErrors = gameDataErrorFinder(data)
 	if bool(dataErrors):
 		return JsonResponse(dataErrors, status=401)
 	game = Game.objects.create(scores=data, game_type=game_type, creation=datetime.now() + timedelta(hours=2))

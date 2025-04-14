@@ -14,7 +14,7 @@ const connexionStatusHandlers = {
 		// await updateContent();
 		fetchBody();
 	},
-    401: (errorData) => {
+    202: (errorData) => {
 		formErrorStyle(errorData);
 	}, 
     500: () => { /* Handle server error */

@@ -13,7 +13,6 @@ document.body.addEventListener('click', async function(event) {
 		if (event.target.matches('button.match')){
 			const ret = await authANDupdateUI();
 			if (ret)
-				console.log(event.target.id);
 				await socketConnexion(`matchmaking/${event.target.id}`);
 		}
 	}
@@ -128,7 +127,6 @@ const actions = {
 }
 
 async function socketConnexion(path) {
-	console.log('socketConnexion');
 	socket = new WebSocket(`wss://` + window.location.host + `/ws/${path}/`);
 	socket.onopen = () => {
 		window.addEventListener('beforeunload', handleUnload)

@@ -7,6 +7,8 @@ async function initChat() {
 		chatData = data;
 
 		document.getElementById("chat-name").innerText = data.user_2.nickname;
+		document.getElementById("chat-name").href = `/profile/${data.user_2.id}`;
+		document.getElementById("chat-name-2").href = `/profile/${data.user_1.id}`;
 		document.getElementById("chat-name-2").innerText = data.user_1.nickname;
 
 		setupWebSocket(data.user_2.id);

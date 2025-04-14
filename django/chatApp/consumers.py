@@ -121,11 +121,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		}))
 
 
+	# @database_sync_to_async
+	# def checkBlocked(self, sender):
+	# 	return (sender.profile.friends.filter(id=self.receiver_id).exists() or self.receiver.profile.friends.filter(id=sender.id).exists())
 
 	async def chat_message(self, event):
 		sender = await self.get_user(event["sender"])
 		sender_username = sender.username if sender else None
 		sender_id = sender.id if sender else None
+
+		# blocked = await self.checkBlocked(sender)
+		# if (blocked):
+		# 	return
 		await self.send(text_data=json.dumps({
 			"message": event["message"],
 			"sender": sender_username,

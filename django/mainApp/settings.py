@@ -41,7 +41,6 @@ print("HOSTS >>>>> ", ALLOWED_HOSTS)
 INSTALLED_APPS = [
     'daphne',
 	'channels',
-    # 'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

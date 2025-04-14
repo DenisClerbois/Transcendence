@@ -226,12 +226,12 @@ async function auth() {
 	return data['authenticated'] ? true : false;
 }
 async function isUserInGame() {
-	const response = await fetch("/api/matchmaking/inGame");
+	const response = await fetch("/api/matchmaking/inGame/");
 	const data = await response.json();
 	return data.in_game;
 }
 async function isUserInTournament() {
-	const response = await fetch("/api/matchmaking/inTournament");
+	const response = await fetch("/api/matchmaking/inTournament/");
 	const data = await response.json();
 	return data.in_tournament;
 }
@@ -244,7 +244,7 @@ function isNumeric(value) {
 async function friendsTest(userId) {
 	if (!userId || !isNumeric(userId))
 		return false;
-	const response = await fetch(`/api/chat/friends/${userId}`);
+	const response = await fetch(`/api/chat/friends/${userId}/`);
 	const data = await response.json();
 	return data['friendship'];
 }
@@ -283,8 +283,6 @@ async function updateContent() {
 					alertNonModal('There is no friendship around here');
 					window.history.pushState({}, "", '/home');
 				}
-				else
-					window.history.pushState({}, "", '/chat/' + friendsId);
 			}
 			else if (Object.keys(routes_game_required).includes(pathInfo.route)) {
 				alertNonModal('search a game first');
